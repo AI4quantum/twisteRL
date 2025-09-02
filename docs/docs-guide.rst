@@ -283,7 +283,10 @@ The documentation is automatically built and deployed when:
    - ``src/**`` files (affects API docs)
    - ``.github/workflows/docs.yml``
 
-2. **Pull requests** are built (but not deployed) for preview
+2. **Pull requests** create preview deployments:
+   - Built docs deployed to ``pr-{number}/`` subdirectory
+   - Bot comments with preview URL on the PR
+   - Auto-cleanup when PR is closed
 
 3. **Manual trigger** via GitHub Actions interface
 
@@ -306,9 +309,11 @@ Once deployed, your documentation will be available at:
 
 .. code-block:: text
 
-   https://<username>.github.io/<repository-name>
-
-For example: ``https://ai4quantum.github.io/twisteRL``
+   # Production (main branch)
+   https://ai4quantum.github.io/twisteRL
+   
+   # PR Previews
+   https://ai4quantum.github.io/twisteRL/pr-<number>/
 
 Workflow Details
 ----------------

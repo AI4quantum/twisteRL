@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+    types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
 
 # Allow one concurrent deployment
@@ -15,6 +16,7 @@ concurrency:
 jobs:
   build-docs:
     runs-on: ubuntu-latest
+    if: github.event.action != 'closed'
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -77,3 +79,127 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v2
+
+  deploy-pr-preview:
+    needs: build-docs
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Download documentation artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: documentation
+        path: ./pr-docs
+
+    - name: Deploy PR Preview
+      run: |
+        # Configure git
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+        # Checkout gh-pages branch
+        git fetch origin gh-pages:gh-pages || git checkout --orphan gh-pages
+        git checkout gh-pages
+        
+        # Create PR preview directory
+        PR_DIR="pr-${{ github.event.number }}"
+        rm -rf "$PR_DIR"
+        mkdir -p "$PR_DIR"
+        
+        # Copy built docs to PR directory
+        cp -r pr-docs/* "$PR_DIR/"
+        
+        # Add and commit
+        git add "$PR_DIR"
+        git commit -m "Deploy PR #${{ github.event.number }} preview" || echo "No changes to commit"
+        git push origin gh-pages
+
+    - name: Comment PR
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const prNumber = context.issue.number;
+          const previewUrl = `https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${prNumber}/`;
+          
+          // Find existing preview comment
+          const comments = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: prNumber,
+          });
+          
+          const botComment = comments.data.find(comment => 
+            comment.user.type === 'Bot' && comment.body.includes('📖 Documentation Preview')
+          );
+          
+          const body = `📖 **Documentation Preview**
+          
+          The documentation for this PR is available at:
+          🔗 **${previewUrl}**
+          
+          This preview is automatically updated when you push changes to this PR.`;
+          
+          if (botComment) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: body
+            });
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: body
+            });
+          }
+
+  cleanup-pr-preview:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cleanup PR Preview
+      run: |
+        # Configure git
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+        # Checkout gh-pages branch
+        git fetch origin gh-pages:gh-pages || exit 0
+        git checkout gh-pages
+        
+        # Remove PR preview directory
+        PR_DIR="pr-${{ github.event.number }}"
+        if [ -d "$PR_DIR" ]; then
+          rm -rf "$PR_DIR"
+          git add -A
+          git commit -m "Remove PR #${{ github.event.number }} preview" || echo "No changes to commit"
+          git push origin gh-pages
+          echo "Cleaned up preview for PR #${{ github.event.number }}"
+        else
+          echo "No preview directory found for PR #${{ github.event.number }}"
+        fi
