@@ -211,7 +211,7 @@ EPUB
    make epub
 
 Available Make Targets
----------------------
+----------------------
 
 Run ``make help`` to see all available targets:
 
@@ -311,7 +311,7 @@ Once deployed, your documentation will be available at:
 For example: ``https://ai4quantum.github.io/twisteRL``
 
 Workflow Details
----------------
+----------------
 
 The GitHub Actions workflow (`.github/workflows/docs.yml`) includes:
 
@@ -334,7 +334,7 @@ The GitHub Actions workflow (`.github/workflows/docs.yml`) includes:
 - Proper permissions and security settings
 
 Troubleshooting Deployment
--------------------------
+---------------------------
 
 **Common Issues:**
 

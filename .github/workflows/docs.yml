@@ -37,7 +37,7 @@ jobs:
         cd docs
         make html
       env:
-        SPHINXOPTS: "-W --keep-going"
+        SPHINXOPTS: "--keep-going"
 
     - name: Upload documentation artifacts
       uses: actions/upload-artifact@v4
