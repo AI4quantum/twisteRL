@@ -158,7 +158,7 @@ jobs:
           
           const body = `📖 **Documentation Preview**
           
-          The documentation for this PR is available at:
+          The documentation for this PR is available (or will be shortly) at:
           🔗 **${previewUrl}**
           
           This preview is automatically updated when you push changes to this PR.`;
