@@ -34,13 +34,7 @@ autodoc_mock_imports = ['torch', 'numpy', 'loguru']
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
-# Configure base URL for GitHub Pages PR previews
-import os
-if os.environ.get('GITHUB_EVENT_NAME') == 'pull_request' and os.environ.get('PR_NUMBER'):
-    pr_number = os.environ.get('PR_NUMBER')
-    html_baseurl = f'/twisteRL/pr-{pr_number}/'
-else:
-    html_baseurl = '/twisteRL/'
+# Note: PR preview paths are fixed post-build in the GitHub Actions workflow
 html_logo = '../assets/twisterl-logo.png'
 html_favicon = '../assets/twisterl-logo.png'
 

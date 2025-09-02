@@ -40,8 +40,6 @@ jobs:
         make html
       env:
         SPHINXOPTS: "--keep-going"
-        GITHUB_EVENT_NAME: ${{ github.event_name }}
-        PR_NUMBER: ${{ github.event.number }}
 
     - name: Upload documentation artifacts
       uses: actions/upload-artifact@v4
@@ -132,6 +130,12 @@ jobs:
         
         # Copy built docs to PR directory
         cp -r pr-docs/* "$PR_DIR/"
+        
+        # Fix relative paths for PR preview
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_static/|href="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_static/|src="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|url(_static/|url(/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.css" -type f -exec sed -i 's|url(_static/|url(/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
         
         # Add and commit
         git add "$PR_DIR"
