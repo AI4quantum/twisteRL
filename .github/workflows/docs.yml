@@ -74,7 +74,7 @@ jobs:
         SPHINXOPTS: "-W --keep-going"
 
     - name: Upload documentation artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: documentation
         path: docs/_build/html/
@@ -98,7 +98,7 @@ jobs:
       uses: actions/configure-pages@v3
 
     - name: Download documentation artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: documentation
         path: ./docs
