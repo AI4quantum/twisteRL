@@ -25,11 +25,16 @@ extensions = [
 ]
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'README.md']
+
+# Mock imports for dependencies not needed for docs
+autodoc_mock_imports = ['torch', 'numpy', 'loguru']
 
 # -- Options for HTML output -------------------------------------------------
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_static_path = []
+
+# Note: PR preview paths are fixed post-build in the GitHub Actions workflow
 html_logo = '../assets/twisterl-logo.png'
 html_favicon = '../assets/twisterl-logo.png'
 
