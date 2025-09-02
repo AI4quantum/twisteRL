@@ -131,11 +131,34 @@ jobs:
         # Copy built docs to PR directory
         cp -r pr-docs/* "$PR_DIR/"
         
-        # Fix relative paths for PR preview
+        # Debug: Show what we're working with
+        echo "=== Debugging PR preview paths ==="
+        echo "PR Directory: $PR_DIR"
+        echo "Files in PR directory:"
+        ls -la "$PR_DIR/"
+        echo "Sample index.html head (first 20 lines):"
+        head -20 "$PR_DIR/index.html" || echo "No index.html found"
+        echo "Looking for _static references in HTML:"
+        grep -n "_static/" "$PR_DIR/index.html" | head -5 || echo "No _static references found in HTML"
+        
+        # Fix relative paths for PR preview (handle query parameters too)
+        echo "=== Fixing paths ==="
         find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_static/|href="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
         find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_static/|src="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
         find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|url(_static/|url(/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
         find "$PR_DIR" -name "*.css" -type f -exec sed -i 's|url(_static/|url(/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
+        # Also fix any remaining _static references (like in JavaScript)
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i 's|"_static/|"/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'/twisteRL/pr-${{ github.event.number }}/_static/|g" {} \;
+        
+        # Debug: Show results after fixing
+        echo "=== After path fixing ==="
+        echo "Sample index.html head after fixing:"
+        head -20 "$PR_DIR/index.html" | grep -E "(css|js|_static)" || echo "No CSS/JS/static references found"
+        echo "Directory structure:"
+        find "$PR_DIR" -type d | head -10
+        echo "Static files exist:"
+        ls -la "$PR_DIR/_static/" | head -5 || echo "_static directory not found"
         
         # Add and commit
         git add "$PR_DIR"
