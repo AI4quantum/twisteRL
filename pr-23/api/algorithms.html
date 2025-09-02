@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Algorithms API &mdash; TwisteRL 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="../_static/twisterl-logo.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Neural Networks" href="neural_networks.html" />
+    <link rel="prev" title="Environments" href="environments.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TwisteRL
+              <img src="../_static/twisterl-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms.html">Algorithms</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="twisterl.html">twisterl package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Algorithms API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rl-module">RL Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ppo-implementation">PPO Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#alphazero-implementation">AlphaZero Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#monte-carlo-tree-search">Monte Carlo Tree Search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#base-classes">Base Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#agent-base-class">Agent Base Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#policy-networks">Policy Networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#value-networks">Value Networks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#training-loop">Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-collection">Data Collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metrics-and-logging">Metrics and Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#utilities">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="neural_networks.html">Neural Networks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to TwisteRL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../docs-guide.html">Documentation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docs-guide.html#github-pages-deployment">GitHub Pages Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TwisteRL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Algorithms API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/algorithms.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="algorithms-api">
+<h1>Algorithms API<a class="headerlink" href="#algorithms-api" title="Link to this heading"></a></h1>
+<p>This section documents the internal algorithm implementations in TwisteRL.</p>
+<section id="rl-module">
+<h2>RL Module<a class="headerlink" href="#rl-module" title="Link to this heading"></a></h2>
+</section>
+<section id="ppo-implementation">
+<h2>PPO Implementation<a class="headerlink" href="#ppo-implementation" title="Link to this heading"></a></h2>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h3>
+<p>The PPO algorithm accepts the following configuration parameters:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ppo_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0003</span><span class="p">,</span>      <span class="c1"># Learning rate for optimizer</span>
+    <span class="s2">&quot;clip_epsilon&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>          <span class="c1"># PPO clipping parameter</span>
+    <span class="s2">&quot;value_loss_coef&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>       <span class="c1"># Value function loss coefficient</span>
+    <span class="s2">&quot;entropy_coef&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>         <span class="c1"># Entropy regularization coefficient</span>
+    <span class="s2">&quot;max_grad_norm&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>         <span class="c1"># Maximum gradient norm for clipping</span>
+    <span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>             <span class="c1"># Training epochs per update</span>
+    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>             <span class="c1"># Mini-batch size</span>
+    <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="mf">0.99</span><span class="p">,</span>                <span class="c1"># Discount factor</span>
+    <span class="s2">&quot;gae_lambda&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>           <span class="c1"># GAE lambda parameter</span>
+    <span class="s2">&quot;normalize_advantages&quot;</span><span class="p">:</span> <span class="kc">True</span>   <span class="c1"># Whether to normalize advantages</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="methods">
+<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="alphazero-implementation">
+<h2>AlphaZero Implementation<a class="headerlink" href="#alphazero-implementation" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>Configuration<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">alphazero_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;num_simulations&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>       <span class="c1"># MCTS simulations per move</span>
+    <span class="s2">&quot;c_puct&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>               <span class="c1"># Exploration constant</span>
+    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>          <span class="c1"># Action selection temperature</span>
+    <span class="s2">&quot;num_self_play_games&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="c1"># Self-play games per iteration</span>
+    <span class="s2">&quot;training_steps&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>      <span class="c1"># Training steps per iteration</span>
+    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>            <span class="c1"># Neural network batch size</span>
+    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>      <span class="c1"># Neural network learning rate</span>
+    <span class="s2">&quot;value_loss_weight&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>    <span class="c1"># Value loss weight</span>
+    <span class="s2">&quot;regularization&quot;</span><span class="p">:</span> <span class="mf">0.0001</span>     <span class="c1"># L2 regularization</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="monte-carlo-tree-search">
+<h3>Monte Carlo Tree Search<a class="headerlink" href="#monte-carlo-tree-search" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="base-classes">
+<h2>Base Classes<a class="headerlink" href="#base-classes" title="Link to this heading"></a></h2>
+<section id="agent-base-class">
+<h3>Agent Base Class<a class="headerlink" href="#agent-base-class" title="Link to this heading"></a></h3>
+<p>All algorithm implementations inherit from <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> and must implement:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">predict(observation)</span></code> - Get action for given observation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">train_step(batch)</span></code> - Perform one training step</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save(path)</span></code> - Save agent to file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">load(path)</span></code> - Load agent from file</p></li>
+</ul>
+</section>
+<section id="policy-networks">
+<h3>Policy Networks<a class="headerlink" href="#policy-networks" title="Link to this heading"></a></h3>
+</section>
+<section id="value-networks">
+<h3>Value Networks<a class="headerlink" href="#value-networks" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="training-loop">
+<h2>Training Loop<a class="headerlink" href="#training-loop" title="Link to this heading"></a></h2>
+<p>The core training loop is implemented in Rust for performance, but exposes a Python interface:</p>
+<p>Example usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
+
+<span class="c1"># Configure algorithm</span>
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;ppo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ppo&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0003</span><span class="p">,</span>
+        <span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;total_timesteps&quot;</span><span class="p">:</span> <span class="mi">100000</span><span class="p">,</span>
+        <span class="s2">&quot;eval_frequency&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+        <span class="s2">&quot;save_frequency&quot;</span><span class="p">:</span> <span class="mi">25000</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Train agent</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+<span class="c1"># Or use the lower-level interface</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.rl</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_agent</span><span class="p">,</span> <span class="n">PPOAgent</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">PPOAgent</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span>
+<span class="n">trained_agent</span> <span class="o">=</span> <span class="n">train_agent</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">total_timesteps</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="data-collection">
+<h2>Data Collection<a class="headerlink" href="#data-collection" title="Link to this heading"></a></h2>
+<p>Episode data collection is handled by the Rust core for performance:</p>
+<p>The collector returns structured data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout_data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;observations&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>  <span class="c1"># Shape: (timesteps, *obs_shape)</span>
+    <span class="s2">&quot;actions&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>       <span class="c1"># Shape: (timesteps, *action_shape)</span>
+    <span class="s2">&quot;rewards&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>       <span class="c1"># Shape: (timesteps,)</span>
+    <span class="s2">&quot;dones&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>         <span class="c1"># Shape: (timesteps,)</span>
+    <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>        <span class="c1"># Shape: (timesteps,) [PPO only]</span>
+    <span class="s2">&quot;log_probs&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>     <span class="c1"># Shape: (timesteps,) [PPO only]</span>
+    <span class="s2">&quot;advantages&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>    <span class="c1"># Shape: (timesteps,) [computed]</span>
+    <span class="s2">&quot;returns&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>        <span class="c1"># Shape: (timesteps,) [computed]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="metrics-and-logging">
+<h2>Metrics and Logging<a class="headerlink" href="#metrics-and-logging" title="Link to this heading"></a></h2>
+<p>Training metrics are automatically logged and can be viewed with TensorBoard:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard<span class="w"> </span>--logdir<span class="w"> </span>runs/
+</pre></div>
+</div>
+<p>Common metrics include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">episode_reward_mean</span></code> - Average episode reward</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">episode_length_mean</span></code> - Average episode length</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">policy_loss</span></code> - Policy network loss</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value_loss</span></code> - Value network loss [PPO]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">entropy</span></code> - Policy entropy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">explained_variance</span></code> - Value function explained variance [PPO]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">learning_rate</span></code> - Current learning rate</p></li>
+</ul>
+</section>
+<section id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Link to this heading"></a></h2>
+<p>Example of manual advantage computation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.rl</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_gae</span><span class="p">,</span> <span class="n">normalize_advantages</span>
+
+<span class="c1"># Compute GAE advantages</span>
+<span class="n">advantages</span> <span class="o">=</span> <span class="n">compute_gae</span><span class="p">(</span>
+    <span class="n">rewards</span><span class="o">=</span><span class="n">rewards</span><span class="p">,</span>
+    <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
+    <span class="n">dones</span><span class="o">=</span><span class="n">dones</span><span class="p">,</span>
+    <span class="n">gamma</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+    <span class="n">gae_lambda</span><span class="o">=</span><span class="mf">0.95</span>
+<span class="p">)</span>
+
+<span class="c1"># Normalize advantages</span>
+<span class="n">advantages</span> <span class="o">=</span> <span class="n">normalize_advantages</span><span class="p">(</span><span class="n">advantages</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="environments.html" class="btn btn-neutral float-left" title="Environments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="neural_networks.html" class="btn btn-neutral float-right" title="Neural Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, IBM Quantum+AI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

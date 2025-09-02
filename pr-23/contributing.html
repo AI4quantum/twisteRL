@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributing to TwisteRL &mdash; TwisteRL 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="_static/twisterl-logo.png"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development Roadmap" href="roadmap.html" />
+    <link rel="prev" title="Neural Networks" href="api/neural_networks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            TwisteRL
+              <img src="_static/twisterl-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/twisterl.html">twisterl package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/algorithms.html">Algorithms API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/neural_networks.html">Neural Networks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing to TwisteRL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#development-setup">Development Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#development-dependencies">Development Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#code-style">Code Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#python-code">Python Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rust-code">Rust Code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-tests">Running Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-tests">Writing Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#building-documentation">Building Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-documentation">Writing Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contribution-guidelines">Contribution Guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pull-request-process">Pull Request Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pull-request-template">Pull Request Template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#issue-guidelines">Issue Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#community-guidelines">Community Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#release-process">Release Process</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="docs-guide.html">Documentation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs-guide.html#github-pages-deployment">GitHub Pages Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TwisteRL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Contributing to TwisteRL</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/contributing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing-to-twisterl">
+<h1>Contributing to TwisteRL<a class="headerlink" href="#contributing-to-twisterl" title="Link to this heading"></a></h1>
+<p>We welcome contributions to TwisteRL! This guide will help you get started with contributing to the project.</p>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<section id="development-setup">
+<h3>Development Setup<a class="headerlink" href="#development-setup" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Fork the repository on GitHub</p></li>
+<li><p>Clone your fork locally:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/AI4quantum/twisteRL.git
+<span class="nb">cd</span><span class="w"> </span>twisteRL
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Set up the development environment:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create virtual environment</span>
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">  </span><span class="c1"># On Windows: .venv\Scripts\activate</span>
+
+<span class="c1"># Install in development mode</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+
+<span class="c1"># Install Rust toolchain (if not already installed)</span>
+curl<span class="w"> </span>--proto<span class="w"> </span><span class="s1">&#39;=https&#39;</span><span class="w"> </span>--tlsv1.2<span class="w"> </span>-sSf<span class="w"> </span>https://sh.rustup.rs<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+<span class="nb">source</span><span class="w"> </span>~/.cargo/env
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Install pre-commit hooks:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+<section id="development-dependencies">
+<h3>Development Dependencies<a class="headerlink" href="#development-dependencies" title="Link to this heading"></a></h3>
+<p>The development environment includes additional tools:</p>
+<ul class="simple">
+<li><p><strong>Testing</strong>: pytest, pytest-cov</p></li>
+<li><p><strong>Linting</strong>: ruff, black, mypy</p></li>
+<li><p><strong>Documentation</strong>: sphinx, sphinx-rtd-theme</p></li>
+<li><p><strong>Pre-commit</strong>: pre-commit hooks for code quality</p></li>
+</ul>
+</section>
+</section>
+<section id="code-style">
+<h2>Code Style<a class="headerlink" href="#code-style" title="Link to this heading"></a></h2>
+<section id="python-code">
+<h3>Python Code<a class="headerlink" href="#python-code" title="Link to this heading"></a></h3>
+<p>We use several tools to maintain code quality:</p>
+<ul class="simple">
+<li><p><strong>ruff</strong>: Fast Python linter and formatter</p></li>
+<li><p><strong>black</strong>: Code formatter</p></li>
+<li><p><strong>mypy</strong>: Static type checker</p></li>
+<li><p><strong>isort</strong>: Import sorting</p></li>
+</ul>
+<p>Run code formatting:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Format Python code</span>
+black<span class="w"> </span>src/<span class="w"> </span>tests/
+ruff<span class="w"> </span>check<span class="w"> </span>src/<span class="w"> </span>tests/<span class="w"> </span>--fix
+isort<span class="w"> </span>src/<span class="w"> </span>tests/
+
+<span class="c1"># Type checking</span>
+mypy<span class="w"> </span>src/
+</pre></div>
+</div>
+</section>
+<section id="rust-code">
+<h3>Rust Code<a class="headerlink" href="#rust-code" title="Link to this heading"></a></h3>
+<p>For Rust code, we follow standard Rust conventions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Format Rust code</span>
+<span class="nb">cd</span><span class="w"> </span>rust/
+cargo<span class="w"> </span>fmt
+
+<span class="c1"># Lint Rust code</span>
+cargo<span class="w"> </span>clippy<span class="w"> </span>--<span class="w"> </span>-D<span class="w"> </span>warnings
+
+<span class="c1"># Run Rust tests</span>
+cargo<span class="w"> </span><span class="nb">test</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="running-tests">
+<h3>Running Tests<a class="headerlink" href="#running-tests" title="Link to this heading"></a></h3>
+<p>We maintain comprehensive test suites for both Python and Rust components:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run Python tests</span>
+pytest<span class="w"> </span>tests/<span class="w"> </span>-v<span class="w"> </span>--cov<span class="o">=</span>src/
+
+<span class="c1"># Run Rust tests</span>
+<span class="nb">cd</span><span class="w"> </span>rust/
+cargo<span class="w"> </span><span class="nb">test</span>
+
+<span class="c1"># Run integration tests</span>
+pytest<span class="w"> </span>tests/integration/<span class="w"> </span>-v
+</pre></div>
+</div>
+</section>
+<section id="writing-tests">
+<h3>Writing Tests<a class="headerlink" href="#writing-tests" title="Link to this heading"></a></h3>
+<p><strong>Python Tests:</strong></p>
+<p>Place tests in the <code class="docutils literal notranslate"><span class="pre">tests/</span></code> directory with the <code class="docutils literal notranslate"><span class="pre">test_</span></code> prefix:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># tests/test_environments.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_puzzle8_environment</span><span class="p">():</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">assert</span> <span class="n">obs</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">9</span><span class="p">,)</span>
+    <span class="k">assert</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span> <span class="o">==</span> <span class="mi">4</span>
+
+    <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+    <span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reward</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">done</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;env_name&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">,</span> <span class="s2">&quot;puzzle15_v1&quot;</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_environment_interface</span><span class="p">(</span><span class="n">env_name</span><span class="p">):</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="n">env_name</span><span class="p">)</span>
+    <span class="c1"># Test common interface...</span>
+</pre></div>
+</div>
+<p><strong>Rust Tests:</strong></p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="c1">// rust/src/envs/mod.rs</span>
+<span class="cp">#[cfg(test)]</span>
+<span class="k">mod</span><span class="w"> </span><span class="nn">tests</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">use</span><span class="w"> </span><span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cp">#[test]</span>
+<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">test_puzzle8_reset</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">env</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Puzzle8</span><span class="p">::</span><span class="n">new</span><span class="p">();</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">obs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">env</span><span class="p">.</span><span class="n">reset</span><span class="p">();</span>
+<span class="w">        </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="n">obs</span><span class="p">.</span><span class="n">len</span><span class="p">(),</span><span class="w"> </span><span class="mi">9</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cp">#[test]</span>
+<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">test_puzzle8_step</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">env</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Puzzle8</span><span class="p">::</span><span class="n">new</span><span class="p">();</span>
+<span class="w">        </span><span class="n">env</span><span class="p">.</span><span class="n">reset</span><span class="p">();</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="n">reward</span><span class="p">,</span><span class="w"> </span><span class="n">done</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">env</span><span class="p">.</span><span class="n">step</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="n">obs</span><span class="p">.</span><span class="n">len</span><span class="p">(),</span><span class="w"> </span><span class="mi">9</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h2>
+<section id="building-documentation">
+<h3>Building Documentation<a class="headerlink" href="#building-documentation" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs/
+make<span class="w"> </span>html
+
+<span class="c1"># View documentation</span>
+open<span class="w"> </span>_build/html/index.html<span class="w">  </span><span class="c1"># macOS</span>
+xdg-open<span class="w"> </span>_build/html/index.html<span class="w">  </span><span class="c1"># Linux</span>
+</pre></div>
+</div>
+</section>
+<section id="writing-documentation">
+<h3>Writing Documentation<a class="headerlink" href="#writing-documentation" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use reStructuredText (.rst) format for documentation</p></li>
+<li><p>Include docstrings in all public functions and classes</p></li>
+<li><p>Add examples to complex functions</p></li>
+<li><p>Update the changelog for user-facing changes</p></li>
+</ul>
+<p><strong>Python Docstring Style:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">train_agent</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Train a reinforcement learning agent.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: Training configuration dictionary containing:</span>
+<span class="sd">            - algorithm: Name of algorithm (&quot;ppo&quot;, &quot;alphazero&quot;)</span>
+<span class="sd">            - environment: Name of environment</span>
+<span class="sd">            - training: Training parameters</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Trained agent instance</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; config = {&quot;algorithm&quot;: &quot;ppo&quot;, &quot;environment&quot;: &quot;puzzle8_v1&quot;}</span>
+<span class="sd">        &gt;&gt;&gt; agent = train_agent(config)</span>
+<span class="sd">        &gt;&gt;&gt; action = agent.predict(observation)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Rust Documentation:</strong></p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="sd">/// Train a PPO agent on the given environment.</span>
+<span class="sd">///</span>
+<span class="sd">/// # Arguments</span>
+<span class="sd">///</span>
+<span class="sd">/// * `env` - The environment to train on</span>
+<span class="sd">/// * `config` - PPO configuration parameters</span>
+<span class="sd">///</span>
+<span class="sd">/// # Returns</span>
+<span class="sd">///</span>
+<span class="sd">/// A trained PPO agent</span>
+<span class="sd">///</span>
+<span class="sd">/// # Example</span>
+<span class="sd">///</span>
+<span class="sd">/// ```rust</span>
+<span class="sd">/// use twisterl::rl::PPO;</span>
+<span class="sd">/// let agent = PPO::train(&amp;env, &amp;config);</span>
+<span class="sd">/// ```</span>
+<span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">train_ppo</span><span class="p">(</span><span class="n">env</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">dyn</span><span class="w"> </span><span class="n">Environment</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">PPOConfig</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">PPO</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Implementation...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="contribution-guidelines">
+<h2>Contribution Guidelines<a class="headerlink" href="#contribution-guidelines" title="Link to this heading"></a></h2>
+<section id="pull-request-process">
+<h3>Pull Request Process<a class="headerlink" href="#pull-request-process" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Create a branch</strong>: Use descriptive branch names</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/add-sac-algorithm
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>fix/environment-reset-bug
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>docs/improve-quickstart
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Make your changes</strong>: Follow the code style guidelines</p></li>
+<li><p><strong>Add tests</strong>: Ensure your changes are tested</p></li>
+<li><p><strong>Update documentation</strong>: Add/update docs as needed</p></li>
+<li><p><strong>Run the full test suite</strong>:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python tests and linting</span>
+pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+ruff<span class="w"> </span>check<span class="w"> </span>src/<span class="w"> </span>tests/
+black<span class="w"> </span>--check<span class="w"> </span>src/<span class="w"> </span>tests/
+mypy<span class="w"> </span>src/
+
+<span class="c1"># Rust tests and linting</span>
+<span class="nb">cd</span><span class="w"> </span>rust/
+cargo<span class="w"> </span><span class="nb">test</span>
+cargo<span class="w"> </span>clippy<span class="w"> </span>--<span class="w"> </span>-D<span class="w"> </span>warnings
+cargo<span class="w"> </span>fmt<span class="w"> </span>--check
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p><strong>Submit pull request</strong>: Use the PR template</p></li>
+</ol>
+</section>
+<section id="pull-request-template">
+<h3>Pull Request Template<a class="headerlink" href="#pull-request-template" title="Link to this heading"></a></h3>
+<p>When submitting a PR, please include:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>## Description
+Brief description of changes
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+## Testing
+- [ ] Added tests for new functionality
+- [ ] All tests pass
+- [ ] Manual testing performed
+
+## Checklist
+- [ ] Code follows style guidelines
+- [ ] Self-review completed
+- [ ] Documentation updated
+- [ ] Changelog updated (if applicable)
+</pre></div>
+</div>
+</section>
+<section id="issue-guidelines">
+<h3>Issue Guidelines<a class="headerlink" href="#issue-guidelines" title="Link to this heading"></a></h3>
+<p>When reporting bugs or requesting features:</p>
+<p><strong>Bug Reports:</strong>
+- Use the bug report template
+- Include minimal reproduction case
+- Specify environment details (OS, Python/Rust versions)
+- Include error messages and stack traces</p>
+<p><strong>Feature Requests:</strong>
+- Clearly describe the motivation
+- Provide example use cases
+- Consider implementation complexity
+- Discuss alternatives</p>
+</section>
+</section>
+<section id="community-guidelines">
+<h2>Community Guidelines<a class="headerlink" href="#community-guidelines" title="Link to this heading"></a></h2>
+<p>Please follow these guidelines:</p>
+<ul class="simple">
+<li><p><strong>Be respectful</strong>: Treat all contributors with respect</p></li>
+<li><p><strong>Be constructive</strong>: Provide helpful feedback</p></li>
+<li><p><strong>Be patient</strong>: Reviews take time</p></li>
+<li><p><strong>Follow CoC</strong>: Adhere to our Code of Conduct</p></li>
+</ul>
+<p><strong>Code of Conduct highlights:</strong>
+- Use welcoming and inclusive language
+- Be respectful of differing viewpoints
+- Accept constructive criticism gracefully
+- Focus on what’s best for the community</p>
+</section>
+<section id="release-process">
+<h2>Release Process<a class="headerlink" href="#release-process" title="Link to this heading"></a></h2>
+<p>For maintainers, the release process is:</p>
+<ol class="arabic simple">
+<li><p><strong>Update version numbers</strong> in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> and <code class="docutils literal notranslate"><span class="pre">Cargo.toml</span></code></p></li>
+<li><p><strong>Update changelog</strong> with user-facing changes</p></li>
+<li><p><strong>Create release PR</strong> and get approval</p></li>
+<li><p><strong>Tag release</strong> and push to GitHub</p></li>
+<li><p><strong>Publish to PyPI</strong> (automated via GitHub Actions)</p></li>
+<li><p><strong>Publish Rust crate</strong> to crates.io</p></li>
+</ol>
+<p>Thank you for contributing to TwisteRL! 🚀</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api/neural_networks.html" class="btn btn-neutral float-left" title="Neural Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="roadmap.html" class="btn btn-neutral float-right" title="Development Roadmap" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, IBM Quantum+AI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentation Guide &mdash; TwisteRL 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="_static/twisterl-logo.png"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="Changelog" href="changelog.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            TwisteRL
+              <img src="_static/twisterl-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/twisterl.html">twisterl package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/algorithms.html">Algorithms API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/neural_networks.html">Neural Networks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TwisteRL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Documentation Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-the-documentation">Building the Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#method-1-using-make-recommended">Method 1: Using Make (Recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#method-2-using-sphinx-directly">Method 2: Using Sphinx directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#method-3-using-virtual-environment-s-sphinx">Method 3: Using virtual environment’s Sphinx</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#viewing-the-documentation">Viewing the Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#option-1-open-in-browser-macos-linux">Option 1: Open in Browser (macOS/Linux)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#option-2-python-http-server">Option 2: Python HTTP Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#option-3-alternative-http-server">Option 3: Alternative HTTP Server</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#auto-rebuild-optional">Auto-rebuild (Optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#missing-dependencies">Missing Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torch-import-warnings">Torch Import Warnings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clean-build">Clean Build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-permissions">File Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#output-formats">Output Formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#html-default">HTML (Default)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdf-requires-latex">PDF (requires LaTeX)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#epub">EPUB</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#available-make-targets">Available Make Targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-reference">Quick Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#github-pages-deployment">GitHub Pages Deployment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#automatic-deployment">Automatic Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-github-pages">Setup GitHub Pages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accessing-your-documentation">Accessing Your Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-details">Workflow Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting-deployment">Troubleshooting Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-domain-optional">Custom Domain (Optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TwisteRL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Documentation Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/docs-guide.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="documentation-guide">
+<h1>Documentation Guide<a class="headerlink" href="#documentation-guide" title="Link to this heading"></a></h1>
+<p>This guide explains how to build and view the TwisteRL documentation locally.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Before building the documentation, ensure you have:</p>
+<ol class="arabic simple">
+<li><p><strong>Python 3.9+</strong> installed</p></li>
+<li><p><strong>Virtual environment</strong> set up (recommended)</p></li>
+<li><p><strong>Documentation dependencies</strong> installed</p></li>
+</ol>
+</section>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Navigate to the project root</strong>:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>twisteRL
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Activate your virtual environment</strong>:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Install documentation dependencies</strong>:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+</section>
+<section id="building-the-documentation">
+<h2>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Link to this heading"></a></h2>
+<p>There are several ways to build the documentation:</p>
+<section id="method-1-using-make-recommended">
+<h3>Method 1: Using Make (Recommended)<a class="headerlink" href="#method-1-using-make-recommended" title="Link to this heading"></a></h3>
+<p>From the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build HTML documentation</span>
+make<span class="w"> </span>html
+
+<span class="c1"># Clean previous builds</span>
+make<span class="w"> </span>clean
+
+<span class="c1"># View all available targets</span>
+make<span class="w"> </span><span class="nb">help</span>
+</pre></div>
+</div>
+</section>
+<section id="method-2-using-sphinx-directly">
+<h3>Method 2: Using Sphinx directly<a class="headerlink" href="#method-2-using-sphinx-directly" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span>.<span class="w"> </span>_build/html
+</pre></div>
+</div>
+</section>
+<section id="method-3-using-virtual-environment-s-sphinx">
+<h3>Method 3: Using virtual environment’s Sphinx<a class="headerlink" href="#method-3-using-virtual-environment-s-sphinx" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>../.venv/bin/sphinx-build<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span>.<span class="w"> </span>_build/html
+</pre></div>
+</div>
+</section>
+</section>
+<section id="viewing-the-documentation">
+<h2>Viewing the Documentation<a class="headerlink" href="#viewing-the-documentation" title="Link to this heading"></a></h2>
+<p>Once built, you can view the documentation in several ways:</p>
+<section id="option-1-open-in-browser-macos-linux">
+<h3>Option 1: Open in Browser (macOS/Linux)<a class="headerlink" href="#option-1-open-in-browser-macos-linux" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># macOS</span>
+open<span class="w"> </span>_build/html/index.html
+
+<span class="c1"># Linux</span>
+xdg-open<span class="w"> </span>_build/html/index.html
+</pre></div>
+</div>
+</section>
+<section id="option-2-python-http-server">
+<h3>Option 2: Python HTTP Server<a class="headerlink" href="#option-2-python-http-server" title="Link to this heading"></a></h3>
+<p>Serve the documentation locally with Python’s built-in server:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># From the docs directory</span>
+python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">8000</span><span class="w"> </span>-d<span class="w"> </span>_build/html
+</pre></div>
+</div>
+<p>Then visit: <a class="reference external" href="http://localhost:8000">http://localhost:8000</a></p>
+</section>
+<section id="option-3-alternative-http-server">
+<h3>Option 3: Alternative HTTP Server<a class="headerlink" href="#option-3-alternative-http-server" title="Link to this heading"></a></h3>
+<p>You can also use other simple HTTP servers:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using Node.js http-server (if available)</span>
+npx<span class="w"> </span>http-server<span class="w"> </span>_build/html<span class="w"> </span>-p<span class="w"> </span><span class="m">8000</span>
+
+<span class="c1"># Using PHP (if available)</span>
+<span class="nb">cd</span><span class="w"> </span>_build/html<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>php<span class="w"> </span>-S<span class="w"> </span>localhost:8000
+</pre></div>
+</div>
+</section>
+</section>
+<section id="development-workflow">
+<h2>Development Workflow<a class="headerlink" href="#development-workflow" title="Link to this heading"></a></h2>
+<p>For documentation development, use this workflow:</p>
+<ol class="arabic simple">
+<li><p><strong>Make changes</strong> to <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files</p></li>
+<li><p><strong>Rebuild</strong> the documentation:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Refresh</strong> your browser to see changes</p></li>
+<li><p><strong>Repeat</strong> as needed</p></li>
+</ol>
+<section id="auto-rebuild-optional">
+<h3>Auto-rebuild (Optional)<a class="headerlink" href="#auto-rebuild-optional" title="Link to this heading"></a></h3>
+<p>For automatic rebuilding during development, you can use <code class="docutils literal notranslate"><span class="pre">sphinx-autobuild</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install sphinx-autobuild</span>
+pip<span class="w"> </span>install<span class="w"> </span>sphinx-autobuild
+
+<span class="c1"># Start auto-rebuilding server</span>
+sphinx-autobuild<span class="w"> </span>.<span class="w"> </span>_build/html<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span>
+</pre></div>
+</div>
+<p>This will:
+- Watch for file changes
+- Automatically rebuild the documentation
+- Refresh your browser automatically
+- Serve at <a class="reference external" href="http://localhost:8000">http://localhost:8000</a></p>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="missing-dependencies">
+<h3>Missing Dependencies<a class="headerlink" href="#missing-dependencies" title="Link to this heading"></a></h3>
+<p>If you see import errors during build:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make sure you&#39;re in the virtual environment</span>
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+
+<span class="c1"># Install missing dependencies</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+</section>
+<section id="torch-import-warnings">
+<h3>Torch Import Warnings<a class="headerlink" href="#torch-import-warnings" title="Link to this heading"></a></h3>
+<p>The warnings about <code class="docutils literal notranslate"><span class="pre">torch</span></code> not being found are <strong>expected</strong> and can be ignored. The documentation builds successfully without PyTorch installed in the docs environment.</p>
+</section>
+<section id="clean-build">
+<h3>Clean Build<a class="headerlink" href="#clean-build" title="Link to this heading"></a></h3>
+<p>If you encounter caching issues:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>clean
+make<span class="w"> </span>html
+</pre></div>
+</div>
+</section>
+<section id="file-permissions">
+<h3>File Permissions<a class="headerlink" href="#file-permissions" title="Link to this heading"></a></h3>
+<p>On some systems, you might need to ensure proper permissions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>chmod<span class="w"> </span>+x<span class="w"> </span>.venv/bin/sphinx-build
+</pre></div>
+</div>
+</section>
+</section>
+<section id="output-formats">
+<h2>Output Formats<a class="headerlink" href="#output-formats" title="Link to this heading"></a></h2>
+<p>Sphinx can generate documentation in multiple formats:</p>
+<section id="html-default">
+<h3>HTML (Default)<a class="headerlink" href="#html-default" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
+</pre></div>
+</div>
+</section>
+<section id="pdf-requires-latex">
+<h3>PDF (requires LaTeX)<a class="headerlink" href="#pdf-requires-latex" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>latexpdf
+</pre></div>
+</div>
+</section>
+<section id="epub">
+<h3>EPUB<a class="headerlink" href="#epub" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>epub
+</pre></div>
+</div>
+</section>
+</section>
+<section id="available-make-targets">
+<h2>Available Make Targets<a class="headerlink" href="#available-make-targets" title="Link to this heading"></a></h2>
+<p>Run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">help</span></code> to see all available targets:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>html        - Build HTML documentation
+dirhtml     - Build HTML pages in directories
+singlehtml  - Build single HTML page
+pickle      - Build pickle files
+json        - Build JSON files
+htmlhelp    - Build HTML help files
+qthelp      - Build QtHelp files
+devhelp     - Build DevHelp files
+epub        - Build EPUB files
+latex       - Build LaTeX files
+latexpdf    - Build PDF from LaTeX
+text        - Build text files
+man         - Build manual pages
+texinfo     - Build Texinfo files
+gettext     - Build gettext files
+changes     - Build changes overview
+xml         - Build Docutils-native XML files
+pseudoxml   - Build pseudoxml files
+linkcheck   - Check all external links
+</pre></div>
+</div>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>The documentation is configured in <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>. Key settings include:</p>
+<ul class="simple">
+<li><p><strong>Project information</strong>: Name, version, author</p></li>
+<li><p><strong>Extensions</strong>: Sphinx extensions for enhanced features</p></li>
+<li><p><strong>Theme</strong>: ReadTheDocs theme for professional appearance</p></li>
+<li><p><strong>Paths</strong>: Source and build directories</p></li>
+<li><p><strong>Autodoc settings</strong>: API documentation generation</p></li>
+</ul>
+<p>For advanced customization, edit <code class="docutils literal notranslate"><span class="pre">conf.py</span></code> as needed.</p>
+</section>
+<section id="quick-reference">
+<h2>Quick Reference<a class="headerlink" href="#quick-reference" title="Link to this heading"></a></h2>
+<p><strong>Most common commands</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup (one-time)</span>
+<span class="nb">cd</span><span class="w"> </span>docs<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="c1"># Build and view</span>
+make<span class="w"> </span>html<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">8000</span><span class="w"> </span>-d<span class="w"> </span>_build/html
+
+<span class="c1"># Clean rebuild</span>
+make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>html
+</pre></div>
+</div>
+<p>The documentation will be available at <a class="reference external" href="http://localhost:8000">http://localhost:8000</a></p>
+</section>
+</section>
+<section id="github-pages-deployment">
+<h1>GitHub Pages Deployment<a class="headerlink" href="#github-pages-deployment" title="Link to this heading"></a></h1>
+<p>TwisteRL documentation is automatically deployed to GitHub Pages using GitHub Actions.</p>
+<section id="automatic-deployment">
+<h2>Automatic Deployment<a class="headerlink" href="#automatic-deployment" title="Link to this heading"></a></h2>
+<p>The documentation is automatically built and deployed when:</p>
+<ol class="arabic simple">
+<li><p><strong>Push to main branch</strong> with changes to:
+- <code class="docutils literal notranslate"><span class="pre">docs/**</span></code> files
+- <code class="docutils literal notranslate"><span class="pre">src/**</span></code> files (affects API docs)
+- <code class="docutils literal notranslate"><span class="pre">.github/workflows/docs.yml</span></code></p></li>
+<li><p><strong>Pull requests</strong> create preview deployments:
+- Built docs deployed to <code class="docutils literal notranslate"><span class="pre">pr-{number}/</span></code> subdirectory
+- Bot comments with preview URL on the PR
+- Auto-cleanup when PR is closed</p></li>
+<li><p><strong>Manual trigger</strong> via GitHub Actions interface</p></li>
+</ol>
+</section>
+<section id="setup-github-pages">
+<h2>Setup GitHub Pages<a class="headerlink" href="#setup-github-pages" title="Link to this heading"></a></h2>
+<p>To enable GitHub Pages for your repository:</p>
+<ol class="arabic simple">
+<li><p><strong>Go to your repository settings</strong> on GitHub</p></li>
+<li><p><strong>Navigate to Pages</strong> (in the left sidebar)</p></li>
+<li><p><strong>Set Source</strong> to “GitHub Actions”</p></li>
+<li><p><strong>Save the configuration</strong></p></li>
+</ol>
+<p>That’s it! The workflow will handle the rest.</p>
+</section>
+<section id="accessing-your-documentation">
+<h2>Accessing Your Documentation<a class="headerlink" href="#accessing-your-documentation" title="Link to this heading"></a></h2>
+<p>Once deployed, your documentation will be available at:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Production (main branch)
+https://ai4quantum.github.io/twisteRL
+
+# PR Previews
+https://ai4quantum.github.io/twisteRL/pr-&lt;number&gt;/
+</pre></div>
+</div>
+</section>
+<section id="workflow-details">
+<h2>Workflow Details<a class="headerlink" href="#workflow-details" title="Link to this heading"></a></h2>
+<p>The GitHub Actions workflow (<cite>.github/workflows/docs.yml</cite>) includes:</p>
+<p><strong>Build Stage:</strong>
+- Sets up Python 3.11 and Rust toolchain
+- Caches dependencies for faster builds
+- Installs TwisteRL in development mode
+- Builds documentation with Sphinx
+- Handles warnings as errors (<code class="docutils literal notranslate"><span class="pre">-W</span> <span class="pre">--keep-going</span></code>)</p>
+<p><strong>Deploy Stage (main branch only):</strong>
+- Configures GitHub Pages
+- Uploads documentation artifacts
+- Deploys to GitHub Pages</p>
+<p><strong>Key Features:</strong>
+- Only deploys from main branch pushes
+- Pull requests build docs for validation
+- Manual workflow dispatch available
+- Proper permissions and security settings</p>
+</section>
+<section id="troubleshooting-deployment">
+<h2>Troubleshooting Deployment<a class="headerlink" href="#troubleshooting-deployment" title="Link to this heading"></a></h2>
+<p><strong>Common Issues:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Workflow fails on build:</strong>
+- Check the Actions tab in GitHub
+- Look for Python/Rust dependency issues
+- Verify all documentation files are valid</p></li>
+<li><p><strong>Pages not updating:</strong>
+- Ensure GitHub Pages is enabled in repository settings
+- Check that workflow completed successfully
+- May take a few minutes to reflect changes</p></li>
+<li><p><strong>Import errors in documentation:</strong>
+- The workflow installs TwisteRL in development mode
+- Missing dependencies should be added to <code class="docutils literal notranslate"><span class="pre">docs/requirements.txt</span></code></p></li>
+</ol>
+<p><strong>Viewing Build Logs:</strong>
+- Go to Actions tab in your GitHub repository
+- Click on the workflow run
+- Expand the failed step to see detailed logs</p>
+<p><strong>Manual Deployment:</strong>
+- Go to Actions tab
+- Select “Build and Deploy Documentation”
+- Click “Run workflow”
+- Choose the branch and click “Run workflow”</p>
+<p>The documentation will be available at <a class="reference external" href="http://localhost:8000">http://localhost:8000</a></p>
+</section>
+<section id="custom-domain-optional">
+<h2>Custom Domain (Optional)<a class="headerlink" href="#custom-domain-optional" title="Link to this heading"></a></h2>
+<p>To use a custom domain for your documentation:</p>
+<ol class="arabic simple">
+<li><p><strong>Create a CNAME file</strong> in the <code class="docutils literal notranslate"><span class="pre">docs/_build/html/</span></code> directory:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;your-domain.com&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>docs/_static/CNAME
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Update Sphinx configuration</strong> in <code class="docutils literal notranslate"><span class="pre">docs/conf.py</span></code>:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">html_extra_path</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_static&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Configure DNS</strong> to point your domain to GitHub Pages</p></li>
+<li><p><strong>Update repository settings</strong> to use your custom domain</p></li>
+</ol>
+<p>This ensures the CNAME file is included in every build.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="changelog.html" class="btn btn-neutral float-left" title="Changelog" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="license.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, IBM Quantum+AI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
