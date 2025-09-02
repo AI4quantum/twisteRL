@@ -108,9 +108,20 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         
-        # Checkout gh-pages branch
-        git fetch origin gh-pages:gh-pages || git checkout --orphan gh-pages
-        git checkout gh-pages
+        # Check if gh-pages branch exists
+        if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+          echo "gh-pages branch exists, checking it out"
+          git fetch origin gh-pages:gh-pages
+          git checkout gh-pages
+        else
+          echo "gh-pages branch doesn't exist, creating orphan branch"
+          git checkout --orphan gh-pages
+          git rm -rf . || true
+          echo "# Documentation Previews" > README.md
+          git add README.md
+          git commit -m "Initialize gh-pages branch"
+          git push origin gh-pages
+        fi
         
         # Create PR preview directory
         PR_DIR="pr-${{ github.event.number }}"
@@ -188,8 +199,14 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         
+        # Check if gh-pages branch exists
+        if ! git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+          echo "gh-pages branch doesn't exist, nothing to clean up"
+          exit 0
+        fi
+        
         # Checkout gh-pages branch
-        git fetch origin gh-pages:gh-pages || exit 0
+        git fetch origin gh-pages:gh-pages
         git checkout gh-pages
         
         # Remove PR preview directory
