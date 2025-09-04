@@ -40,16 +40,16 @@ jobs:
         # Configure Sphinx for PR preview path if this is a PR
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           # Create a temporary config override for PR builds
-          cat >> conf.py << 'EOF'
-
-# PR Preview Configuration Override
-import os
-if os.environ.get('BUILD_FOR_PR') == 'true':
-    html_baseurl = '/twisteRL/pr-${{ github.event.number }}/'
-    html_theme_options = {
-        'canonical_url': f'https://ai4quantum.github.io{html_baseurl}',
-    }
-EOF
+          cat >> conf.py << 'PYEOF'
+        
+        # PR Preview Configuration Override
+        import os
+        if os.environ.get('BUILD_FOR_PR') == 'true':
+            html_baseurl = '/twisteRL/pr-${{ github.event.number }}/'
+            html_theme_options = {
+                'canonical_url': f'https://ai4quantum.github.io{html_baseurl}',
+            }
+        PYEOF
           export BUILD_FOR_PR=true
         fi
         make html
