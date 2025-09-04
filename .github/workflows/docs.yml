@@ -37,6 +37,21 @@ jobs:
     - name: Build documentation
       run: |
         cd docs
+        # Configure Sphinx for PR preview path if this is a PR
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          # Create a temporary config override for PR builds
+          cat >> conf.py << 'EOF'
+
+# PR Preview Configuration Override
+import os
+if os.environ.get('BUILD_FOR_PR') == 'true':
+    html_baseurl = '/twisteRL/pr-${{ github.event.number }}/'
+    html_theme_options = {
+        'canonical_url': f'https://ai4quantum.github.io{html_baseurl}',
+    }
+EOF
+          export BUILD_FOR_PR=true
+        fi
         make html
       env:
         SPHINXOPTS: "--keep-going"
@@ -128,51 +143,8 @@ jobs:
         rm -rf "$PR_DIR"
         mkdir -p "$PR_DIR"
         
-        # Copy built docs to PR directory (ensure all subdirs are copied)
+        # Copy built docs to PR directory
         cp -r pr-docs/. "$PR_DIR/"
-        # Ensure _static and _images directories exist
-        if [ ! -d "$PR_DIR/_static" ]; then
-          echo "ERROR: _static directory missing after copy!"
-          echo "Contents of pr-docs:"
-          ls -la pr-docs/
-          echo "Contents of PR_DIR after copy:"
-          ls -la "$PR_DIR/"
-          exit 1
-        fi
-        
-        # Debug: Show what we're working with
-        echo "=== Debugging PR preview paths ==="
-        echo "PR Directory: $PR_DIR"
-        echo "Files in PR directory:"
-        ls -la "$PR_DIR/"
-        echo "Sample index.html head (first 20 lines):"
-        head -20 "$PR_DIR/index.html" || echo "No index.html found"
-        echo "Looking for _static references in HTML:"
-        grep -n "_static/" "$PR_DIR/index.html" | head -5 || echo "No _static references found in HTML"
-        
-        # Fix relative paths for PR preview (handle query parameters too)
-        echo "=== Fixing paths ==="
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_static/|href="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_static/|src="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|url(_static/|url(/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.css" -type f -exec sed -i 's|url(_static/|url(/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
-        # Also fix any remaining _static references (like in JavaScript)
-        find "$PR_DIR" -name "*.js" -type f -exec sed -i 's|"_static/|"/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'/twisteRL/pr-${{ github.event.number }}/_static/|g" {} \;
-        
-        # Debug: Show results after fixing
-        echo "=== After path fixing ==="
-        echo "Sample index.html head after fixing:"
-        head -20 "$PR_DIR/index.html" | grep -E "(css|js|_static)" || echo "No CSS/JS/static references found"
-        echo "Complete directory structure:"
-        find "$PR_DIR" -type f | sort
-        echo "Static files exist:"
-        ls -la "$PR_DIR/_static/" | head -5 || echo "_static directory not found"
-        echo "Images exist:"
-        ls -la "$PR_DIR/_images/" | head -5 || echo "_images directory not found"
-        
-        # Create a debug file to test deployment
-        echo "Debug: PR #${{ github.event.number }} deployed at $(date)" > "$PR_DIR/debug.txt"
         
         # Add and commit
         git add "$PR_DIR"
