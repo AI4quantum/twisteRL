@@ -148,13 +148,19 @@ jobs:
         
         # Fix all relative paths to absolute paths for PR preview
         echo "=== Fixing paths for PR preview ==="
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_static/|href="/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_static/|src="/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_images/|href="/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_images/|g' {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_images/|src="/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_images/|g' {} \;
-        find "$PR_DIR" -name "*.css" -type f -exec sed -i 's|url(_static/|url(/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.js" -type f -exec sed -i 's|"_static/|"/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g" {} \;
+        REPO_NAME="${{ github.event.repository.name }}"
+        PR_NUMBER="${{ github.event.number }}"
+        BASE_PATH="/$REPO_NAME/pr-$PR_NUMBER"
+        
+        echo "Using base path: $BASE_PATH"
+        
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|href=\"_static/|href=\"$BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|src=\"_static/|src=\"$BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|href=\"_images/|href=\"$BASE_PATH/_images/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|src=\"_images/|src=\"$BASE_PATH/_images/|g" {} \;
+        find "$PR_DIR" -name "*.css" -type f -exec sed -i "s|url(_static/|url($BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|\"_static/|\"$BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'$BASE_PATH/_static/|g" {} \;
         
         echo "=== Sample HTML content AFTER path fixing ==="
         head -30 "$PR_DIR/index.html" | grep -E "_static|css|js" || echo "No static references found"
