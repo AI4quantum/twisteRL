@@ -190,40 +190,48 @@ jobs:
         echo "  github.event.repository.name: ${{ github.event.repository.name }}"
         echo "  github.event.number: ${{ github.event.number }}"
         
-        echo "=== Using HTML base tag method (most reliable) ==="
-        # Add base tag to all HTML files - this is the most reliable approach
-        # GitHub Pages URLs are case-sensitive, so we need to use exact case
-        BASE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/"
-        echo "Adding base tag with URL: $BASE_URL"
-        echo "Repository owner: ${{ github.repository_owner }}"
-        echo "Repository name: ${{ github.event.repository.name }}"
+        echo "=== Converting relative paths to absolute paths ==="
+        # Replace relative paths with absolute paths (more reliable than base tags for subdirectories)
+        BASE_PATH="/${{ github.event.repository.name }}/pr-${{ github.event.number }}"
+        echo "Using base path: $BASE_PATH"
         
-        if find "$PR_DIR" -name "*.html" -type f -exec grep -l "<head>" {} \; | head -1 > /dev/null; then
-          echo "HTML files found with <head> tags:"
-          find "$PR_DIR" -name "*.html" -type f -exec grep -l "<head>" {} \; | head -5
-          
-          find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|<head>|<head>\n  <base href=\"$BASE_URL\">|" {} \;
-          echo "Added base tags to HTML files"
-          
-          echo "Verifying base tags were added to API files:"
-          find "$PR_DIR/api" -name "*.html" -type f -exec grep -l "<base" {} \; | head -3 || echo "No base tags found in API files"
-        else
-          echo "WARNING: No HTML files with <head> found"
-        fi
+        # Replace all relative _static and _images references with absolute ones
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|href=\"_static/|href=\"$BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|src=\"_static/|src=\"$BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|href=\"\.\./\._static/|href=\"$BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|src=\"\.\./\._static/|src=\"$BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|href=\"_images/|href=\"$BASE_PATH/_images/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|src=\"_images/|src=\"$BASE_PATH/_images/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|href=\"\.\./\._images/|href=\"$BASE_PATH/_images/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|src=\"\.\./\._images/|src=\"$BASE_PATH/_images/|g" {} \;
+        
+        # Also fix CSS and JS files
+        find "$PR_DIR" -name "*.css" -type f -exec sed -i "s|url(_static/|url($BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|\"_static/|\"$BASE_PATH/_static/|g" {} \;
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'$BASE_PATH/_static/|g" {} \;
+        
+        echo "Converted relative paths to absolute paths"
         
         echo "=== Sample HTML content AFTER all fixes ==="
         if [ -f "$PR_DIR/index.html" ]; then
-          echo "Root index.html:"
-          head -30 "$PR_DIR/index.html" | grep -E "_static|css|js|<base" || echo "No static/base references found"
+          echo "Root index.html (should have absolute paths):"
+          head -15 "$PR_DIR/index.html" | grep -E "_static|css|js" || echo "No static references found"
         else
           echo "No index.html found for verification"
         fi
         
-        echo "API HTML files:"
+        echo "API HTML files (should have absolute paths, not ../):"
         API_FILE=$(find "$PR_DIR/api" -name "*.html" -type f | head -1)
         if [ -n "$API_FILE" ]; then
           echo "Sample API file: $API_FILE"
-          head -30 "$API_FILE" | grep -E "_static|css|js|<base" || echo "No static/base references found in API file"
+          head -15 "$API_FILE" | grep -E "_static|css|js" || echo "No static references found in API file"
+          
+          # Check for any remaining relative paths that need fixing
+          if grep -q "\.\./\_static" "$API_FILE"; then
+            echo "❌ WARNING: Still found ../_static paths in API files"
+          else
+            echo "✅ No problematic ../_static paths found"
+          fi
         else
           echo "No API HTML files found"
         fi
