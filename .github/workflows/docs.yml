@@ -146,13 +146,26 @@ jobs:
         echo "=== Sample HTML content BEFORE path fixing ==="
         head -30 "$PR_DIR/index.html" | grep -E "_static|css|js" || echo "No static references found"
         
-        # Fix all relative paths to absolute paths for PR preview
-        echo "=== Fixing paths for PR preview ==="
+        # Setup variables
         REPO_NAME="${{ github.event.repository.name }}"
         PR_NUMBER="${{ github.event.number }}"
         BASE_PATH="/$REPO_NAME/pr-$PR_NUMBER"
         
-        echo "Using base path: $BASE_PATH"
+        echo "=== Debug Info ==="
+        echo "Repository name: $REPO_NAME"
+        echo "PR number: $PR_NUMBER" 
+        echo "Base path: $BASE_PATH"
+        echo "GitHub context:"
+        echo "  github.repository_owner: ${{ github.repository_owner }}"
+        echo "  github.event.repository.name: ${{ github.event.repository.name }}"
+        echo "  github.event.number: ${{ github.event.number }}"
+        
+        # Method 1: Fix paths using sed (existing approach)
+        echo "=== Method 1: Fixing paths with sed ==="
+        
+        # First, let's see what patterns we need to match
+        echo "Current patterns in HTML files:"
+        grep -r "href.*_static\|src.*_static" "$PR_DIR" | head -5 || echo "No _static patterns found"
         
         find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|href=\"_static/|href=\"$BASE_PATH/_static/|g" {} \;
         find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|src=\"_static/|src=\"$BASE_PATH/_static/|g" {} \;
@@ -162,8 +175,16 @@ jobs:
         find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|\"_static/|\"$BASE_PATH/_static/|g" {} \;
         find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'$BASE_PATH/_static/|g" {} \;
         
-        echo "=== Sample HTML content AFTER path fixing ==="
-        head -30 "$PR_DIR/index.html" | grep -E "_static|css|js" || echo "No static references found"
+        echo "=== Method 2: Add HTML base tag as fallback ==="
+        # Add base tag to all HTML files as a fallback
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|<head>|<head>\n  <base href=\"https://${{ github.repository_owner }}.github.io$BASE_PATH/\">|" {} \;
+        
+        echo "=== Sample HTML content AFTER all fixes ==="
+        head -30 "$PR_DIR/index.html" | grep -E "_static|css|js|<base" || echo "No static references found"
+        
+        echo "=== Final verification ==="
+        echo "Checking for remaining relative paths:"
+        grep -r "href=\"_static\|src=\"_static" "$PR_DIR" | head -3 || echo "No relative _static paths found (good!)"
         
         # Add and commit
         git add "$PR_DIR"
