@@ -148,13 +148,13 @@ jobs:
         
         # Fix all relative paths to absolute paths for PR preview
         echo "=== Fixing paths for PR preview ==="
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_static/|href="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_static/|src="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_images/|href="/twisteRL/pr-${{ github.event.number }}/_images/|g' {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_images/|src="/twisteRL/pr-${{ github.event.number }}/_images/|g' {} \;
-        find "$PR_DIR" -name "*.css" -type f -exec sed -i 's|url(_static/|url(/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.js" -type f -exec sed -i 's|"_static/|"/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
-        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'/twisteRL/pr-${{ github.event.number }}/_static/|g" {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_static/|href="/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_static/|src="/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_images/|href="/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_images/|g' {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_images/|src="/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_images/|g' {} \;
+        find "$PR_DIR" -name "*.css" -type f -exec sed -i 's|url(_static/|url(/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i 's|"_static/|"/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/|g" {} \;
         
         echo "=== Sample HTML content AFTER path fixing ==="
         head -30 "$PR_DIR/index.html" | grep -E "_static|css|js" || echo "No static references found"
