@@ -95,6 +95,17 @@ jobs:
       pull-requests: write
     
     steps:
+    - name: Debug Job Start
+      run: |
+        echo "=== PR PREVIEW DEPLOY JOB STARTED ==="
+        echo "Event: ${{ github.event_name }}"
+        echo "Action: ${{ github.event.action }}"
+        echo "PR Number: ${{ github.event.number }}"
+        echo "Repository: ${{ github.repository }}"
+        echo "Repository Owner: ${{ github.repository_owner }}"
+        echo "Repository Name: ${{ github.event.repository.name }}"
+        echo "=== END DEBUG INFO ==="
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -168,25 +179,13 @@ jobs:
         echo "  github.event.repository.name: ${{ github.event.repository.name }}"
         echo "  github.event.number: ${{ github.event.number }}"
         
-        # Method 1: Fix paths using sed (existing approach)
-        echo "=== Method 1: Fixing paths with sed ==="
-        
-        # First, let's see what patterns we need to match
-        echo "Current patterns in HTML files:"
-        grep -r "href.*_static\|src.*_static" "$PR_DIR" | head -5 || echo "No _static patterns found"
-        
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|href=\"_static/|href=\"$BASE_PATH/_static/|g" {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|src=\"_static/|src=\"$BASE_PATH/_static/|g" {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|href=\"_images/|href=\"$BASE_PATH/_images/|g" {} \;
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|src=\"_images/|src=\"$BASE_PATH/_images/|g" {} \;
-        find "$PR_DIR" -name "*.css" -type f -exec sed -i "s|url(_static/|url($BASE_PATH/_static/|g" {} \;
-        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|\"_static/|\"$BASE_PATH/_static/|g" {} \;
-        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'$BASE_PATH/_static/|g" {} \;
-        
-        echo "=== Method 2: Add HTML base tag as fallback ==="
-        # Add base tag to all HTML files as a fallback
-        BASE_URL="https://${{ github.repository_owner }}.github.io$BASE_PATH/"
+        echo "=== Using HTML base tag method (most reliable) ==="
+        # Add base tag to all HTML files - this is the most reliable approach
+        # GitHub Pages URLs are case-sensitive, so we need to use exact case
+        BASE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/"
         echo "Adding base tag with URL: $BASE_URL"
+        echo "Repository owner: ${{ github.repository_owner }}"
+        echo "Repository name: ${{ github.event.repository.name }}"
         
         if find "$PR_DIR" -name "*.html" -type f -exec grep -l "<head>" {} \; | head -1 > /dev/null; then
           find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|<head>|<head>\n  <base href=\"$BASE_URL\">|" {} \;
