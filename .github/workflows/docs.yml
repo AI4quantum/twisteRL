@@ -37,20 +37,10 @@ jobs:
     - name: Build documentation
       run: |
         cd docs
-        # Configure Sphinx for PR preview path if this is a PR
+        # For PR builds, we'll fix paths after generation since html_baseurl doesn't work reliably
         if [ "${{ github.event_name }}" = "pull_request" ]; then
-          # Create a temporary config override for PR builds
-          cat >> conf.py << 'PYEOF'
-        
-        # PR Preview Configuration Override
-        import os
-        if os.environ.get('BUILD_FOR_PR') == 'true':
-            html_baseurl = '/twisteRL/pr-${{ github.event.number }}/'
-            html_theme_options = {
-                'canonical_url': f'https://ai4quantum.github.io{html_baseurl}',
-            }
-        PYEOF
-          export BUILD_FOR_PR=true
+          echo "Building for PR preview"
+          export PR_BUILD=true
         fi
         make html
       env:
@@ -153,8 +143,21 @@ jobs:
         find "$PR_DIR" -type f | head -20
         echo "=== Check if static files exist ==="
         ls -la "$PR_DIR/_static/" | head -10 || echo "No _static directory"
-        echo "=== Sample HTML content ==="
-        head -30 "$PR_DIR/index.html" | grep -E "static|css|js" || echo "No static references found"
+        echo "=== Sample HTML content BEFORE path fixing ==="
+        head -30 "$PR_DIR/index.html" | grep -E "_static|css|js" || echo "No static references found"
+        
+        # Fix all relative paths to absolute paths for PR preview
+        echo "=== Fixing paths for PR preview ==="
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_static/|href="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_static/|src="/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|href="_images/|href="/twisteRL/pr-${{ github.event.number }}/_images/|g' {} \;
+        find "$PR_DIR" -name "*.html" -type f -exec sed -i 's|src="_images/|src="/twisteRL/pr-${{ github.event.number }}/_images/|g' {} \;
+        find "$PR_DIR" -name "*.css" -type f -exec sed -i 's|url(_static/|url(/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i 's|"_static/|"/twisteRL/pr-${{ github.event.number }}/_static/|g' {} \;
+        find "$PR_DIR" -name "*.js" -type f -exec sed -i "s|'_static/|'/twisteRL/pr-${{ github.event.number }}/_static/|g" {} \;
+        
+        echo "=== Sample HTML content AFTER path fixing ==="
+        head -30 "$PR_DIR/index.html" | grep -E "_static|css|js" || echo "No static references found"
         
         # Add and commit
         git add "$PR_DIR"
