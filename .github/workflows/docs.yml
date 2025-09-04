@@ -146,6 +146,16 @@ jobs:
         # Copy built docs to PR directory
         cp -r pr-docs/. "$PR_DIR/"
         
+        # Debug: Check what was actually built and copied
+        echo "=== Files in pr-docs ==="
+        find pr-docs -type f | head -20
+        echo "=== Files in $PR_DIR ==="
+        find "$PR_DIR" -type f | head -20
+        echo "=== Check if static files exist ==="
+        ls -la "$PR_DIR/_static/" | head -10 || echo "No _static directory"
+        echo "=== Sample HTML content ==="
+        head -30 "$PR_DIR/index.html" | grep -E "static|css|js" || echo "No static references found"
+        
         # Add and commit
         git add "$PR_DIR"
         git commit -m "Deploy PR #${{ github.event.number }} preview" || echo "No changes to commit"
