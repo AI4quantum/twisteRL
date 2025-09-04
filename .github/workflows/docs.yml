@@ -199,17 +199,33 @@ jobs:
         echo "Repository name: ${{ github.event.repository.name }}"
         
         if find "$PR_DIR" -name "*.html" -type f -exec grep -l "<head>" {} \; | head -1 > /dev/null; then
+          echo "HTML files found with <head> tags:"
+          find "$PR_DIR" -name "*.html" -type f -exec grep -l "<head>" {} \; | head -5
+          
           find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|<head>|<head>\n  <base href=\"$BASE_URL\">|" {} \;
           echo "Added base tags to HTML files"
+          
+          echo "Verifying base tags were added to API files:"
+          find "$PR_DIR/api" -name "*.html" -type f -exec grep -l "<base" {} \; | head -3 || echo "No base tags found in API files"
         else
           echo "WARNING: No HTML files with <head> found"
         fi
         
         echo "=== Sample HTML content AFTER all fixes ==="
         if [ -f "$PR_DIR/index.html" ]; then
+          echo "Root index.html:"
           head -30 "$PR_DIR/index.html" | grep -E "_static|css|js|<base" || echo "No static/base references found"
         else
           echo "No index.html found for verification"
+        fi
+        
+        echo "API HTML files:"
+        API_FILE=$(find "$PR_DIR/api" -name "*.html" -type f | head -1)
+        if [ -n "$API_FILE" ]; then
+          echo "Sample API file: $API_FILE"
+          head -30 "$API_FILE" | grep -E "_static|css|js|<base" || echo "No static/base references found in API file"
+        else
+          echo "No API HTML files found"
         fi
         
         echo "=== Final verification ==="
