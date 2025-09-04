@@ -134,17 +134,25 @@ jobs:
         mkdir -p "$PR_DIR"
         
         # Copy built docs to PR directory
-        cp -r pr-docs/. "$PR_DIR/"
+        echo "=== Copying docs from pr-docs to $PR_DIR ==="
+        cp -r pr-docs/. "$PR_DIR/" || { echo "Failed to copy docs"; exit 1; }
         
         # Debug: Check what was actually built and copied
         echo "=== Files in pr-docs ==="
-        find pr-docs -type f | head -20
+        find pr-docs -type f | head -20 || echo "No files in pr-docs"
         echo "=== Files in $PR_DIR ==="
-        find "$PR_DIR" -type f | head -20
+        find "$PR_DIR" -type f | head -20 || echo "No files in $PR_DIR"
         echo "=== Check if static files exist ==="
         ls -la "$PR_DIR/_static/" | head -10 || echo "No _static directory"
+        echo "=== Check if index.html exists ==="
+        if [ -f "$PR_DIR/index.html" ]; then
+          echo "index.html found, size: $(stat -f%z "$PR_DIR/index.html" 2>/dev/null || stat --format=%s "$PR_DIR/index.html" 2>/dev/null || echo 'unknown')"
+        else
+          echo "ERROR: index.html not found!"
+          find "$PR_DIR" -name "*.html" | head -5
+        fi
         echo "=== Sample HTML content BEFORE path fixing ==="
-        head -30 "$PR_DIR/index.html" | grep -E "_static|css|js" || echo "No static references found"
+        head -30 "$PR_DIR/index.html" 2>/dev/null | grep -E "_static|css|js" || echo "No static references found or no index.html"
         
         # Setup variables
         REPO_NAME="${{ github.event.repository.name }}"
@@ -177,19 +185,43 @@ jobs:
         
         echo "=== Method 2: Add HTML base tag as fallback ==="
         # Add base tag to all HTML files as a fallback
-        find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|<head>|<head>\n  <base href=\"https://${{ github.repository_owner }}.github.io$BASE_PATH/\">|" {} \;
+        BASE_URL="https://${{ github.repository_owner }}.github.io$BASE_PATH/"
+        echo "Adding base tag with URL: $BASE_URL"
+        
+        if find "$PR_DIR" -name "*.html" -type f -exec grep -l "<head>" {} \; | head -1 > /dev/null; then
+          find "$PR_DIR" -name "*.html" -type f -exec sed -i "s|<head>|<head>\n  <base href=\"$BASE_URL\">|" {} \;
+          echo "Added base tags to HTML files"
+        else
+          echo "WARNING: No HTML files with <head> found"
+        fi
         
         echo "=== Sample HTML content AFTER all fixes ==="
-        head -30 "$PR_DIR/index.html" | grep -E "_static|css|js|<base" || echo "No static references found"
+        if [ -f "$PR_DIR/index.html" ]; then
+          head -30 "$PR_DIR/index.html" | grep -E "_static|css|js|<base" || echo "No static/base references found"
+        else
+          echo "No index.html found for verification"
+        fi
         
         echo "=== Final verification ==="
+        echo "Files in PR directory:"
+        ls -la "$PR_DIR" | head -10
+        echo "Static directory contents:"
+        ls -la "$PR_DIR/_static/" | head -5 || echo "No _static directory"
         echo "Checking for remaining relative paths:"
-        grep -r "href=\"_static\|src=\"_static" "$PR_DIR" | head -3 || echo "No relative _static paths found (good!)"
+        if find "$PR_DIR" -name "*.html" -type f > /dev/null 2>&1; then
+          grep -r "href=\"_static\|src=\"_static" "$PR_DIR" | head -3 || echo "No relative _static paths found (good!)"
+        else
+          echo "No HTML files found for path verification"
+        fi
         
         # Add and commit
         git add "$PR_DIR"
         git commit -m "Deploy PR #${{ github.event.number }} preview" || echo "No changes to commit"
         git push origin gh-pages
+        
+        echo "=== Post-deployment verification ==="
+        echo "PR preview should be available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/"
+        echo "Static files should be at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/"
 
     - name: Comment PR
       uses: actions/github-script@v7
