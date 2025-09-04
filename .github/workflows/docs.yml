@@ -139,6 +139,17 @@ jobs:
           git push origin gh-pages
         fi
         
+        # Ensure .nojekyll file exists to disable Jekyll processing
+        # This is crucial for Sphinx docs with _static directories
+        if [ ! -f ".nojekyll" ]; then
+          echo "Creating .nojekyll file to disable Jekyll processing"
+          touch .nojekyll
+          git add .nojekyll
+          git commit -m "Add .nojekyll to disable Jekyll processing" || echo "No changes to commit"
+        else
+          echo ".nojekyll file already exists"
+        fi
+        
         # Create PR preview directory
         PR_DIR="pr-${{ github.event.number }}"
         rm -rf "$PR_DIR"
@@ -215,12 +226,46 @@ jobs:
         
         # Add and commit
         git add "$PR_DIR"
+        
+        echo "=== Before commit - checking gh-pages branch structure ==="
+        echo "Current branch: $(git branch --show-current)"
+        echo "Root directory structure:"
+        ls -la . | head -10
+        echo "PR directory structure:"
+        ls -la "$PR_DIR" | head -10
+        echo "PR static directory:"
+        ls -la "$PR_DIR/_static/" | head -5 || echo "No static directory found"
+        
         git commit -m "Deploy PR #${{ github.event.number }} preview" || echo "No changes to commit"
         git push origin gh-pages
         
         echo "=== Post-deployment verification ==="
-        echo "PR preview should be available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/"
-        echo "Static files should be at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/"
+        PREVIEW_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/"
+        STATIC_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/_static/"
+        
+        echo "PR preview should be available at: $PREVIEW_URL"
+        echo "Static files should be at: $STATIC_URL"
+        
+        echo "=== Testing URL accessibility (may take a few minutes for GitHub Pages to update) ==="
+        sleep 10  # Give GitHub Pages a moment to process
+        
+        echo "Testing jQuery file accessibility:"
+        if curl -s -f "${STATIC_URL}jquery.js" > /dev/null 2>&1; then
+          echo "✅ jQuery file is accessible at ${STATIC_URL}jquery.js"
+        else
+          echo "❌ jQuery file not yet accessible at ${STATIC_URL}jquery.js (this may be normal if GitHub Pages is still updating)"
+          echo "Note: GitHub Pages can take 2-10 minutes to update after deployment"
+        fi
+        
+        echo "Final configuration summary:"
+        echo "- Repository: ${{ github.repository }}"  
+        echo "- Expected preview URL: $PREVIEW_URL"
+        echo "- Base tag in HTML: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.number }}/"
+        echo "- Static files location: pr-${{ github.event.number }}/_static/"
+        
+        # Show sample of actual HTML content for final verification
+        echo "=== Final HTML verification ==="
+        head -20 "$PR_DIR/index.html" | grep -A5 -B5 "<base\|_static" || echo "Base tag or static references not found in HTML head"
 
     - name: Comment PR
       uses: actions/github-script@v7
