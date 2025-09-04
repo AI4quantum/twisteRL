@@ -128,8 +128,17 @@ jobs:
         rm -rf "$PR_DIR"
         mkdir -p "$PR_DIR"
         
-        # Copy built docs to PR directory
-        cp -r pr-docs/* "$PR_DIR/"
+        # Copy built docs to PR directory (ensure all subdirs are copied)
+        cp -r pr-docs/. "$PR_DIR/"
+        # Ensure _static and _images directories exist
+        if [ ! -d "$PR_DIR/_static" ]; then
+          echo "ERROR: _static directory missing after copy!"
+          echo "Contents of pr-docs:"
+          ls -la pr-docs/
+          echo "Contents of PR_DIR after copy:"
+          ls -la "$PR_DIR/"
+          exit 1
+        fi
         
         # Debug: Show what we're working with
         echo "=== Debugging PR preview paths ==="
