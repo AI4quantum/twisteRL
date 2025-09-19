@@ -36,7 +36,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install torch --extra-index-url https://download.pytorch.org/whl/cpu
-          pip install numpy loguru pytest maturin
+          pip install numpy loguru pytest pytest-mock maturin
           pip install -e .
       - name: Run tests
         env:
