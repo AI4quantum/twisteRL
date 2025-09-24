@@ -16,4 +16,4 @@ packages = ["grid_world"]
 [tool.maturin]
 features = ["pyo3/extension-module"]
 profile = "release"
-module-name = "twisterl.grid_world"
+module-name = "grid_world"

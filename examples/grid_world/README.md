@@ -6,7 +6,7 @@ The `difficulty` parameter limits how far the goal can be from the starting posi
 
 ## Build
 
-Compile the module with `maturin develop` or `python -m pip install -e .` if you have [maturin](https://github.com/PyO3/maturin) installed.
+Compile the module with `python -m pip install -e .` or `maturin develop` if you have the [maturin](https://github.com/PyO3/maturin) package installed.
 
 ## Usage
 
