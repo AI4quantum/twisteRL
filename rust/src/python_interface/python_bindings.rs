@@ -17,6 +17,7 @@ use pyo3::prelude::*;
 use crate::python_interface::modules::PySequential;
 use crate::python_interface::layers::{PyEmbeddingBag, PyLinear};
 use crate::python_interface::policy::PyPolicy;
+use crate::python_interface::codec::{PyObservationCodec, make_observation_codec};
 
 fn init_nn_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyEmbeddingBag>()?;
@@ -52,6 +53,12 @@ fn init_collector_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     Ok(())
 }
 
+fn init_codec_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<PyObservationCodec>()?;
+    m.add_function(wrap_pyfunction!(make_observation_codec, m)?)?;
+    Ok(())
+}
+
 fn add_twisterl_functionality(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     let nn_submod = PyModule::new(py, "nn")?;
     init_nn_module(&nn_submod)?;
@@ -64,6 +71,10 @@ fn add_twisterl_functionality(py: Python, m: &Bound<'_, PyModule>) -> PyResult<(
     let collector_submod = PyModule::new(py, "collector")?;
     init_collector_module(&collector_submod)?;
     m.add_submodule(&collector_submod)?;
+
+    let codec_submod = PyModule::new(py, "codec")?;
+    init_codec_module(&codec_submod)?;
+    m.add_submodule(&codec_submod)?;
 
     Ok(())
 }

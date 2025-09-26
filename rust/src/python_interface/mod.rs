@@ -19,3 +19,4 @@ pub mod modules;
 pub mod policy;
 pub mod pyenv;
 pub mod python_bindings;
+pub mod codec;

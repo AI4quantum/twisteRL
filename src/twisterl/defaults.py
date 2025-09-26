@@ -120,6 +120,7 @@ def make_config(algo_name, input_config):
         "evals": copy.deepcopy(EVALS_CONFIG),
         "learning": copy.deepcopy(LEARNING_CONFIG),
         "logging": copy.deepcopy(LOGGING_CONFIG),
+        "observation_encoder": {"type": "multi_hot"},
         **copy.deepcopy(ALGO_CONFIG[algo_name]),
     }
     conf.update(input_config)
