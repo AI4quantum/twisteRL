@@ -1,5 +1,4 @@
 import json
-import numpy as np
 import torch
 
 from twisterl.utils import load_config, prepare_algorithm
@@ -49,8 +48,14 @@ def test_prepare_algorithm():
         "policy_cls": "twisterl.nn.policy.BasicPolicy",
         "algorithm_cls": "twisterl.rl.ppo.PPO",
         "env": {"size": 3},
-        "policy": {"embedding_size": 4, "common_layers": [], "policy_layers": [], "value_layers": [], "device": "cpu"},
-        "algorithm": {}
+        "policy": {
+            "embedding_size": 4,
+            "common_layers": [],
+            "policy_layers": [],
+            "value_layers": [],
+            "device": "cpu",
+        },
+        "algorithm": {},
     }
     algo = prepare_algorithm(config)
     assert isinstance(algo.env, DummyEnv)
@@ -59,7 +64,9 @@ def test_prepare_algorithm():
 
 
 def test_sequential_and_embeddingbag_to_rust():
-    seq = torch.nn.Sequential(torch.nn.Linear(3, 2), torch.nn.ReLU(), torch.nn.Linear(2, 1))
+    seq = torch.nn.Sequential(
+        torch.nn.Linear(3, 2), torch.nn.ReLU(), torch.nn.Linear(2, 1)
+    )
     rs_seq = sequential_to_rust(seq)
     assert rs_seq.__class__.__name__ == "Sequential"
 
@@ -69,7 +76,15 @@ def test_sequential_and_embeddingbag_to_rust():
 
 
 def _make_policy():
-    return BasicPolicy([3, 3], 2, embedding_size=4, common_layers=(), policy_layers=(2,), value_layers=(), device="cpu")
+    return BasicPolicy(
+        [3, 3],
+        2,
+        embedding_size=4,
+        common_layers=(),
+        policy_layers=(2,),
+        value_layers=(),
+        device="cpu",
+    )
 
 
 def test_basic_policy_forward_and_to_rust():
@@ -90,7 +105,17 @@ def test_transpose_module():
 
 
 def test_conv1d_policy_forward_to_rust():
-    pol = Conv1dPolicy([2, 3], 4, embedding_size=6, conv_dim=0, common_layers=(), policy_layers=(4,), value_layers=(), obs_perms=(), act_perms=())
+    pol = Conv1dPolicy(
+        [2, 3],
+        4,
+        embedding_size=6,
+        conv_dim=0,
+        common_layers=(),
+        policy_layers=(4,),
+        value_layers=(),
+        obs_perms=(),
+        act_perms=(),
+    )
     x = torch.randn(1, 2, 3)
     logits, val = pol(x)
     assert logits.shape == (1, 4)

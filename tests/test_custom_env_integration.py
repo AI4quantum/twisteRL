@@ -5,8 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 from twisterl.utils import load_config, prepare_algorithm
 
 
@@ -30,14 +28,7 @@ def _ensure_grid_world_available():
     env.setdefault("VIRTUAL_ENV", str(venv_bin.parent))
 
     subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "-e",
-            "."
-        ],
+        [sys.executable, "-m", "pip", "install", "-e", "."],
         check=True,
         cwd=str(example_dir),
         stdout=subprocess.PIPE,

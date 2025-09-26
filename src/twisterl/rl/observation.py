@@ -68,7 +68,9 @@ class ObservationEncoder:
         return np.zeros((0, int(obs_size)), dtype=self._dtype)
 
 
-def make_observation_encoder(obs_shape: Sequence[int], config=None) -> ObservationEncoder:
+def make_observation_encoder(
+    obs_shape: Sequence[int], config=None
+) -> ObservationEncoder:
     if config is None:
         raise ValueError("Observation encoder configuration must be provided.")
 
@@ -83,11 +85,15 @@ def make_observation_encoder(obs_shape: Sequence[int], config=None) -> Observati
 
     if encoder_type == "multi_hot":
         if len(obs_shape) < 2:
-            raise ValueError("Multi-hot encoder requires obs_shape with at least two elements.")
+            raise ValueError(
+                "Multi-hot encoder requires obs_shape with at least two elements."
+            )
         num_slots = int(obs_shape[0])
         domain_size = int(obs_shape[1])
         dtype = params.get("dtype", float)
-        rust_codec = twisterl.codec.make_observation_codec("multi_hot", num_slots, domain_size)
+        rust_codec = twisterl.codec.make_observation_codec(
+            "multi_hot", num_slots, domain_size
+        )
         return ObservationEncoder(rust_codec, dtype=dtype)
 
     raise ValueError(f"Unknown observation encoder type: {encoder_type}")
