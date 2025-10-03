@@ -13,6 +13,8 @@ that they have been altered from the originals.
 
 use rand::distributions::{Distribution, Uniform};
 use crate::rl::env::Env;
+use crate::rl::codec::{ObservationCodec, build_codec};
+use std::sync::Arc;
 
 
 // This is the Env definition
@@ -27,6 +29,7 @@ pub struct Puzzle {
     pub difficulty: usize,
     pub depth_slope: usize,
     pub max_depth: usize,
+    codec: Arc<dyn ObservationCodec>,
 }
 
 
@@ -38,7 +41,20 @@ impl Puzzle {
         depth_slope: usize,
         max_depth: usize,
     ) -> Self {
-        Puzzle {state: (0..(width*height)).collect(), zero_location: (0,0), depth:1, width, height, difficulty, depth_slope, max_depth}
+        let num_slots = width * height;
+        let codec = build_codec("multi_hot", num_slots, num_slots)
+            .expect("Failed to create puzzle observation codec");
+        Puzzle {
+            state: (0..(width*height)).collect(),
+            zero_location: (0,0),
+            depth:1,
+            width,
+            height,
+            difficulty,
+            depth_slope,
+            max_depth,
+            codec,
+        }
     }
 
     pub fn solved(&self) -> bool {
@@ -176,8 +192,8 @@ impl Env for Puzzle {
         }
     }
 
-fn observe(&self,) -> Vec<usize> {
-        self.state.iter().enumerate().map(|(i, v)| i * self.height * self.width + v).collect()
+    fn observe(&self,) -> Vec<usize> {
+        self.codec.encode_state(&self.state)
     }
 
 }

@@ -5,6 +5,7 @@ use rand::thread_rng;
 use std::cmp;
 
 use twisterl::rl::env::Env;
+use twisterl::rl::codec::{ObservationCodec, build_codec};
 use twisterl::python_interface::env::{PyBaseEnv, get_env_ref, get_env_mut};
 
 #[derive(Clone)]
@@ -17,6 +18,7 @@ pub struct GridWorld {
     agent: (usize, usize),
     goal: (usize, usize),
     trap: (usize, usize),
+    codec: std::sync::Arc<dyn ObservationCodec>,
 }
 
 impl GridWorld {
@@ -34,7 +36,9 @@ impl GridWorld {
             steps_left: max_steps,
             agent: (0, 0),
             goal: (0, 0),
-            trap: (0,0)
+            trap: (0,0),
+            codec: build_codec("multi_hot", width * height, width * height)
+                .expect("Failed to create grid world observation codec"),
         };
         // env.reset();
         env
@@ -155,7 +159,8 @@ impl Env for GridWorld {
     }
 
     fn observe(&self) -> Vec<usize> {
-        self.get_state().iter().enumerate().map(|(i, v)| i * self.height * self.width + v).collect()  
+        let state = self.get_state();
+        self.codec.encode_state(&state)
     }
 }
 

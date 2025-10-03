@@ -16,3 +16,4 @@ pub mod evaluate;
 pub mod tree;
 pub mod env;
 pub mod solve;
+pub mod codec;
