@@ -1,6 +1,6 @@
 [package]
 name = "twisterl"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Reinforcement learning primitives and a Python extension for high performance training and inference."
 license = "Apache-2.0"
