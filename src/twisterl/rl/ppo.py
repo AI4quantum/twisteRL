@@ -47,9 +47,7 @@ class PPO(Algorithm):
         pt_acts = torch.tensor(acts, dtype=torch.long, device=self.config["device"])
         pt_rets = torch.tensor(rets, dtype=torch.float, device=self.config["device"])
         pt_advs = torch.tensor(advs, dtype=torch.float, device=self.config["device"])
-        pt_perm_idx = torch.tensor(
-            perms, dtype=torch.long, device=self.config["device"]
-        )
+        pt_perm_idx = torch.tensor(perms, dtype=torch.long, device=self.config["device"])
 
         with torch.no_grad():
             if self.config["training"].get("normalize_advantage", False):
