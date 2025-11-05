@@ -1,4 +1,3 @@
-
 import numpy as np
 from twisterl.utils import dynamic_import, json_load_tuples
 from twisterl.nn.utils import make_sequential
@@ -7,12 +6,12 @@ from twisterl.rl.algorithm import timed
 
 
 def test_dynamic_import():
-    sqrt = dynamic_import('math.sqrt')
+    sqrt = dynamic_import("math.sqrt")
     assert sqrt(9) == 3
 
 
 def test_json_load_tuples():
-    d = {'__tuple_list__': True, 'list': [[1, 2], [3, 4]]}
+    d = {"__tuple_list__": True, "list": [[1, 2], [3, 4]]}
     assert json_load_tuples(d) == [(1, 2), (3, 4)]
 
 
@@ -20,7 +19,7 @@ def test_make_sequential():
     seq = make_sequential(3, (2, 1), final_relu=False)
     layers = list(seq)
     assert len(layers) == 3
-    assert layers[-1].__class__.__name__ == 'Linear'
+    assert layers[-1].__class__.__name__ == "Linear"
 
 
 def test_basic_policy_predict():
@@ -34,6 +33,7 @@ def test_basic_policy_predict():
         device="cpu",
     )
     import torch
+
     with torch.no_grad():
         actions, value = policy.predict(np.array([0.1, 0.2, 0.3], dtype=float))
     assert actions.shape == (2,)

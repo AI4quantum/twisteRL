@@ -48,8 +48,14 @@ def test_prepare_algorithm():
         "policy_cls": "twisterl.nn.policy.BasicPolicy",
         "algorithm_cls": "twisterl.rl.ppo.PPO",
         "env": {"size": 3},
-        "policy": {"embedding_size": 4, "common_layers": [], "policy_layers": [], "value_layers": [], "device": "cpu"},
-        "algorithm": {}
+        "policy": {
+            "embedding_size": 4,
+            "common_layers": [],
+            "policy_layers": [],
+            "value_layers": [],
+            "device": "cpu",
+        },
+        "algorithm": {},
     }
     algo = prepare_algorithm(config)
     assert isinstance(algo.env, DummyEnv)
@@ -58,7 +64,9 @@ def test_prepare_algorithm():
 
 
 def test_sequential_and_embeddingbag_to_rust():
-    seq = torch.nn.Sequential(torch.nn.Linear(3, 2), torch.nn.ReLU(), torch.nn.Linear(2, 1))
+    seq = torch.nn.Sequential(
+        torch.nn.Linear(3, 2), torch.nn.ReLU(), torch.nn.Linear(2, 1)
+    )
     rs_seq = sequential_to_rust(seq)
     assert rs_seq.__class__.__name__ == "Sequential"
 
@@ -68,7 +76,15 @@ def test_sequential_and_embeddingbag_to_rust():
 
 
 def _make_policy():
-    return BasicPolicy([3], 2, embedding_size=4, common_layers=(), policy_layers=(2,), value_layers=(), device="cpu")
+    return BasicPolicy(
+        [3],
+        2,
+        embedding_size=4,
+        common_layers=(),
+        policy_layers=(2,),
+        value_layers=(),
+        device="cpu",
+    )
 
 
 def test_basic_policy_forward_and_to_rust():
@@ -89,7 +105,17 @@ def test_transpose_module():
 
 
 def test_conv1d_policy_forward_to_rust():
-    pol = Conv1dPolicy([2, 3], 4, embedding_size=6, conv_dim=0, common_layers=(), policy_layers=(4,), value_layers=(), obs_perms=(), act_perms=())
+    pol = Conv1dPolicy(
+        [2, 3],
+        4,
+        embedding_size=6,
+        conv_dim=0,
+        common_layers=(),
+        policy_layers=(4,),
+        value_layers=(),
+        obs_perms=(),
+        act_perms=(),
+    )
     x = torch.randn(1, 2, 3)
     logits, val = pol(x)
     assert logits.shape == (1, 4)
@@ -156,27 +182,53 @@ def test_az_data_to_torch_and_train_step():
     metrics, _ = algo.train_step(torch_data)
     assert "total" in metrics
 
+
 class DummyHubModelHandler:
-    def __init__(self, repo_id="Qiskit/example", model_path="../models/", revision="main", validate=False):
+    def __init__(
+        self,
+        repo_id="Qiskit/example",
+        model_path="../models/",
+        revision="main",
+        validate=False,
+    ):
         self.repo_id = repo_id
         self.model_path = model_path
         self.revision = revision
         self.validate = validate
-        
-def fake_snapshot_download(repo_id, cache_dir, allow_patterns, revision, force_download):
-    snapshot_folder = Path(cache_dir) / f"models--{repo_id.replace('/', '--')}" / "snapshots" / revision
+
+
+def fake_snapshot_download(
+    repo_id, cache_dir, allow_patterns, revision, force_download
+):
+    snapshot_folder = (
+        Path(cache_dir)
+        / f"models--{repo_id.replace('/', '--')}"
+        / "snapshots"
+        / revision
+    )
     snapshot_folder.mkdir(parents=True, exist_ok=True)
     return str(snapshot_folder)
+
 
 def test_pull_new_hub_model(mocker, tmp_path):
     dummy_hub = DummyHubModelHandler()
     cache_dir = tmp_path / "snapshot_cache"
     cache_dir.mkdir()
-    mocker.patch('twisterl.utils.snapshot_download', autospec=True, side_effect=lambda repo_id = dummy_hub.repo_id, cache_dir=None, allow_patterns=None, revision=None, force_download=False: fake_snapshot_download(repo_id, cache_dir=cache_dir, allow_patterns=allow_patterns, revision=revision, force_download=force_download))
+    mocker.patch(
+        "twisterl.utils.snapshot_download",
+        autospec=True,
+        side_effect=lambda repo_id=dummy_hub.repo_id, cache_dir=None, allow_patterns=None, revision=None, force_download=False: fake_snapshot_download(
+            repo_id,
+            cache_dir=cache_dir,
+            allow_patterns=allow_patterns,
+            revision=revision,
+            force_download=force_download,
+        ),
+    )
     result = pull_hub_algorithm(
         repo_id=dummy_hub.repo_id,
         model_path=dummy_hub.model_path,
         revision=dummy_hub.revision,
-        validate=dummy_hub.validate
+        validate=dummy_hub.validate,
     )
-    assert result != False
+    assert result is not False
