@@ -21,6 +21,9 @@ class AZ(Algorithm):
     def __init__(self, env, policy, config, run_path=None):
         super().__init__(env, policy, config, run_path)
         self.collector = twisterl.collector.AZCollector(**self.config["collecting"])
+        if hasattr(self.policy, "set_permutations"):
+            self.policy.set_permutations([], [])
+            self.sync_rs_policy()
 
     @timed
     def data_to_torch(self, data):

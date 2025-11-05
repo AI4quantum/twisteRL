@@ -37,9 +37,11 @@ impl PyCollectedData {
         values: Vec<f32>,
         rewards: Vec<f32>,
         actions: Vec<usize>,
+        perms: Option<Vec<Option<usize>>>,
     ) -> Self {
+        let perms = perms.unwrap_or_else(|| vec![None; obs.len()]);
         PyCollectedData {
-            inner: CollectedData::new(obs, logits, values, rewards, actions),
+            inner: CollectedData::new(obs, logits, perms, values, rewards, actions),
         }
     }
 
@@ -68,6 +70,19 @@ impl PyCollectedData {
     #[setter]
     fn set_logits(&mut self, logits: Vec<Vec<f32>>) {
         self.inner.logits = logits;
+    }
+
+    #[getter]
+    fn get_perms(&self) -> Vec<i64> {
+        self.inner.perms.iter().map(|opt| opt.map(|v| v as i64).unwrap_or(-1)).collect()
+    }
+
+    #[setter]
+    fn set_perms(&mut self, perms: Vec<i64>) {
+        self.inner.perms = perms
+            .into_iter()
+            .map(|v| if v < 0 { None } else { Some(v as usize) })
+            .collect();
     }
     
     #[getter]
