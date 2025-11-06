@@ -176,6 +176,10 @@ impl Env for Puzzle {
         }
     }
 
+    fn success(&self) -> bool {
+        self.solved()
+    }
+
 fn observe(&self,) -> Vec<usize> {
         self.state.iter().enumerate().map(|(i, v)| i * self.height * self.width + v).collect()
     }
