@@ -100,11 +100,16 @@ The `examples/grid_world` custom environment example [here](examples/grid_world)
 
 Refer to [grid_world](examples/grid_world) for a complete working example.
 
+## Documentation
+
+- [Permutation twists in environments](docs/twists.md)
+
 ## 🚀 Key Features 
 - **High-Performance Core**: RL episode loop implemented in Rust for faster training and inference
 - **Inference-Ready**: Easy compilation and bundling of models with environments into portable binaries for inference
 - **Modular Design**: Support for multiple algorithms (PPO, AlphaZero) with interchangeable training and inference
 - **Language Interoperability**: Core in Rust with Python interface
+- **Symmetry-Aware Training via Twists**: Environments can expose observation/action permutations (“twists”) so policies automatically exploit device or puzzle symmetries for faster learning.
 
 
 ## 🏗️ Current State (PoC)
