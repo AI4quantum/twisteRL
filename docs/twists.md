@@ -20,7 +20,7 @@ lightweight form of regularization because the agent sees equivalent states unde
 ## Data Contract
 1. **Observation permutations (`obs_perms`)** are expressed in the same flattened index space
    produced by the environment’s `observe()` method. Each permutation covers every index exactly once.
-2. **Action permutations (`act_perms`)** must use the same ordering as `num_actions()`. TwisteRL
+2. **Action permutations (`act_perms`)** must use the same ordering as `obs_perms`. TwisteRL
    assumes `act_perms[i]` describes how to remap actions when `obs_perms[i]` is applied.
 3. The length of the two permutation lists must match (`len(obs_perms) == len(act_perms)`), and the
    first permutation should usually be the identity so policies have a canonical ordering to fall back to.
