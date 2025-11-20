@@ -24,6 +24,8 @@ pub struct CollectedData {
     pub obs: Vec<Vec<usize>>,
     /// Logits (action probabilities) at each timestep
     pub logits: Vec<Vec<f32>>,
+    /// Optional permutation index used at each timestep (-1 if none)
+    pub perms: Vec<Option<usize>>,
     /// Value estimates at each timestep
     pub values: Vec<f32>,
     /// Rewards received at each timestep
@@ -48,6 +50,7 @@ impl CollectedData {
     pub fn new(
         obs: Vec<Vec<usize>>,
         logits: Vec<Vec<f32>>,
+        perms: Vec<Option<usize>>,
         values: Vec<f32>,
         rewards: Vec<f32>,
         actions: Vec<usize>,
@@ -55,6 +58,7 @@ impl CollectedData {
         CollectedData {
             obs,
             logits,
+            perms,
             values,
             rewards,
             actions,
@@ -67,6 +71,7 @@ impl CollectedData {
         // Append observations and logits (2D vectors)
         self.obs.extend(other.obs.iter().cloned());
         self.logits.extend(other.logits.iter().cloned());
+        self.perms.extend(other.perms.iter().cloned());
 
         // Append 1D vectors
         self.values.extend(&other.values);
@@ -98,6 +103,7 @@ mod tests {
         let d1 = CollectedData::new(
             vec![vec![0]],
             vec![vec![0.1]],
+            vec![Some(0)],
             vec![0.2],
             vec![0.3],
             vec![1],
@@ -106,6 +112,7 @@ mod tests {
         let d2 = CollectedData::new(
             vec![vec![1]],
             vec![vec![0.4]],
+            vec![None],
             vec![0.5],
             vec![0.6],
             vec![0],
