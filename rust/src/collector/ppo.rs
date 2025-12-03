@@ -152,6 +152,7 @@ mod tests {
         fn is_final(&self) -> bool { self.step >= 1 }
         fn reward(&self) -> f32 { 1.0 }
         fn observe(&self) -> Vec<usize> { vec![0] }
+        fn success(&self) -> bool { true }
     }
 
     fn dummy_policy() -> Policy {
