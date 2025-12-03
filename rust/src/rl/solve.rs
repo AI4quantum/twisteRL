@@ -59,7 +59,9 @@ pub fn single_solve(
     let val = env.reward();
     total_val += val;
 
-    (((val == 1.0) as usize as f32, total_val), solution)
+    let success = if env.success() { 1.0 } else { 0.0 };
+
+    ((success, total_val), solution)
 }
 
 pub fn solve(

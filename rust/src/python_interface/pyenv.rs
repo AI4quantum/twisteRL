@@ -138,6 +138,16 @@ impl Env for PyEnvImpl {
         })
     }
 
+    fn success(&self) -> bool {
+        Python::with_gil(|py| {
+            let py_env = self.py_env.borrow();
+            py_env
+                .call_method0(py, "success")
+                .and_then(|val| val.extract::<bool>(py))
+                .expect("Python `success` method must return a bool.")
+        })
+    }
+
     fn observe(&self) -> Vec<usize> {
         Python::with_gil(|py| {
             let py_env = self.py_env.borrow();

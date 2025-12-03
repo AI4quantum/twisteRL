@@ -154,6 +154,10 @@ impl Env for GridWorld {
         }
     }
 
+    fn success(&self) -> bool {
+        self.at_goal()
+    }
+
     fn observe(&self) -> Vec<usize> {
         self.get_state().iter().enumerate().map(|(i, v)| i * self.height * self.width + v).collect()  
     }
