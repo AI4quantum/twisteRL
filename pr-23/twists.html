@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twists (Permutation Symmetries) in twisteRL &mdash; TwisteRL 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="/twisteRL/pr-23/_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="/twisteRL/pr-23/_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="/twisteRL/pr-23/_static/twisterl-logo.png"/>
+      <script src="/twisteRL/pr-23/_static/jquery.js?v=5d32c60e"></script>
+      <script src="/twisteRL/pr-23/_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="/twisteRL/pr-23/_static/documentation_options.js?v=01f34227"></script>
+      <script src="/twisteRL/pr-23/_static/doctools.js?v=9bcbadda"></script>
+      <script src="/twisteRL/pr-23/_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="/twisteRL/pr-23/_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            TwisteRL
+              <img src="/twisteRL/pr-23/_static/twisterl-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/twisterl.html">twisterl package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/algorithms.html">Algorithms API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/neural_networks.html">Neural Networks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TwisteRL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="docs-guide.html">Documentation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs-guide.html#github-pages-deployment">GitHub Pages Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TwisteRL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Twists (Permutation Symmetries) in twisteRL</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/twists.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="twists-permutation-symmetries-in-twisterl">
+<h1>Twists (Permutation Symmetries) in twisteRL<a class="headerlink" href="#twists-permutation-symmetries-in-twisterl" title="Link to this heading"></a></h1>
+<p>Twists are twisteRL’s way to describe exact permutation symmetries that exist inside an environment.
+Instead of training a policy to rediscover that symmetries exist (for example, that swapping qubits
+across a symmetric coupling map produces an equivalent observation/action space), the environment
+hands the policy explicit permutations that it can use for data augmentation or symmetry-aware heads.
+By repeatedly doing and undoing these permutations you also reduce the chance of deadlocks and gain a
+lightweight form of regularization because the agent sees equivalent states under many orderings.</p>
+<section id="where-twists-are-used">
+<h2>Where Twists Are Used<a class="headerlink" href="#where-twists-are-used" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Every environment implements the <code class="docutils literal notranslate"><span class="pre">twisterl::rl::env::Env</span></code> trait. The trait includes a <code class="docutils literal notranslate"><span class="pre">twists</span></code>
+method that returns <code class="docutils literal notranslate"><span class="pre">(Vec&lt;Vec&lt;usize&gt;&gt;,</span> <span class="pre">Vec&lt;Vec&lt;usize&gt;&gt;)</span></code> representing valid permutations on the
+flattened observation array and matching permutations on the discrete action space
+(<code class="docutils literal notranslate"><span class="pre">rust/src/rl/env.rs:33</span></code>).</p></li>
+<li><p>When an environment is instantiated from Python via <code class="docutils literal notranslate"><span class="pre">prepare_algorithm</span></code>, twisteRL immediately calls
+<code class="docutils literal notranslate"><span class="pre">env.twists()</span></code> and forwards the returned permutations to the policy constructor
+(<code class="docutils literal notranslate"><span class="pre">src/twisterl/utils.py:120</span></code>). The policy can then symmetrize logits, average values, or augment
+rollouts without extra environment queries.</p></li>
+</ul>
+</section>
+<section id="data-contract">
+<h2>Data Contract<a class="headerlink" href="#data-contract" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Observation permutations (<code class="docutils literal notranslate"><span class="pre">obs_perms</span></code>)</strong> are expressed in the same flattened index space
+produced by the environment’s <code class="docutils literal notranslate"><span class="pre">observe()</span></code> method. Each permutation covers every index exactly once.</p></li>
+<li><p><strong>Action permutations (<code class="docutils literal notranslate"><span class="pre">act_perms</span></code>)</strong> must use the same ordering as <code class="docutils literal notranslate"><span class="pre">obs_perms</span></code>. TwisteRL
+assumes <code class="docutils literal notranslate"><span class="pre">act_perms[i]</span></code> describes how to remap actions when <code class="docutils literal notranslate"><span class="pre">obs_perms[i]</span></code> is applied.</p></li>
+<li><p>The length of the two permutation lists must match (<code class="docutils literal notranslate"><span class="pre">len(obs_perms)</span> <span class="pre">==</span> <span class="pre">len(act_perms)</span></code>), and the
+first permutation should usually be the identity so policies have a canonical ordering to fall back to.</p></li>
+</ol>
+</section>
+<section id="implementing-twists-in-rust-environments">
+<h2>Implementing Twists in Rust Environments<a class="headerlink" href="#implementing-twists-in-rust-environments" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Compute permutations once</strong> when the environment is constructed. Store the resulting vectors on
+the struct so you can reuse them without recomputing each step.</p></li>
+<li><p><strong>Return cached permutations</strong> from the <code class="docutils literal notranslate"><span class="pre">twists</span></code> method by cloning or otherwise referencing the
+stored vectors. This keeps the call cheap even when policies request twists frequently.</p></li>
+<li><p><strong>Gate toggles through config</strong>. Consider exposing a <code class="docutils literal notranslate"><span class="pre">use_perms</span></code> or <code class="docutils literal notranslate"><span class="pre">add_perms</span></code> flag so users can
+disable symmetries if they want to benchmark raw performance or compare against non-symmetric runs.</p></li>
+</ol>
+<section id="tips-for-new-envs">
+<h3>Tips for new envs<a class="headerlink" href="#tips-for-new-envs" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>If your observation is multi-dimensional, decide on a consistent flattening order and reuse it in
+<code class="docutils literal notranslate"><span class="pre">observe()</span></code>, <code class="docutils literal notranslate"><span class="pre">obs_shape()</span></code>, and permutation computation.</p></li>
+<li><p>Keep permutations short: only add a symmetry when it actually preserves the transition dynamics;
+incorrect permutations can break training stability.</p></li>
+<li><p>Store permutations on the struct instead of recomputing them each <code class="docutils literal notranslate"><span class="pre">twists()</span></code> call to avoid extra
+allocations during training.</p></li>
+</ul>
+</section>
+</section>
+<section id="implementing-twists-in-python-environments">
+<h2>Implementing Twists in Python Environments<a class="headerlink" href="#implementing-twists-in-python-environments" title="Link to this heading"></a></h2>
+<p>Python environments exposed through <code class="docutils literal notranslate"><span class="pre">PyEnv</span></code> can mirror the same pattern:</p>
+<ol class="arabic simple">
+<li><p><strong>Detect graph/device symmetries</strong> using domain-specific tooling. Capture any permutation that
+leaves the transition structure unchanged.</p></li>
+<li><p><strong>Sample a permutation for every observation</strong> if you want trajectories to naturally explore each
+orbit; this mimics the way many structured environments randomize qubit or tile order.</p></li>
+<li><p><strong>Expose action permutations</strong> through the PyO3 wrapper so the policy receives matching
+permutations. When porting a Python env to Rust, copy the action/observation permutation lists into
+the Rust struct and return them from <code class="docutils literal notranslate"><span class="pre">twists()</span></code>.</p></li>
+</ol>
+</section>
+<section id="verifying-your-twists">
+<h2>Verifying Your Twists<a class="headerlink" href="#verifying-your-twists" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">env.twists()</span></code> from Python and check that each permutation is a rearrangement of
+<code class="docutils literal notranslate"><span class="pre">range(len(observe()))</span></code> and <code class="docutils literal notranslate"><span class="pre">range(num_actions())</span></code>.</p></li>
+<li><p>Run a short training job with and without permutations enabled. If permutations are correct you
+should see either faster convergence or identical performance; regressions usually mean the
+action-and-observation permutations are misaligned.</p></li>
+<li><p>For debugging, temporarily limit the permutation list to <code class="docutils literal notranslate"><span class="pre">[identity]</span></code> and re-enable additional
+symmetries one at a time.</p></li>
+</ol>
+<p>By explicitly documenting and exposing twists, twisteRL policies gain symmetry awareness for free,
+leading to higher data efficiency on structured problems such as puzzle solvers and quantum circuit
+optimization.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, IBM Quantum+AI Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -61,17 +61,8 @@
 <li class="toctree-l3"><a class="reference internal" href="twisterl.nn.html">twisterl.nn package</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#module-twisterl.train">twisterl.train module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#twisterl.train.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#module-twisterl.utils">twisterl.utils module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#twisterl.utils.dynamic_import"><code class="docutils literal notranslate"><span class="pre">dynamic_import()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#twisterl.utils.json_load_tuples"><code class="docutils literal notranslate"><span class="pre">json_load_tuples()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#twisterl.utils.prepare_algorithm"><code class="docutils literal notranslate"><span class="pre">prepare_algorithm()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#twisterl.utils.load_config"><code class="docutils literal notranslate"><span class="pre">load_config()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#twisterl-train-module">twisterl.train module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#twisterl-utils-module">twisterl.utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-twisterl.defaults">twisterl.defaults module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#twisterl.defaults.make_config"><code class="docutils literal notranslate"><span class="pre">make_config()</span></code></a></li>
 </ul>
@@ -134,36 +125,11 @@
 </ul>
 </div>
 </section>
-<section id="module-twisterl.train">
-<span id="twisterl-train-module"></span><h2>twisterl.train module<a class="headerlink" href="#module-twisterl.train" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="twisterl.train.main">
-<span class="sig-prename descclassname"><span class="pre">twisterl.train.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_checkpoint_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twisterl/train.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twisterl.train.main" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
+<section id="twisterl-train-module">
+<h2>twisterl.train module<a class="headerlink" href="#twisterl-train-module" title="Link to this heading"></a></h2>
 </section>
-<section id="module-twisterl.utils">
-<span id="twisterl-utils-module"></span><h2>twisterl.utils module<a class="headerlink" href="#module-twisterl.utils" title="Link to this heading"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="twisterl.utils.dynamic_import">
-<span class="sig-prename descclassname"><span class="pre">twisterl.utils.</span></span><span class="sig-name descname"><span class="pre">dynamic_import</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twisterl/utils.html#dynamic_import"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twisterl.utils.dynamic_import" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="twisterl.utils.json_load_tuples">
-<span class="sig-prename descclassname"><span class="pre">twisterl.utils.</span></span><span class="sig-name descname"><span class="pre">json_load_tuples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twisterl/utils.html#json_load_tuples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twisterl.utils.json_load_tuples" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="twisterl.utils.prepare_algorithm">
-<span class="sig-prename descclassname"><span class="pre">twisterl.utils.</span></span><span class="sig-name descname"><span class="pre">prepare_algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_checkpoint_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twisterl/utils.html#prepare_algorithm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twisterl.utils.prepare_algorithm" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="twisterl.utils.load_config">
-<span class="sig-prename descclassname"><span class="pre">twisterl.utils.</span></span><span class="sig-name descname"><span class="pre">load_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twisterl/utils.html#load_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twisterl.utils.load_config" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
+<section id="twisterl-utils-module">
+<h2>twisterl.utils module<a class="headerlink" href="#twisterl-utils-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-twisterl.defaults">
 <span id="twisterl-defaults-module"></span><h2>twisterl.defaults module<a class="headerlink" href="#module-twisterl.defaults" title="Link to this heading"></a></h2>
