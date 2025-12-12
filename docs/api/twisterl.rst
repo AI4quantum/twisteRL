@@ -44,6 +44,7 @@ Key functions:
 
 - ``prepare_algorithm(config, run_path, load_checkpoint_path)``: Prepares an algorithm instance from config
 - ``load_config(config_path)``: Loads a JSON config file
+- ``load_checkpoint(checkpoint_path)``: Loads a checkpoint from either safetensors or pt format
 - ``pull_hub_algorithm(repo_id, model_path, revision, validate)``: Downloads models from HuggingFace Hub
 
 twisterl.defaults module

@@ -96,6 +96,9 @@ All environments must provide these methods (called from Rust or Python):
 - ``step(action)``: Take action, return (obs, reward, done, info)
 - ``obs_shape()``: Return observation dimensions
 - ``num_actions()``: Return number of valid actions
+- ``is_final()``: Return True if current state is terminal
+- ``success()``: Return True if the goal was achieved (episode ended successfully)
+- ``reward()``: Return the reward value for the current state
 - ``twists()``: Return permutation symmetries (optional)
 - ``set_state(state)``: Set environment to specific state (for inference)
 - ``difficulty``: Property to get/set difficulty level
