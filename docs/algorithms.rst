@@ -1,7 +1,7 @@
 Algorithms
 ==========
 
-TwisteRL currently supports two main reinforcement learning algorithms, with more planned for future releases.
+TwisteRL currently supports two reinforcement learning algorithms.
 
 PPO (Proximal Policy Optimization)
 -----------------------------------
@@ -18,119 +18,122 @@ Key Features
 Configuration
 ~~~~~~~~~~~~~
 
+PPO is configured through a JSON config file. Here's an example with the actual parameter names:
+
 .. code-block:: json
 
    {
-     "algorithm": "ppo",
-     "ppo": {
-       "learning_rate": 0.0003,
-       "clip_epsilon": 0.2,
-       "value_loss_coef": 0.5,
-       "entropy_coef": 0.01,
-       "max_grad_norm": 0.5,
-       "num_epochs": 10,
-       "batch_size": 64,
-       "gamma": 0.99,
-       "gae_lambda": 0.95
-     }
+       "algorithm_cls": "twisterl.rl.PPO",
+       "algorithm": {
+           "collecting": {
+               "num_cores": 32,
+               "num_episodes": 1024,
+               "lambda": 0.995,
+               "gamma": 0.995
+           },
+           "training": {
+               "num_epochs": 10,
+               "vf_coef": 0.8,
+               "ent_coef": 0.01,
+               "clip_ratio": 0.1,
+               "normalize_advantage": true
+           },
+           "optimizer": {
+               "lr": 0.00015
+           },
+           "learning": {
+               "diff_threshold": 0.85,
+               "diff_max": 32,
+               "diff_metric": "ppo_1"
+           }
+       }
    }
 
 Parameters
 ~~~~~~~~~~
 
-- **learning_rate**: Learning rate for the optimizer
-- **clip_epsilon**: PPO clipping parameter
-- **value_loss_coef**: Coefficient for value function loss  
-- **entropy_coef**: Coefficient for entropy bonus
-- **max_grad_norm**: Maximum gradient norm for clipping
-- **num_epochs**: Number of training epochs per update
-- **batch_size**: Mini-batch size for training
+**Collecting Parameters:**
+
+- **num_cores**: Number of parallel workers for data collection
+- **num_episodes**: Number of episodes to collect per iteration
+- **lambda**: GAE lambda parameter for advantage estimation
 - **gamma**: Discount factor
-- **gae_lambda**: Lambda parameter for Generalized Advantage Estimation
 
-Example Usage
-~~~~~~~~~~~~~
+**Training Parameters:**
 
-.. code-block:: python
+- **num_epochs**: Number of training epochs per update
+- **vf_coef**: Coefficient for value function loss
+- **ent_coef**: Coefficient for entropy bonus
+- **clip_ratio**: PPO clipping parameter (epsilon)
+- **normalize_advantage**: Whether to normalize advantages
 
-   import twisterl
+**Optimizer Parameters:**
 
-   config = {
-       "algorithm": "ppo",
-       "environment": "puzzle8_v1",
-       "ppo": {
-           "learning_rate": 0.0003,
-           "clip_epsilon": 0.2,
-           "num_epochs": 10
-       },
-       "training": {
-           "total_timesteps": 100000
-       }
-   }
+- **lr**: Learning rate for Adam optimizer
 
-   agent = twisterl.train(config)
+**Learning Parameters:**
 
-AlphaZero
----------
+- **diff_threshold**: Success rate threshold for increasing difficulty
+- **diff_max**: Maximum difficulty level
+- **diff_metric**: Which evaluation metric to use for difficulty progression
 
-AlphaZero is a model-based algorithm that combines Monte Carlo Tree Search (MCTS) with deep neural networks.
+Example
+~~~~~~~
+
+Train PPO on the 8-puzzle:
+
+.. code-block:: bash
+
+   python -m twisterl.train --config examples/ppo_puzzle8_v1.json
+
+AlphaZero (AZ)
+--------------
+
+AlphaZero combines Monte Carlo Tree Search (MCTS) with deep neural networks for planning-based learning.
 
 Key Features
 ~~~~~~~~~~~~
 
-- **Model-Based**: Uses a learned model of the environment
-- **Tree Search**: Employs MCTS for planning
-- **Self-Play**: Improves through self-play without human knowledge
+- **Tree Search**: Employs MCTS for look-ahead planning
+- **Self-Play**: Learns through self-play without human knowledge
+- **Value + Policy Learning**: Jointly learns value and policy functions
 
 Configuration
 ~~~~~~~~~~~~~
 
+AlphaZero is configured similarly to PPO:
+
 .. code-block:: json
 
    {
-     "algorithm": "alphazero",
-     "alphazero": {
-       "num_simulations": 800,
-       "c_puct": 1.0,
-       "temperature": 1.0,
-       "num_self_play_games": 1000,
-       "training_steps": 1000,
-       "batch_size": 32,
-       "learning_rate": 0.001
-     }
+       "algorithm_cls": "twisterl.rl.AZ",
+       "algorithm": {
+           "collecting": {
+               "num_cores": 32,
+               "num_episodes": 512,
+               "num_mcts_searches": 1000,
+               "C": 1.41,
+               "max_expand_depth": 1,
+               "seed": 123
+           },
+           "training": {
+               "num_epochs": 10
+           },
+           "optimizer": {
+               "lr": 0.0003
+           }
+       }
    }
 
 Parameters
 ~~~~~~~~~~
 
-- **num_simulations**: Number of MCTS simulations per move
-- **c_puct**: Exploration constant for MCTS
-- **temperature**: Temperature for action selection
-- **num_self_play_games**: Number of self-play games per iteration
-- **training_steps**: Number of training steps per iteration
-- **batch_size**: Mini-batch size for neural network training
-- **learning_rate**: Learning rate for the neural network
+**Collecting Parameters:**
 
-Example Usage
-~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   import twisterl
-
-   config = {
-       "algorithm": "alphazero", 
-       "environment": "puzzle8_v1",
-       "alphazero": {
-           "num_simulations": 800,
-           "num_self_play_games": 500
-       },
-       "training": {
-           "total_timesteps": 50000
-       }
-   }
-
-   agent = twisterl.train(config)
+- **num_mcts_searches**: Number of MCTS simulations per move
+- **C**: Exploration constant (UCB formula)
+- **max_expand_depth**: Maximum tree expansion depth
+- **seed**: Random seed for reproducibility
 
 Algorithm Comparison
 --------------------
@@ -147,16 +150,16 @@ When to Use Each Algorithm
 --------------------------
 
 **Use PPO when:**
-- You want a general-purpose algorithm
+
+- You want a general-purpose, fast-to-train algorithm
 - Computational resources are limited
-- The environment is partially observable
 - You need stable, reliable training
 
 **Use AlphaZero when:**
-- The environment has perfect information
-- You can afford higher computational cost
-- Sample efficiency is critical
-- The environment is deterministic or nearly so
+
+- The environment has perfect information (you know the transition model)
+- You can afford higher computational cost for MCTS
+- Look-ahead planning is beneficial
 
 Hyperparameter Tuning
 ----------------------
@@ -164,31 +167,20 @@ Hyperparameter Tuning
 General Guidelines
 ~~~~~~~~~~~~~~~~~~
 
-1. **Start with defaults**: Both algorithms come with sensible default parameters
+1. **Start with defaults**: See ``twisterl/defaults.py`` for sensible default parameters
 2. **Adjust learning rate first**: This usually has the biggest impact
-3. **Monitor training curves**: Use TensorBoard to track progress
-4. **Validate on multiple seeds**: Run multiple random seeds to ensure robustness
+3. **Monitor training curves**: Use TensorBoard to track progress (logs saved to ``runs/`` by default)
 
 PPO Tuning Tips
 ~~~~~~~~~~~~~~~
 
 - Increase ``num_epochs`` if training is stable but slow
-- Decrease ``clip_epsilon`` if policy updates are too aggressive
-- Increase ``entropy_coef`` if the policy becomes too deterministic too quickly
+- Decrease ``clip_ratio`` if policy updates are too aggressive
+- Increase ``ent_coef`` if the policy becomes too deterministic too quickly
+- Adjust ``gamma`` and ``lambda`` based on episode length
 
 AlphaZero Tuning Tips
 ~~~~~~~~~~~~~~~~~~~~~
 
-- Increase ``num_simulations`` for better play quality (but slower training)
-- Adjust ``c_puct`` to balance exploration vs exploitation in MCTS
-- Tune ``temperature`` schedule for better action exploration
-
-Future Algorithms
-------------------
-
-Planned for future releases:
-
-- **A3C/A2C**: Asynchronous advantage actor-critic methods
-- **SAC**: Soft Actor-Critic for continuous control
-- **TD3**: Twin Delayed Deep Deterministic Policy Gradient
-- **Rainbow DQN**: Improved deep Q-learning with multiple extensions
+- Increase ``num_mcts_searches`` for better play quality (but slower training)
+- Adjust ``C`` to balance exploration vs exploitation in MCTS

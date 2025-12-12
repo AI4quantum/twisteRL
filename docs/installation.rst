@@ -11,10 +11,10 @@ TwisteRL requires:
 - PyTorch 2.2 or higher
 
 From PyPI
------------------------
+---------
 
 .. code-block:: bash
-   
+
    pip install twisterl
 
 
@@ -35,7 +35,14 @@ From Source
    python -m venv .venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-3. Install the package:
+3. Install the Rust toolchain (if not already installed):
+
+.. code-block:: bash
+
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   source ~/.cargo/env
+
+4. Install the package:
 
 .. code-block:: bash
 
@@ -44,24 +51,25 @@ From Source
 Development Installation
 ------------------------
 
-For development, install in editable mode with development dependencies:
+For development, install in editable mode:
 
 .. code-block:: bash
 
-   pip install -e ".[dev]"
+   pip install -e .
 
 Verify Installation
 -------------------
 
-Test your installation by running:
-
-.. code-block:: python
-
-   import twisterl
-   print(twisterl.__version__)
-
-Or try the quick example:
+Test your installation by running the training example:
 
 .. code-block:: bash
 
    python -m twisterl.train --config examples/ppo_puzzle8_v1.json
+
+Or import the package in Python:
+
+.. code-block:: python
+
+   import twisterl
+   from twisterl.rl import PPO, AZ
+   from twisterl.nn import BasicPolicy

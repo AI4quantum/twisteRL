@@ -14,7 +14,7 @@ lightweight form of regularization because the agent sees equivalent states unde
   (`rust/src/rl/env.rs:33`).
 - When an environment is instantiated from Python via `prepare_algorithm`, twisteRL immediately calls
   `env.twists()` and forwards the returned permutations to the policy constructor
-  (`src/twisterl/utils.py:120`). The policy can then symmetrize logits, average values, or augment
+  (`src/twisterl/utils.py:126`). The policy can then symmetrize logits, average values, or augment
   rollouts without extra environment queries.
 
 ## Data Contract

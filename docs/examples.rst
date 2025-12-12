@@ -1,7 +1,7 @@
 Examples
 ========
 
-This page provides comprehensive examples of using TwisteRL for various reinforcement learning tasks.
+This page provides examples of using TwisteRL for reinforcement learning tasks.
 
 Training Examples
 -----------------
@@ -11,7 +11,7 @@ Training Examples
 
 The 8-puzzle is a classic sliding puzzle that consists of a 3x3 grid with numbered tiles and one empty space.
 
-**Configuration (examples/ppo_puzzle8_v1.json):**
+**Training:**
 
 .. code-block:: bash
 
@@ -35,163 +35,110 @@ A more challenging 4x4 version of the sliding puzzle:
 Inference Examples
 ------------------
 
-Jupyter Notebook
-~~~~~~~~~~~~~~~~
+Jupyter Notebooks
+~~~~~~~~~~~~~~~~~
 
-The `examples/puzzle.ipynb` notebook provides an interactive example showing:
+The ``examples/`` directory contains Jupyter notebooks for interactive exploration:
+
+- **puzzle.ipynb**: Interactive example showing inference with trained puzzle models
+- **hub_puzzle_model.ipynb**: Loading and using models from HuggingFace Hub
+
+These notebooks demonstrate:
 
 - Loading trained models
 - Running inference
 - Visualizing agent behavior
-- Performance analysis
 
-Python Script Example
-~~~~~~~~~~~~~~~~~~~~~~
+Creating Custom Environments
+----------------------------
 
-.. code-block:: python
+TwisteRL supports custom environments implemented in Rust. The ``examples/grid_world`` directory provides a complete working example.
 
-   import twisterl
-   import numpy as np
+**Steps to create a custom environment:**
 
-   def run_episode(agent, env, render=False):
-       """Run a single episode and return the total reward."""
-       obs = env.reset()
-       total_reward = 0
-       steps = 0
-       
-       while True:
-           if render:
-               env.render()
-           
-           # Get action from agent
-           action = agent.predict(obs)
-           
-           # Take step in environment
-           obs, reward, done, info = env.step(action)
-           total_reward += reward
-           steps += 1
-           
-           if done:
-               break
-       
-       return total_reward, steps
+1. **Create a new Rust crate:**
 
-   # Load trained agent
-   agent = twisterl.load_agent("models/ppo_puzzle8.pt")
-   
-   # Create environment
-   env = twisterl.make_env("puzzle8_v1")
-   
-   # Run multiple episodes
-   rewards = []
-   for episode in range(100):
-       reward, steps = run_episode(agent, env)
-       rewards.append(reward)
-       print(f"Episode {episode + 1}: Reward = {reward}, Steps = {steps}")
-   
-   print(f"Average reward: {np.mean(rewards):.2f}")
+.. code-block:: bash
 
-Custom Environment Example
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   cargo new --lib examples/my_env
 
-.. code-block:: python
+2. **Add dependencies** in ``Cargo.toml``:
 
-   import twisterl
-   from twisterl.envs import BaseEnvironment
+.. code-block:: toml
 
-   class CustomGridWorld(BaseEnvironment):
-       """A simple grid world environment."""
-       
-       def __init__(self, size=5):
-           self.size = size
-           self.agent_pos = [0, 0]
-           self.goal_pos = [size-1, size-1]
-           
-       def reset(self):
-           self.agent_pos = [0, 0]
-           return self._get_observation()
-       
-       def step(self, action):
-           # 0: up, 1: down, 2: left, 3: right
-           moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-           dx, dy = moves[action]
-           
-           new_x = max(0, min(self.size-1, self.agent_pos[0] + dx))
-           new_y = max(0, min(self.size-1, self.agent_pos[1] + dy))
-           self.agent_pos = [new_x, new_y]
-           
-           reward = 1.0 if self.agent_pos == self.goal_pos else -0.1
-           done = self.agent_pos == self.goal_pos
-           
-           return self._get_observation(), reward, done, {}
-       
-       def _get_observation(self):
-           return self.agent_pos + self.goal_pos
+   [package]
+   name = "my_env"
+   version = "0.1.0"
+   edition = "2021"
 
-   # Use custom environment
-   env = CustomGridWorld(size=10)
-   # Train agent with this environment...
+   [lib]
+   name = "my_env"
+   crate-type = ["cdylib"]
 
-Performance Benchmarking
--------------------------
+   [dependencies]
+   pyo3 = { version = "0.20", features = ["extension-module"] }
+   twisterl = { path = "path/to/twisterl/rust", features = ["python_bindings"] }
 
-.. code-block:: python
+3. **Implement the environment** by implementing the ``twisterl::rl::env::Env`` trait.
 
-   import time
-   import twisterl
+4. **Expose it to Python** using ``PyBaseEnv``:
 
-   def benchmark_training():
-       """Benchmark training performance."""
-       start_time = time.time()
-       
-       # Configure training
-       config = {
-           "algorithm": "ppo",
-           "environment": "puzzle8_v1",
-           "training": {
-               "total_timesteps": 50000,
-               "learning_rate": 0.0003
-           }
+.. code-block:: rust
+
+   use pyo3::prelude::*;
+   use twisterl::python_interface::env::PyBaseEnv;
+
+   #[pyclass(name = "MyEnv", extends = PyBaseEnv)]
+   struct PyMyEnv;
+
+   #[pymethods]
+   impl PyMyEnv {
+       #[new]
+       fn new(...) -> (Self, PyBaseEnv) {
+           let env = MyEnv::new(...);
+           (PyMyEnv, PyBaseEnv { env: Box::new(env) })
        }
-       
-       # Run training
-       agent = twisterl.train(config)
-       
-       end_time = time.time()
-       training_time = end_time - start_time
-       
-       print(f"Training completed in {training_time:.2f} seconds")
-       print(f"Timesteps per second: {50000/training_time:.0f}")
-       
-       return agent
+   }
 
-   def benchmark_inference(agent, num_episodes=1000):
-       """Benchmark inference performance."""
-       env = twisterl.make_env("puzzle8_v1")
-       
-       start_time = time.time()
-       total_steps = 0
-       
-       for _ in range(num_episodes):
-           obs = env.reset()
-           done = False
-           while not done:
-               action = agent.predict(obs)
-               obs, _, done, _ = env.step(action)
-               total_steps += 1
-       
-       end_time = time.time()
-       inference_time = end_time - start_time
-       
-       print(f"Inference: {total_steps/inference_time:.0f} steps/second")
+5. **Build and install** the module:
+
+.. code-block:: bash
+
+   pip install .
+
+6. **Use from Python** in a config file or directly.
+
+See the `grid_world example <https://github.com/AI4quantum/twisteRL/tree/main/examples/grid_world>`_ for a complete implementation.
+
+Python Environments
+~~~~~~~~~~~~~~~~~~~
+
+TwisteRL also supports Python environments through the ``PyEnv`` wrapper:
+
+.. code-block:: json
+
+   {
+       "env_cls": "twisterl.envs.PyEnv",
+       "env": {
+           "pyenv_cls": "mymodule.MyPythonEnv"
+       }
+   }
+
+Note that Python environments may be slower than native Rust environments.
 
 Use Cases
 ---------
 
 TwisteRL is particularly well-suited for:
 
-**Training new models for AI-based transpilation**: Clifford synthesis, routing using https://github.com/AI4quantum/qiskit-gym
+**Quantum Circuit Transpilation**
+
+Currently used in `Qiskit/qiskit-ibm-transpiler <https://github.com/Qiskit/qiskit-ibm-transpiler>`_ for AI-based circuit optimization including Clifford synthesis and routing.
 
 **Puzzle-like Optimization Problems**
 
+Problems with discrete state and action spaces where fast inference is important.
+
 **Production-ready RL Inference**
+
+Scenarios requiring high-performance inference with portable Rust-based models.

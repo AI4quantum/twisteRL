@@ -1,7 +1,7 @@
 Algorithms API
 ==============
 
-This section documents the internal algorithm implementations in TwisteRL.
+This section documents the algorithm implementations in TwisteRL.
 
 RL Module
 ---------
@@ -11,224 +11,121 @@ RL Module
    :undoc-members:
    :show-inheritance:
 
-PPO Implementation
-------------------
+Algorithm Base Class
+--------------------
 
-.. autoclass:: twisterl.rl.PPOAgent
+.. automodule:: twisterl.rl.algorithm
    :members:
    :undoc-members:
    :show-inheritance:
 
-Configuration
-~~~~~~~~~~~~~
+The ``Algorithm`` base class provides the core training loop. Key methods:
 
-The PPO algorithm accepts the following configuration parameters:
+- ``learn(num_steps, best_metrics=None)``: Main training loop
+- ``learn_step()``: Single training iteration (collect, transform, train)
+- ``collect()``: Collect rollout data using the Rust collector
+- ``train(torch_data)``: Train for ``num_epochs`` calling ``train_step``
+- ``evaluate(kwargs)``: Evaluate the current policy
+- ``solve(state, deterministic, num_searches, num_mcts_searches, C, max_expand_depth)``: Solve from a given state
 
-.. code-block:: python
+PPO Implementation
+------------------
 
-   ppo_config = {
-       "learning_rate": 0.0003,      # Learning rate for optimizer
-       "clip_epsilon": 0.2,          # PPO clipping parameter  
-       "value_loss_coef": 0.5,       # Value function loss coefficient
-       "entropy_coef": 0.01,         # Entropy regularization coefficient
-       "max_grad_norm": 0.5,         # Maximum gradient norm for clipping
-       "num_epochs": 10,             # Training epochs per update
-       "batch_size": 64,             # Mini-batch size
-       "gamma": 0.99,                # Discount factor
-       "gae_lambda": 0.95,           # GAE lambda parameter
-       "normalize_advantages": True   # Whether to normalize advantages
-   }
+.. automodule:: twisterl.rl.ppo
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-Methods
-~~~~~~~
+The ``PPO`` class implements Proximal Policy Optimization.
 
-.. automethod:: twisterl.rl.PPOAgent.predict
-.. automethod:: twisterl.rl.PPOAgent.train_step
-.. automethod:: twisterl.rl.PPOAgent.save
-.. automethod:: twisterl.rl.PPOAgent.load
+**Key methods:**
+
+- ``data_to_torch(data)``: Convert collected data to PyTorch tensors
+- ``train_step(torch_data)``: Perform one gradient update
+
+**Training losses:**
+
+- Policy loss (clipped surrogate objective)
+- Value function loss (MSE)
+- Entropy bonus
 
 AlphaZero Implementation
 ------------------------
 
-.. autoclass:: twisterl.rl.AlphaZeroAgent
+.. automodule:: twisterl.rl.az
    :members:
    :undoc-members:
    :show-inheritance:
 
-Configuration
-~~~~~~~~~~~~~
+The ``AZ`` class implements AlphaZero with MCTS.
 
-.. code-block:: python
+**Key methods:**
 
-   alphazero_config = {
-       "num_simulations": 800,       # MCTS simulations per move
-       "c_puct": 1.0,               # Exploration constant
-       "temperature": 1.0,          # Action selection temperature
-       "num_self_play_games": 1000, # Self-play games per iteration
-       "training_steps": 1000,      # Training steps per iteration
-       "batch_size": 32,            # Neural network batch size
-       "learning_rate": 0.001,      # Neural network learning rate
-       "value_loss_weight": 1.0,    # Value loss weight
-       "regularization": 0.0001     # L2 regularization
-   }
-
-Monte Carlo Tree Search
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: twisterl.rl.MCTS
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automethod:: twisterl.rl.MCTS.search
-.. automethod:: twisterl.rl.MCTS.select_action
-.. automethod:: twisterl.rl.MCTS.backup
-
-Base Classes
-------------
-
-Agent Base Class
-~~~~~~~~~~~~~~~~
-
-.. autoclass:: twisterl.rl.BaseAgent
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-All algorithm implementations inherit from ``BaseAgent`` and must implement:
-
-- ``predict(observation)`` - Get action for given observation
-- ``train_step(batch)`` - Perform one training step  
-- ``save(path)`` - Save agent to file
-- ``load(path)`` - Load agent from file
-
-Policy Networks
-~~~~~~~~~~~~~~~
-
-.. autoclass:: twisterl.rl.PolicyNetwork
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Value Networks
-~~~~~~~~~~~~~~
-
-.. autoclass:: twisterl.rl.ValueNetwork
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Training Loop
--------------
-
-The core training loop is implemented in Rust for performance, but exposes a Python interface:
-
-.. autofunction:: twisterl.rl.train_agent
-
-Example usage:
-
-.. code-block:: python
-
-   import twisterl
-
-   # Configure algorithm
-   config = {
-       "algorithm": "ppo",
-       "environment": "puzzle8_v1", 
-       "ppo": {
-           "learning_rate": 0.0003,
-           "num_epochs": 10
-       },
-       "training": {
-           "total_timesteps": 100000,
-           "eval_frequency": 10000,
-           "save_frequency": 25000
-       }
-   }
-
-   # Train agent
-   agent = twisterl.train(config)
-
-   # Or use the lower-level interface
-   from twisterl.rl import train_agent, PPOAgent
-
-   env = twisterl.make_env("puzzle8_v1")
-   agent = PPOAgent(env.observation_space, env.action_space)
-   trained_agent = train_agent(agent, env, total_timesteps=100000)
+- ``data_to_torch(data)``: Convert MCTS data to PyTorch tensors
+- ``train_step(torch_data)``: Train policy and value heads
 
 Data Collection
 ---------------
 
-Episode data collection is handled by the Rust core for performance:
+Data collection is handled by Rust collectors (``twisterl.collector.PPOCollector`` and ``twisterl.collector.AZCollector``).
 
-.. autoclass:: twisterl.rl.EpisodeCollector
-   :members:
-   :undoc-members:
-   :show-inheritance:
+The collectors return data objects with:
 
-.. automethod:: twisterl.rl.EpisodeCollector.collect_episodes
-.. automethod:: twisterl.rl.EpisodeCollector.collect_rollouts
+- ``obs``: Observations
+- ``logits``: Policy logits
+- ``values``: Value predictions
+- ``rewards``: Rewards
+- ``actions``: Actions taken
+- ``additional_data``: Algorithm-specific data (returns, advantages for PPO; remaining_values for AZ)
 
-The collector returns structured data:
+Training Loop
+-------------
+
+Training is run via the command line:
+
+.. code-block:: bash
+
+   python -m twisterl.train --config path/to/config.json
+
+Or programmatically:
 
 .. code-block:: python
 
-   rollout_data = {
-       "observations": numpy.ndarray,  # Shape: (timesteps, *obs_shape)  
-       "actions": numpy.ndarray,       # Shape: (timesteps, *action_shape)
-       "rewards": numpy.ndarray,       # Shape: (timesteps,)
-       "dones": numpy.ndarray,         # Shape: (timesteps,)
-       "values": numpy.ndarray,        # Shape: (timesteps,) [PPO only]
-       "log_probs": numpy.ndarray,     # Shape: (timesteps,) [PPO only] 
-       "advantages": numpy.ndarray,    # Shape: (timesteps,) [computed]
-       "returns": numpy.ndarray        # Shape: (timesteps,) [computed]
-   }
+   from twisterl.utils import prepare_algorithm, load_config
+
+   config = load_config("path/to/config.json")
+   algorithm = prepare_algorithm(config, run_path="runs/my_run")
+   algorithm.learn(num_steps=1000)
 
 Metrics and Logging
 -------------------
 
-.. autoclass:: twisterl.rl.TrainingMetrics
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Training metrics are automatically logged and can be viewed with TensorBoard:
+Training metrics are logged to TensorBoard:
 
 .. code-block:: bash
 
    tensorboard --logdir runs/
 
-Common metrics include:
+Logged metrics include:
 
-- ``episode_reward_mean`` - Average episode reward
-- ``episode_length_mean`` - Average episode length  
-- ``policy_loss`` - Policy network loss
-- ``value_loss`` - Value network loss [PPO]
-- ``entropy`` - Policy entropy
-- ``explained_variance`` - Value function explained variance [PPO]
-- ``learning_rate`` - Current learning rate
+- ``Benchmark/difficulty``: Current difficulty level
+- ``Benchmark/success``: Success rate on evaluation
+- ``Benchmark/reward``: Average reward
+- ``Losses/value``: Value function loss
+- ``Losses/policy``: Policy loss
+- ``Losses/entropy``: Entropy (PPO only)
+- ``Times/*``: Timing breakdown for each step
 
-Utilities
----------
+Checkpointing
+-------------
 
-.. autofunction:: twisterl.rl.compute_gae
-.. autofunction:: twisterl.rl.compute_returns
-.. autofunction:: twisterl.rl.normalize_advantages
+Checkpoints are saved automatically:
 
-Example of manual advantage computation:
+- ``checkpoint_last.pt``: Most recent checkpoint (frequency controlled by ``logging.checkpoint_freq``)
+- ``checkpoint_best.pt``: Best performing checkpoint
 
-.. code-block:: python
+Load a checkpoint:
 
-   from twisterl.rl import compute_gae, normalize_advantages
+.. code-block:: bash
 
-   # Compute GAE advantages
-   advantages = compute_gae(
-       rewards=rewards,
-       values=values, 
-       dones=dones,
-       gamma=0.99,
-       gae_lambda=0.95
-   )
-
-   # Normalize advantages  
-   advantages = normalize_advantages(advantages)
+   python -m twisterl.train --config config.json --load_checkpoint_path runs/my_run/checkpoint_best.pt
