@@ -22,6 +22,7 @@ The current version is a *Proof of Concept*, stay tuned for future releases!
 - **Inference-Ready**: Easy compilation and bundling of models with environments into portable binaries for inference
 - **Modular Design**: Support for multiple algorithms (PPO, AlphaZero) with interchangeable training and inference
 - **Language Interoperability**: Core in Rust with Python interface
+- **Symmetry-Aware Training**: Environments can expose observation/action permutations ("twists") so policies automatically exploit symmetries for faster learning
 
 Quick Start
 -----------
@@ -98,8 +99,6 @@ Documentation
    :caption: Development
 
    contributing
-   roadmap
-   changelog
 
 .. toctree::
    :maxdepth: 1
@@ -119,8 +118,6 @@ Documentation
 **Development & Community**
 
 - :doc:`contributing` - How to contribute to TwisteRL
-- :doc:`roadmap` - Development timeline and future features
-- :doc:`changelog` - Version history and changes
 - :doc:`docs-guide` - Building and deploying documentation
 
 **Additional Resources**

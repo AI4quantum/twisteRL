@@ -26,63 +26,78 @@ The goal is to rearrange the numbers by sliding them into the empty space until 
 Training Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The training configuration is specified in JSON format. Here's a basic example:
+The training configuration is specified in JSON format. Here's an example based on the actual config structure:
 
 .. code-block:: json
 
    {
-     "algorithm": "ppo",
-     "environment": "puzzle8_v1",
-     "training": {
-       "total_timesteps": 100000,
-       "learning_rate": 0.0003,
-       "batch_size": 64
-     },
-     "network": {
-       "hidden_layers": [128, 128],
-       "activation": "relu"
-     }
+       "env_cls": "twisterl.envs.Puzzle",
+       "env": {
+           "difficulty": 1,
+           "height": 3,
+           "width": 3,
+           "depth_slope": 2,
+           "max_depth": 256
+       },
+       "policy_cls": "twisterl.nn.BasicPolicy",
+       "policy": {
+           "embedding_size": 512,
+           "common_layers": [256],
+           "policy_layers": [],
+           "value_layers": []
+       },
+       "algorithm_cls": "twisterl.rl.PPO",
+       "algorithm": {
+           "collecting": {
+               "num_cores": 32,
+               "num_episodes": 1024
+           },
+           "training": {
+               "num_epochs": 10,
+               "vf_coef": 0.8,
+               "ent_coef": 0.01,
+               "clip_ratio": 0.1
+           },
+           "optimizer": {
+               "lr": 0.00015
+           }
+       }
    }
 
-Running Inference
-~~~~~~~~~~~~~~~~~
+Training Options
+~~~~~~~~~~~~~~~~
 
-After training, you can test your trained model:
+The training script accepts the following command-line arguments:
 
-.. code-block:: python
+.. code-block:: bash
 
-   import twisterl
-   
-   # Load trained model
-   agent = twisterl.load_agent("path/to/model")
-   
-   # Create environment
-   env = twisterl.make_env("puzzle8_v1")
-   
-   # Run episode
-   obs = env.reset()
-   done = False
-   total_reward = 0
-   
-   while not done:
-       action = agent.predict(obs)
-       obs, reward, done, info = env.step(action)
-       total_reward += reward
-   
-   print(f"Total reward: {total_reward}")
+   python -m twisterl.train --config <path>           # Path to config file (required)
+   python -m twisterl.train --config <path> --run_path <path>  # Custom output directory
+   python -m twisterl.train --config <path> --load_checkpoint_path <path>  # Resume from checkpoint
+   python -m twisterl.train --config <path> --num_steps <n>  # Limit training steps
+
+Inference
+~~~~~~~~~
+
+After training, check the ``examples/puzzle.ipynb`` notebook for an interactive example showing how to:
+
+- Load trained models
+- Run inference
+- Visualize agent behavior
 
 Examples
 --------
 
-Check out the `examples/` directory for more comprehensive examples:
+Check out the ``examples/`` directory for more comprehensive examples:
 
 - **puzzle.ipynb**: Interactive Jupyter notebook showing inference
-- **ppo_puzzle8_v1.json**: 8-puzzle training configuration  
+- **ppo_puzzle8_v1.json**: 8-puzzle training configuration
 - **ppo_puzzle15_v1.json**: 15-puzzle training configuration (more challenging)
+- **hub_puzzle_model.ipynb**: Loading models from HuggingFace Hub
 
 Next Steps
 ----------
 
 - Explore different :doc:`algorithms` (PPO, AlphaZero)
-- Learn about custom :doc:`api/environments`
 - Check out the full :doc:`api/twisterl` API reference
+- Learn about :doc:`api/environments` for custom environments

@@ -55,30 +55,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="twisterl.html">twisterl package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Environments</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#base-environment-interface">Base Environment Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#envs-module">envs Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#built-in-environments">Built-in Environments</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#puzzle-environments">Puzzle Environments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#environment-factory">Environment Factory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#puzzle-environment">Puzzle Environment</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#custom-environments">Custom Environments</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#creating-rust-environments">Creating Rust Environments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#creating-python-environments">Creating Python Environments</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#environment-wrappers">Environment Wrappers</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#observation-wrappers">Observation Wrappers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#reward-wrappers">Reward Wrappers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#action-wrappers">Action Wrappers</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#environment-spaces">Environment Spaces</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#discrete-spaces">Discrete Spaces</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#box-spaces">Box Spaces</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#multi-discrete-spaces">Multi-Discrete Spaces</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-environment-wrapper">Python Environment Wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-custom-environments">Creating Custom Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-interface">Environment Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#permutation-symmetries-twists">Permutation Symmetries (Twists)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms API</a></li>
@@ -87,8 +72,6 @@
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to TwisteRL</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
@@ -124,241 +107,90 @@
   <section id="environments">
 <h1>Environments<a class="headerlink" href="#environments" title="Link to this heading"></a></h1>
 <p>TwisteRL provides a flexible environment system supporting both native Rust environments and Python environment wrappers.</p>
-<section id="base-environment-interface">
-<h2>Base Environment Interface<a class="headerlink" href="#base-environment-interface" title="Link to this heading"></a></h2>
+<section id="envs-module">
+<h2>envs Module<a class="headerlink" href="#envs-module" title="Link to this heading"></a></h2>
 </section>
 <section id="built-in-environments">
 <h2>Built-in Environments<a class="headerlink" href="#built-in-environments" title="Link to this heading"></a></h2>
-<section id="puzzle-environments">
-<h3>Puzzle Environments<a class="headerlink" href="#puzzle-environments" title="Link to this heading"></a></h3>
-<p>TwisteRL includes several built-in puzzle environments perfect for testing and development:</p>
-<p><strong>Puzzle8 (puzzle8_v1)</strong></p>
-<p>The classic 8-puzzle sliding tile game:</p>
-<ul class="simple">
-<li><p><strong>Observation Space</strong>: Flattened 3x3 grid (9 integers)</p></li>
-<li><p><strong>Action Space</strong>: Discrete(4) - Up, Down, Left, Right</p></li>
-<li><p><strong>Reward</strong>: -1 per step, +100 for solving</p></li>
-<li><p><strong>Episode Length</strong>: Maximum 200 steps</p></li>
-</ul>
-<p><strong>Puzzle15 (puzzle15_v1)</strong></p>
-<p>The larger 15-puzzle variant:</p>
-<ul class="simple">
-<li><p><strong>Observation Space</strong>: Flattened 4x4 grid (16 integers)</p></li>
-<li><p><strong>Action Space</strong>: Discrete(4) - Up, Down, Left, Right</p></li>
-<li><p><strong>Reward</strong>: -1 per step, +100 for solving</p></li>
-<li><p><strong>Episode Length</strong>: Maximum 500 steps</p></li>
-</ul>
-</section>
-<section id="environment-factory">
-<h3>Environment Factory<a class="headerlink" href="#environment-factory" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-
-<span class="c1"># Create built-in environment</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>
-
-<span class="c1"># Environment info</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Observation space: </span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Action space: </span><span class="si">{</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="custom-environments">
-<h2>Custom Environments<a class="headerlink" href="#custom-environments" title="Link to this heading"></a></h2>
-<section id="creating-rust-environments">
-<h3>Creating Rust Environments<a class="headerlink" href="#creating-rust-environments" title="Link to this heading"></a></h3>
-<p>For maximum performance, implement environments directly in Rust:</p>
-<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">use</span><span class="w"> </span><span class="n">twisterl</span><span class="p">::</span><span class="n">envs</span><span class="p">::{</span><span class="n">Environment</span><span class="p">,</span><span class="w"> </span><span class="n">ObservationSpace</span><span class="p">,</span><span class="w"> </span><span class="n">ActionSpace</span><span class="p">};</span>
-
-<span class="k">pub</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">CustomEnv</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">state</span><span class="p">:</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="k">impl</span><span class="w"> </span><span class="n">Environment</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">CustomEnv</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="nc">Observation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="nc">Action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span>
-
-<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span><span class="p">::</span><span class="n">Observation</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">10</span><span class="p">];</span>
-<span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="n">state</span><span class="p">.</span><span class="n">clone</span><span class="p">()</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">action</span><span class="p">:</span><span class="w"> </span><span class="nc">Self</span><span class="p">::</span><span class="n">Action</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="bp">Self</span><span class="p">::</span><span class="n">Observation</span><span class="p">,</span><span class="w"> </span><span class="kt">f64</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="p">,</span><span class="w"> </span><span class="n">serde_json</span><span class="p">::</span><span class="n">Value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// Environment logic here</span>
-<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">reward</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
-<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">done</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
-<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serde_json</span><span class="p">::</span><span class="n">json</span><span class="o">!</span><span class="p">({});</span>
-<span class="w">        </span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">state</span><span class="p">.</span><span class="n">clone</span><span class="p">(),</span><span class="w"> </span><span class="n">reward</span><span class="p">,</span><span class="w"> </span><span class="n">done</span><span class="p">,</span><span class="w"> </span><span class="n">info</span><span class="p">)</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">observation_space</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">ObservationSpace</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">ObservationSpace</span><span class="p">::</span><span class="nb">Box</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">low</span><span class="p">:</span><span class="w"> </span><span class="nc">vec</span><span class="o">!</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">high</span><span class="p">:</span><span class="w"> </span><span class="nc">vec</span><span class="o">!</span><span class="p">[</span><span class="mi">100</span><span class="p">],</span><span class="w"> </span><span class="n">shape</span><span class="p">:</span><span class="w"> </span><span class="nc">vec</span><span class="o">!</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
-<span class="w">    </span><span class="p">}</span>
-
-<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">action_space</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">ActionSpace</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">ActionSpace</span><span class="p">::</span><span class="n">Discrete</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">n</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">}</span>
+<section id="puzzle-environment">
+<h3>Puzzle Environment<a class="headerlink" href="#puzzle-environment" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Puzzle</span></code> environment is a sliding tile puzzle implemented in Rust.</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;env_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;twisterl.envs.Puzzle&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;difficulty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;height&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;width&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;depth_slope&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;max_depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">256</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-</section>
-<section id="creating-python-environments">
-<h3>Creating Python Environments<a class="headerlink" href="#creating-python-environments" title="Link to this heading"></a></h3>
-<p>For rapid prototyping, create Python environments:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-
-<span class="k">class</span><span class="w"> </span><span class="nc">CustomPythonEnv</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
-        <span class="c1"># Environment logic</span>
-        <span class="n">reward</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,))</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-
-<span class="c1"># Register custom environment</span>
-<span class="n">twisterl</span><span class="o">.</span><span class="n">register_env</span><span class="p">(</span><span class="s2">&quot;custom_env_v1&quot;</span><span class="p">,</span> <span class="n">CustomPythonEnv</span><span class="p">)</span>
-
-<span class="c1"># Use it</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;custom_env_v1&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="environment-wrappers">
-<h2>Environment Wrappers<a class="headerlink" href="#environment-wrappers" title="Link to this heading"></a></h2>
-<p>TwisteRL provides several wrappers to modify environment behavior:</p>
-<section id="observation-wrappers">
-<h3>Observation Wrappers<a class="headerlink" href="#observation-wrappers" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.envs.wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObservationWrapper</span>
-
-<span class="k">class</span><span class="w"> </span><span class="nc">NormalizeObservation</span><span class="p">(</span><span class="n">ObservationWrapper</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">obs</span> <span class="o">/</span> <span class="mf">255.0</span>  <span class="c1"># Normalize to [0,1]</span>
-
-<span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">NormalizeObservation</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="reward-wrappers">
-<h3>Reward Wrappers<a class="headerlink" href="#reward-wrappers" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.envs.wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RewardWrapper</span>
-
-<span class="k">class</span><span class="w"> </span><span class="nc">ScaleReward</span><span class="p">(</span><span class="n">RewardWrapper</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">reward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">reward</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span>
-
-<span class="n">env</span> <span class="o">=</span> <span class="n">ScaleReward</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="action-wrappers">
-<h3>Action Wrappers<a class="headerlink" href="#action-wrappers" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.envs.wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionWrapper</span>
-
-<span class="k">class</span><span class="w"> </span><span class="nc">DiscreteToBox</span><span class="p">(</span><span class="n">ActionWrapper</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
-        <span class="c1"># Convert discrete to continuous</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">action</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="environment-spaces">
-<h2>Environment Spaces<a class="headerlink" href="#environment-spaces" title="Link to this heading"></a></h2>
-<p>TwisteRL supports standard Gym-style spaces:</p>
-<section id="discrete-spaces">
-<h3>Discrete Spaces<a class="headerlink" href="#discrete-spaces" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Discrete</span>
-
-<span class="c1"># 4 possible actions: 0, 1, 2, 3</span>
-<span class="n">action_space</span> <span class="o">=</span> <span class="n">Discrete</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="box-spaces">
-<h3>Box Spaces<a class="headerlink" href="#box-spaces" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Box</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-
-<span class="c1"># Continuous space [0, 1]^10</span>
-<span class="n">obs_space</span> <span class="o">=</span> <span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,))</span>
-
-<span class="c1"># With different bounds per dimension</span>
-<span class="n">obs_space</span> <span class="o">=</span> <span class="n">Box</span><span class="p">(</span>
-    <span class="n">low</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span>
-    <span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="multi-discrete-spaces">
-<h3>Multi-Discrete Spaces<a class="headerlink" href="#multi-discrete-spaces" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiDiscrete</span>
-
-<span class="c1"># Two discrete choices: first has 3 options, second has 5</span>
-<span class="n">action_space</span> <span class="o">=</span> <span class="n">MultiDiscrete</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="performance-considerations">
-<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading"></a></h2>
-<p><strong>Rust vs Python Environments:</strong></p>
+<p><strong>Parameters:</strong></p>
 <ul class="simple">
-<li><p><strong>Rust environments</strong>: 10-100x faster, recommended for production</p></li>
-<li><p><strong>Python environments</strong>: Easier to prototype, good for development</p></li>
+<li><p><strong>difficulty</strong>: Initial difficulty level (controls scramble depth)</p></li>
+<li><p><strong>height</strong>: Grid height (3 for 8-puzzle, 4 for 15-puzzle)</p></li>
+<li><p><strong>width</strong>: Grid width (3 for 8-puzzle, 4 for 15-puzzle)</p></li>
+<li><p><strong>depth_slope</strong>: How quickly difficulty increases scramble depth</p></li>
+<li><p><strong>max_depth</strong>: Maximum scramble depth</p></li>
 </ul>
-<p><strong>Environment Design Tips:</strong></p>
+<p><strong>8-Puzzle (3x3):</strong></p>
+<p>A 3x3 sliding puzzle with 8 numbered tiles and one empty space.</p>
+<p><strong>15-Puzzle (4x4):</strong></p>
+<p>A 4x4 sliding puzzle with 15 numbered tiles and one empty space.</p>
+</section>
+</section>
+<section id="python-environment-wrapper">
+<h2>Python Environment Wrapper<a class="headerlink" href="#python-environment-wrapper" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">PyEnv</span></code> class wraps Python environments for use with TwisteRL’s Rust training loop.</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;env_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;twisterl.envs.PyEnv&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;pyenv_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mymodule.MyEnvironment&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The Python environment class should implement:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">reset()</span> <span class="pre">-&gt;</span> <span class="pre">observation</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step(action)</span> <span class="pre">-&gt;</span> <span class="pre">(observation,</span> <span class="pre">reward,</span> <span class="pre">done,</span> <span class="pre">info)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">obs_shape()</span> <span class="pre">-&gt;</span> <span class="pre">list[int]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_actions()</span> <span class="pre">-&gt;</span> <span class="pre">int</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">twists()</span> <span class="pre">-&gt;</span> <span class="pre">(obs_perms,</span> <span class="pre">act_perms)</span></code> (optional, for symmetry-aware training)</p></li>
+</ul>
+</section>
+<section id="creating-custom-environments">
+<h2>Creating Custom Environments<a class="headerlink" href="#creating-custom-environments" title="Link to this heading"></a></h2>
+<p>For best performance, implement environments in Rust. See the <code class="docutils literal notranslate"><span class="pre">examples/grid_world</span></code> directory for a complete example.</p>
+<p><strong>Key steps:</strong></p>
 <ol class="arabic simple">
-<li><p><strong>Minimize observation copying</strong>: Return views when possible</p></li>
-<li><p><strong>Batch operations</strong>: Vectorize computations in Python</p></li>
-<li><p><strong>Avoid dynamic allocation</strong>: Pre-allocate arrays in tight loops</p></li>
-<li><p><strong>Profile bottlenecks</strong>: Use profiling tools to identify slow parts</p></li>
+<li><p>Implement the <code class="docutils literal notranslate"><span class="pre">twisterl::rl::env::Env</span></code> trait in Rust</p></li>
+<li><p>Expose to Python using <code class="docutils literal notranslate"><span class="pre">PyBaseEnv</span></code></p></li>
+<li><p>Build with maturin and install</p></li>
 </ol>
-<p><strong>Benchmarking:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">benchmark_env</span><span class="p">(</span><span class="n">env_name</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="n">env_name</span><span class="p">)</span>
-
-    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_steps</span><span class="p">):</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
-        <span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
-            <span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-
-    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">env_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">num_steps</span><span class="o">/</span><span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> steps/second&quot;</span><span class="p">)</span>
-
-<span class="n">benchmark_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>  <span class="c1"># Rust environment</span>
-<span class="n">benchmark_env</span><span class="p">(</span><span class="s2">&quot;custom_python_env&quot;</span><span class="p">)</span>  <span class="c1"># Python environment</span>
-</pre></div>
-</div>
+<p>See <a class="reference internal" href="../examples.html"><span class="doc">Examples</span></a> for detailed instructions.</p>
+</section>
+<section id="environment-interface">
+<h2>Environment Interface<a class="headerlink" href="#environment-interface" title="Link to this heading"></a></h2>
+<p>All environments must provide these methods (called from Rust or Python):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">reset()</span></code>: Reset to initial state, return observation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step(action)</span></code>: Take action, return (obs, reward, done, info)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">obs_shape()</span></code>: Return observation dimensions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_actions()</span></code>: Return number of valid actions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">twists()</span></code>: Return permutation symmetries (optional)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_state(state)</span></code>: Set environment to specific state (for inference)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">difficulty</span></code>: Property to get/set difficulty level</p></li>
+</ul>
+</section>
+<section id="permutation-symmetries-twists">
+<h2>Permutation Symmetries (Twists)<a class="headerlink" href="#permutation-symmetries-twists" title="Link to this heading"></a></h2>
+<p>TwisteRL supports symmetry-aware training through “twists” - permutations of observations and actions that represent equivalent states.</p>
+<p>See <code class="docutils literal notranslate"><span class="pre">docs/twists.md</span></code> for detailed documentation on implementing twists in your environments.</p>
 </section>
 </section>
 

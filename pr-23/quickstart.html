@@ -51,7 +51,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#basic-usage">Basic Usage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#training-your-first-model">Training Your First Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#training-configuration">Training Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#running-inference">Running Inference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#training-options">Training Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inference">Inference</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
@@ -71,8 +72,6 @@
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TwisteRL</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
@@ -125,64 +124,79 @@
 </section>
 <section id="training-configuration">
 <h3>Training Configuration<a class="headerlink" href="#training-configuration" title="Link to this heading"></a></h3>
-<p>The training configuration is specified in JSON format. Here’s a basic example:</p>
+<p>The training configuration is specified in JSON format. Here’s an example based on the actual config structure:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;algorithm&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ppo&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;environment&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;training&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;total_timesteps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;learning_rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0003</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;batch_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">64</span>
-<span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;network&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;hidden_layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;activation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;relu&quot;</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">&quot;env_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;twisterl.envs.Puzzle&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;difficulty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;height&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;width&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;depth_slope&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;max_depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">256</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;policy_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;twisterl.nn.BasicPolicy&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;policy&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;embedding_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">512</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;common_layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">256</span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;policy_layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;value_layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;algorithm_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;twisterl.rl.PPO&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;algorithm&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;collecting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;num_cores&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;num_episodes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;training&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;num_epochs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;vf_coef&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;ent_coef&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;clip_ratio&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;optimizer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;lr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.00015</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </section>
-<section id="running-inference">
-<h3>Running Inference<a class="headerlink" href="#running-inference" title="Link to this heading"></a></h3>
-<p>After training, you can test your trained model:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-
-<span class="c1"># Load trained model</span>
-<span class="n">agent</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">load_agent</span><span class="p">(</span><span class="s2">&quot;path/to/model&quot;</span><span class="p">)</span>
-
-<span class="c1"># Create environment</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>
-
-<span class="c1"># Run episode</span>
-<span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-<span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">total_reward</span> <span class="o">=</span> <span class="mi">0</span>
-
-<span class="k">while</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
-    <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-    <span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-    <span class="n">total_reward</span> <span class="o">+=</span> <span class="n">reward</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total reward: </span><span class="si">{</span><span class="n">total_reward</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<section id="training-options">
+<h3>Training Options<a class="headerlink" href="#training-options" title="Link to this heading"></a></h3>
+<p>The training script accepts the following command-line arguments:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>&lt;path&gt;<span class="w">           </span><span class="c1"># Path to config file (required)</span>
+python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>&lt;path&gt;<span class="w"> </span>--run_path<span class="w"> </span>&lt;path&gt;<span class="w">  </span><span class="c1"># Custom output directory</span>
+python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>&lt;path&gt;<span class="w"> </span>--load_checkpoint_path<span class="w"> </span>&lt;path&gt;<span class="w">  </span><span class="c1"># Resume from checkpoint</span>
+python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>&lt;path&gt;<span class="w"> </span>--num_steps<span class="w"> </span>&lt;n&gt;<span class="w">  </span><span class="c1"># Limit training steps</span>
 </pre></div>
 </div>
+</section>
+<section id="inference">
+<h3>Inference<a class="headerlink" href="#inference" title="Link to this heading"></a></h3>
+<p>After training, check the <code class="docutils literal notranslate"><span class="pre">examples/puzzle.ipynb</span></code> notebook for an interactive example showing how to:</p>
+<ul class="simple">
+<li><p>Load trained models</p></li>
+<li><p>Run inference</p></li>
+<li><p>Visualize agent behavior</p></li>
+</ul>
 </section>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
-<p>Check out the <cite>examples/</cite> directory for more comprehensive examples:</p>
+<p>Check out the <code class="docutils literal notranslate"><span class="pre">examples/</span></code> directory for more comprehensive examples:</p>
 <ul class="simple">
 <li><p><strong>puzzle.ipynb</strong>: Interactive Jupyter notebook showing inference</p></li>
 <li><p><strong>ppo_puzzle8_v1.json</strong>: 8-puzzle training configuration</p></li>
 <li><p><strong>ppo_puzzle15_v1.json</strong>: 15-puzzle training configuration (more challenging)</p></li>
+<li><p><strong>hub_puzzle_model.ipynb</strong>: Loading models from HuggingFace Hub</p></li>
 </ul>
 </section>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Explore different <a class="reference internal" href="algorithms.html"><span class="doc">Algorithms</span></a> (PPO, AlphaZero)</p></li>
-<li><p>Learn about custom <a class="reference internal" href="api/environments.html"><span class="doc">Environments</span></a></p></li>
 <li><p>Check out the full <a class="reference internal" href="api/twisterl.html"><span class="doc">twisterl package</span></a> API reference</p></li>
+<li><p>Learn about <a class="reference internal" href="api/environments.html"><span class="doc">Environments</span></a> for custom environments</p></li>
 </ul>
 </section>
 </section>

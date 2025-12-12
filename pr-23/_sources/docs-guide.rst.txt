@@ -284,9 +284,9 @@ The documentation is automatically built and deployed when:
    - ``.github/workflows/docs.yml``
 
 2. **Pull requests** create preview deployments:
-   - Built docs deployed to ``pr-{number}/`` subdirectory
-   - Bot comments with preview URL on the PR
-   - Auto-cleanup when PR is closed
+   - Built docs deployed to ``pr-{number}/`` subdirectory on the ``gh-pages`` branch
+   - A bot comment provides the preview URL on the PR
+   - Preview is cleaned up when PR is closed
 
 3. **Manual trigger** via GitHub Actions interface
 

@@ -58,52 +58,21 @@
 <li class="toctree-l1"><a class="reference internal" href="algorithms.html">Algorithms API</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Neural Networks</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#nn-module">NN Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#base-network-classes">Base Network Classes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#network-base">Network Base</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#policy-networks">Policy Networks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#actor-network">Actor Network</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#critic-network">Critic Network</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#actor-critic-networks">Actor-Critic Networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basicpolicy">BasicPolicy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conv1dpolicy">Conv1dPolicy</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#alphazero-networks">AlphaZero Networks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#dual-head-network">Dual Head Network</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#residual-networks">Residual Networks</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#convolutional-networks">Convolutional Networks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#conv2d-networks">Conv2D Networks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#nature-dqn-architecture">Nature DQN Architecture</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#custom-architectures">Custom Architectures</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#building-custom-networks">Building Custom Networks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#attention-networks">Attention Networks</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#network-utilities">Network Utilities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#activation-functions">Activation Functions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#layer-utilities">Layer Utilities</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#performance-optimizations">Performance Optimizations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#model-compilation">Model Compilation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#mixed-precision-training">Mixed Precision Training</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#device-management">Device Management</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#model-statistics">Model Statistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#permutation-support-twists">Permutation Support (Twists)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rust-conversion">Rust Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#network-utilities">Network Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#device-management">Device Management</a></li>
 </ul>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to TwisteRL</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
@@ -138,354 +107,123 @@
              
   <section id="neural-networks">
 <h1>Neural Networks<a class="headerlink" href="#neural-networks" title="Link to this heading"></a></h1>
-<p>TwisteRL provides flexible neural network architectures optimized for reinforcement learning.</p>
+<p>TwisteRL provides neural network architectures for reinforcement learning policies.</p>
 <section id="nn-module">
 <h2>NN Module<a class="headerlink" href="#nn-module" title="Link to this heading"></a></h2>
 </section>
-<section id="base-network-classes">
-<h2>Base Network Classes<a class="headerlink" href="#base-network-classes" title="Link to this heading"></a></h2>
-<section id="network-base">
-<h3>Network Base<a class="headerlink" href="#network-base" title="Link to this heading"></a></h3>
-<p>All neural networks in TwisteRL inherit from <code class="docutils literal notranslate"><span class="pre">BaseNetwork</span></code> and provide:</p>
+<section id="policy-networks">
+<h2>Policy Networks<a class="headerlink" href="#policy-networks" title="Link to this heading"></a></h2>
+<section id="basicpolicy">
+<h3>BasicPolicy<a class="headerlink" href="#basicpolicy" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">BasicPolicy</span></code> is the main policy network used for both PPO and AlphaZero. It has an actor-critic architecture with shared embedding layers.</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;policy_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;twisterl.nn.BasicPolicy&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;policy&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;embedding_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">512</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;common_layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">256</span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;policy_layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;value_layers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Parameters:</strong></p>
 <ul class="simple">
-<li><p>Standardized initialization</p></li>
-<li><p>Device management (CPU/GPU)</p></li>
-<li><p>Parameter counting and statistics</p></li>
-<li><p>Checkpointing support</p></li>
+<li><p><strong>embedding_size</strong>: Size of the embedding layer</p></li>
+<li><p><strong>common_layers</strong>: Hidden layer sizes for shared network</p></li>
+<li><p><strong>policy_layers</strong>: Additional layers for policy head (after common layers)</p></li>
+<li><p><strong>value_layers</strong>: Additional layers for value head (after common layers)</p></li>
+</ul>
+<p><strong>Architecture:</strong></p>
+<ol class="arabic simple">
+<li><p>Embedding layer: <code class="docutils literal notranslate"><span class="pre">obs_size</span> <span class="pre">-&gt;</span> <span class="pre">embedding_size</span></code> (Linear + ReLU)</p></li>
+<li><p>Common layers: Shared MLP</p></li>
+<li><p>Policy head: Outputs action logits</p></li>
+<li><p>Value head: Outputs state value</p></li>
+</ol>
+<p><strong>Usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasicPolicy</span>
+
+<span class="n">policy</span> <span class="o">=</span> <span class="n">BasicPolicy</span><span class="p">(</span>
+    <span class="n">obs_shape</span><span class="o">=</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span>           <span class="c1"># 3x3 puzzle = 9 observations</span>
+    <span class="n">num_actions</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>           <span class="c1"># 4 possible moves</span>
+    <span class="n">embedding_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+    <span class="n">common_layers</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,),</span>
+    <span class="n">policy_layers</span><span class="o">=</span><span class="p">(),</span>
+    <span class="n">value_layers</span><span class="o">=</span><span class="p">(),</span>
+    <span class="n">obs_perms</span><span class="o">=</span><span class="p">(),</span>            <span class="c1"># Observation permutations (twists)</span>
+    <span class="n">act_perms</span><span class="o">=</span><span class="p">()</span>             <span class="c1"># Action permutations (twists)</span>
+<span class="p">)</span>
+
+<span class="c1"># Forward pass (returns logits, not probabilities)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">logits</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">policy</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+<span class="c1"># Predict with numpy input (returns action probabilities and value)</span>
+<span class="n">action_probs</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">obs_numpy</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="conv1dpolicy">
+<h3>Conv1dPolicy<a class="headerlink" href="#conv1dpolicy" title="Link to this heading"></a></h3>
+<p>A variant of BasicPolicy that uses 1D convolutions for the embedding layer. Useful for environments with structured 2D observations.</p>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p><strong>conv_dim</strong>: Which dimension to convolve over (0 or 1)</p></li>
 </ul>
 </section>
 </section>
-<section id="policy-networks">
-<h2>Policy Networks<a class="headerlink" href="#policy-networks" title="Link to this heading"></a></h2>
-<section id="actor-network">
-<h3>Actor Network<a class="headerlink" href="#actor-network" title="Link to this heading"></a></h3>
-<p>The actor network outputs action probabilities for discrete action spaces or action parameters for continuous spaces.</p>
-<p><strong>Configuration:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">actor_config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;hidden_layers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">],</span>     <span class="c1"># Hidden layer sizes</span>
-    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>            <span class="c1"># Activation function</span>
-    <span class="s2">&quot;output_activation&quot;</span><span class="p">:</span> <span class="s2">&quot;softmax&quot;</span><span class="p">,</span>  <span class="c1"># Output activation (discrete)</span>
-    <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>                  <span class="c1"># Dropout probability</span>
-    <span class="s2">&quot;layer_norm&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>             <span class="c1"># Use layer normalization</span>
-    <span class="s2">&quot;orthogonal_init&quot;</span><span class="p">:</span> <span class="kc">True</span>          <span class="c1"># Orthogonal weight initialization</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p><strong>Usage:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActorNetwork</span>
+<section id="permutation-support-twists">
+<h2>Permutation Support (Twists)<a class="headerlink" href="#permutation-support-twists" title="Link to this heading"></a></h2>
+<p>Both policy classes support permutation symmetries (“twists”) for symmetry-aware training:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get twists from environment</span>
+<span class="n">obs_perms</span><span class="p">,</span> <span class="n">act_perms</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">twists</span><span class="p">()</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>
-
-<span class="n">actor</span> <span class="o">=</span> <span class="n">ActorNetwork</span><span class="p">(</span>
-    <span class="n">input_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-    <span class="n">output_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
-    <span class="n">hidden_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span>
-    <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span>
-<span class="p">)</span>
-
-<span class="c1"># Forward pass</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="n">obs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># Batch of observations</span>
-<span class="n">action_probs</span> <span class="o">=</span> <span class="n">actor</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>  <span class="c1"># Shape: (32, action_space.n)</span>
-</pre></div>
-</div>
-</section>
-<section id="critic-network">
-<h3>Critic Network<a class="headerlink" href="#critic-network" title="Link to this heading"></a></h3>
-<p>The critic network estimates state values or action values (Q-functions).</p>
-<p><strong>Configuration:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">critic_config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;hidden_layers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">],</span>
-    <span class="s2">&quot;activation&quot;</span><span class="p">:</span> <span class="s2">&quot;relu&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;output_activation&quot;</span><span class="p">:</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="s2">&quot;layer_norm&quot;</span><span class="p">:</span> <span class="kc">False</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p><strong>Usage:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CriticNetwork</span>
-
-<span class="n">critic</span> <span class="o">=</span> <span class="n">CriticNetwork</span><span class="p">(</span>
-    <span class="n">input_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-    <span class="n">output_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># State value (V) or action value (Q)</span>
-    <span class="n">hidden_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">]</span>
-<span class="p">)</span>
-
-<span class="c1"># Forward pass</span>
-<span class="n">state_values</span> <span class="o">=</span> <span class="n">critic</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>  <span class="c1"># Shape: (32, 1)</span>
-</pre></div>
-</div>
-</section>
-<section id="actor-critic-networks">
-<h3>Actor-Critic Networks<a class="headerlink" href="#actor-critic-networks" title="Link to this heading"></a></h3>
-<p>Combined actor-critic architecture with shared feature layers:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActorCriticNetwork</span>
-
-<span class="n">actor_critic</span> <span class="o">=</span> <span class="n">ActorCriticNetwork</span><span class="p">(</span>
-    <span class="n">input_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-    <span class="n">action_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
-    <span class="n">shared_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">],</span>      <span class="c1"># Shared feature layers</span>
-    <span class="n">actor_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">],</span>            <span class="c1"># Actor-specific layers</span>
-    <span class="n">critic_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">],</span>           <span class="c1"># Critic-specific layers</span>
-    <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span>
-<span class="p">)</span>
-
-<span class="c1"># Forward pass returns both policy and value</span>
-<span class="n">obs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">action_probs</span><span class="p">,</span> <span class="n">state_values</span> <span class="o">=</span> <span class="n">actor_critic</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="alphazero-networks">
-<h2>AlphaZero Networks<a class="headerlink" href="#alphazero-networks" title="Link to this heading"></a></h2>
-<section id="dual-head-network">
-<h3>Dual Head Network<a class="headerlink" href="#dual-head-network" title="Link to this heading"></a></h3>
-<p>AlphaZero uses a single network with two heads: policy and value.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlphaZeroNetwork</span>
-
-<span class="n">alphazero_net</span> <span class="o">=</span> <span class="n">AlphaZeroNetwork</span><span class="p">(</span>
-    <span class="n">input_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-    <span class="n">action_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
-    <span class="n">hidden_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">],</span>
-    <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span>
-    <span class="n">value_head_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">],</span>       <span class="c1"># Value head architecture</span>
-    <span class="n">policy_head_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">128</span><span class="p">]</span>       <span class="c1"># Policy head architecture</span>
-<span class="p">)</span>
-
-<span class="c1"># Forward pass</span>
-<span class="n">obs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">policy_logits</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">alphazero_net</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="residual-networks">
-<h3>Residual Networks<a class="headerlink" href="#residual-networks" title="Link to this heading"></a></h3>
-<p>For complex environments, TwisteRL supports residual connections:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResidualNetwork</span>
-
-<span class="n">resnet</span> <span class="o">=</span> <span class="n">ResidualNetwork</span><span class="p">(</span>
-    <span class="n">input_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-    <span class="n">action_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
-    <span class="n">num_blocks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>                 <span class="c1"># Number of residual blocks</span>
-    <span class="n">block_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>                <span class="c1"># Channels per block</span>
-    <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span>
+<span class="c1"># Create policy with permutation support</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">BasicPolicy</span><span class="p">(</span>
+    <span class="n">obs_shape</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">obs_shape</span><span class="p">(),</span>
+    <span class="n">num_actions</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">num_actions</span><span class="p">(),</span>
+    <span class="n">obs_perms</span><span class="o">=</span><span class="n">obs_perms</span><span class="p">,</span>
+    <span class="n">act_perms</span><span class="o">=</span><span class="n">act_perms</span><span class="p">,</span>
+    <span class="o">...</span>
 <span class="p">)</span>
 </pre></div>
 </div>
+<p>When permutations are provided, the policy can:</p>
+<ul class="simple">
+<li><p>Apply random permutations during training for data augmentation</p></li>
+<li><p>Handle permutation indices passed during forward pass</p></li>
+</ul>
 </section>
-</section>
-<section id="convolutional-networks">
-<h2>Convolutional Networks<a class="headerlink" href="#convolutional-networks" title="Link to this heading"></a></h2>
-<p>For image-based environments:</p>
-<section id="conv2d-networks">
-<h3>Conv2D Networks<a class="headerlink" href="#conv2d-networks" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvNetwork</span>
-
-<span class="c1"># For image observations (e.g., Atari)</span>
-<span class="n">conv_net</span> <span class="o">=</span> <span class="n">ConvNetwork</span><span class="p">(</span>
-    <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">84</span><span class="p">),</span>       <span class="c1"># (channels, height, width)</span>
-    <span class="n">action_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
-    <span class="n">conv_layers</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span><span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;stride&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
-        <span class="p">{</span><span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;stride&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
-        <span class="p">{</span><span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;stride&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-    <span class="p">],</span>
-    <span class="n">fc_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">512</span><span class="p">,</span> <span class="mi">256</span><span class="p">]</span>
-<span class="p">)</span>
+<section id="rust-conversion">
+<h2>Rust Conversion<a class="headerlink" href="#rust-conversion" title="Link to this heading"></a></h2>
+<p>Policies can be converted to Rust for fast inference:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Convert PyTorch policy to Rust</span>
+<span class="n">rust_policy</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">to_rust</span><span class="p">()</span>
 </pre></div>
 </div>
-</section>
-<section id="nature-dqn-architecture">
-<h3>Nature DQN Architecture<a class="headerlink" href="#nature-dqn-architecture" title="Link to this heading"></a></h3>
-<p>The standard CNN architecture from the DQN paper:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">NatureDQN</span>
-
-<span class="n">nature_dqn</span> <span class="o">=</span> <span class="n">NatureDQN</span><span class="p">(</span>
-    <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">84</span><span class="p">),</span>
-    <span class="n">action_dim</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">n</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="custom-architectures">
-<h2>Custom Architectures<a class="headerlink" href="#custom-architectures" title="Link to this heading"></a></h2>
-<section id="building-custom-networks">
-<h3>Building Custom Networks<a class="headerlink" href="#building-custom-networks" title="Link to this heading"></a></h3>
-<p>You can easily create custom architectures by inheriting from <code class="docutils literal notranslate"><span class="pre">BaseNetwork</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseNetwork</span>
-
-<span class="k">class</span><span class="w"> </span><span class="nc">CustomNetwork</span><span class="p">(</span><span class="n">BaseNetwork</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">feature_extractor</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_dim</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
-        <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">policy_head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value_head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-        <span class="c1"># Initialize weights</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_init_weights</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_extractor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">policy</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">policy_head</span><span class="p">(</span><span class="n">features</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_head</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">policy</span><span class="p">,</span> <span class="n">value</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_init_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">):</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">orthogonal_</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
-            <span class="n">module</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
-</pre></div>
-</div>
-</section>
-<section id="attention-networks">
-<h3>Attention Networks<a class="headerlink" href="#attention-networks" title="Link to this heading"></a></h3>
-<p>For environments with variable-length or structured inputs:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttentionNetwork</span>
-
-<span class="n">attention_net</span> <span class="o">=</span> <span class="n">AttentionNetwork</span><span class="p">(</span>
-    <span class="n">input_dim</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
-    <span class="n">num_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>                   <span class="c1"># Multi-head attention</span>
-    <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>                <span class="c1"># Feed-forward hidden dimension</span>
-    <span class="n">num_layers</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>                  <span class="c1"># Number of attention layers</span>
-    <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
+<p>This is used internally during training for fast data collection.</p>
 </section>
 <section id="network-utilities">
 <h2>Network Utilities<a class="headerlink" href="#network-utilities" title="Link to this heading"></a></h2>
-<section id="initialization">
-<h3>Initialization<a class="headerlink" href="#initialization" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_weights</span><span class="p">,</span> <span class="n">orthogonal_init</span>
-
-<span class="c1"># Initialize network weights</span>
-<span class="n">network</span> <span class="o">=</span> <span class="n">ActorNetwork</span><span class="p">(</span><span class="n">input_dim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">output_dim</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">network</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">orthogonal_init</span><span class="p">)</span>
-
-<span class="c1"># Or use the utility function</span>
-<span class="n">init_weights</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="activation-functions">
-<h3>Activation Functions<a class="headerlink" href="#activation-functions" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_activation</span>
-
-<span class="c1"># Get activation function by name</span>
-<span class="n">activation</span> <span class="o">=</span> <span class="n">get_activation</span><span class="p">(</span><span class="s2">&quot;relu&quot;</span><span class="p">)</span>      <span class="c1"># Returns nn.ReLU()</span>
-<span class="n">activation</span> <span class="o">=</span> <span class="n">get_activation</span><span class="p">(</span><span class="s2">&quot;swish&quot;</span><span class="p">)</span>     <span class="c1"># Returns Swish()</span>
-<span class="n">activation</span> <span class="o">=</span> <span class="n">get_activation</span><span class="p">(</span><span class="s2">&quot;mish&quot;</span><span class="p">)</span>      <span class="c1"># Returns Mish()</span>
-</pre></div>
-</div>
-</section>
-<section id="layer-utilities">
-<h3>Layer Utilities<a class="headerlink" href="#layer-utilities" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLP</span>
-
-<span class="c1"># Quick MLP creation</span>
-<span class="n">mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span>
-    <span class="n">input_dim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-    <span class="n">output_dim</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">hidden_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">],</span>
-    <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">,</span>
-    <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-    <span class="n">layer_norm</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="performance-optimizations">
-<h2>Performance Optimizations<a class="headerlink" href="#performance-optimizations" title="Link to this heading"></a></h2>
-<section id="model-compilation">
-<h3>Model Compilation<a class="headerlink" href="#model-compilation" title="Link to this heading"></a></h3>
-<p>For PyTorch 2.0+ users, TwisteRL supports model compilation:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActorNetwork</span>
-
-<span class="c1"># Create network</span>
-<span class="n">actor</span> <span class="o">=</span> <span class="n">ActorNetwork</span><span class="p">(</span><span class="n">input_dim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">output_dim</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-
-<span class="c1"># Compile for faster inference (PyTorch 2.0+)</span>
-<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">torch</span><span class="p">,</span> <span class="s1">&#39;compile&#39;</span><span class="p">):</span>
-    <span class="n">actor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="mixed-precision-training">
-<h3>Mixed Precision Training<a class="headerlink" href="#mixed-precision-training" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">torch.cuda.amp</span><span class="w"> </span><span class="kn">import</span> <span class="n">autocast</span><span class="p">,</span> <span class="n">GradScaler</span>
-
-<span class="c1"># Enable mixed precision</span>
-<span class="n">scaler</span> <span class="o">=</span> <span class="n">GradScaler</span><span class="p">()</span>
-
-<span class="c1"># In training loop</span>
-<span class="k">with</span> <span class="n">autocast</span><span class="p">():</span>
-    <span class="n">policy</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">actor_critic</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="n">compute_loss</span><span class="p">(</span><span class="n">policy</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span>
-
-<span class="n">scaler</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-<span class="n">scaler</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>
-<span class="n">scaler</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
-</pre></div>
-</div>
+<p>Key utility functions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">make_sequential(in_size,</span> <span class="pre">layer_sizes,</span> <span class="pre">final_relu=True)</span></code>: Create a sequential MLP</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sequential_to_rust(module)</span></code>: Convert PyTorch Sequential to Rust</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">embeddingbag_to_rust(module,</span> <span class="pre">shape,</span> <span class="pre">dim)</span></code>: Convert embedding layer to Rust</p></li>
+</ul>
 </section>
 <section id="device-management">
-<h3>Device Management<a class="headerlink" href="#device-management" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_device</span><span class="p">,</span> <span class="n">move_to_device</span>
+<h2>Device Management<a class="headerlink" href="#device-management" title="Link to this heading"></a></h2>
+<p>Policies automatically handle device placement:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Move to GPU if available</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">policy</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+<span class="n">policy</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span>
 
-<span class="c1"># Automatic device selection</span>
-<span class="n">device</span> <span class="o">=</span> <span class="n">get_device</span><span class="p">()</span>  <span class="c1"># Returns &quot;cuda&quot; if available, else &quot;cpu&quot;</span>
-
-<span class="c1"># Move tensors/models to device</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">move_to_device</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
-<span class="n">obs</span> <span class="o">=</span> <span class="n">move_to_device</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="model-statistics">
-<h2>Model Statistics<a class="headerlink" href="#model-statistics" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">count_parameters</span><span class="p">,</span> <span class="n">model_summary</span>
-
-<span class="c1"># Count parameters</span>
-<span class="n">total_params</span> <span class="o">=</span> <span class="n">count_parameters</span><span class="p">(</span><span class="n">network</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total parameters: </span><span class="si">{</span><span class="n">total_params</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># Detailed model summary</span>
-<span class="n">model_summary</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,))</span>
-</pre></div>
-</div>
-<p>This will output something like:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>================================================================
-Layer (type:depth-idx)                   Param #
-================================================================
-ActorNetwork                             --
-├─Sequential: 1-1                        --
-│    └─Linear: 2-1                       25,856
-│    └─ReLU: 2-2                         --
-│    └─Linear: 2-3                       65,792
-│    └─ReLU: 2-4                         --
-├─Linear: 1-2                            2,570
-================================================================
-Total params: 94,218
-Trainable params: 94,218
-Non-trainable params: 0
+<span class="c1"># Or use config-based device selection</span>
+<span class="c1"># (handled automatically by Algorithm class)</span>
 </pre></div>
 </div>
 </section>

@@ -57,26 +57,13 @@
 <li class="toctree-l1"><a class="reference internal" href="environments.html">Environments</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Algorithms API</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#rl-module">RL Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ppo-implementation">PPO Implementation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#methods">Methods</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#alphazero-implementation">AlphaZero Implementation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#monte-carlo-tree-search">Monte Carlo Tree Search</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#base-classes">Base Classes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#agent-base-class">Agent Base Class</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#policy-networks">Policy Networks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#value-networks">Value Networks</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#training-loop">Training Loop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#algorithm-base-class">Algorithm Base Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ppo-implementation">PPO Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#alphazero-implementation">AlphaZero Implementation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-collection">Data Collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#training-loop">Training Loop</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#metrics-and-logging">Metrics and Logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#checkpointing">Checkpointing</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="neural_networks.html">Neural Networks</a></li>
@@ -84,8 +71,6 @@
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing to TwisteRL</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
@@ -120,158 +105,100 @@
              
   <section id="algorithms-api">
 <h1>Algorithms API<a class="headerlink" href="#algorithms-api" title="Link to this heading"></a></h1>
-<p>This section documents the internal algorithm implementations in TwisteRL.</p>
+<p>This section documents the algorithm implementations in TwisteRL.</p>
 <section id="rl-module">
 <h2>RL Module<a class="headerlink" href="#rl-module" title="Link to this heading"></a></h2>
 </section>
+<section id="algorithm-base-class">
+<h2>Algorithm Base Class<a class="headerlink" href="#algorithm-base-class" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Algorithm</span></code> base class provides the core training loop. Key methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">learn(num_steps,</span> <span class="pre">best_metrics=None)</span></code>: Main training loop</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">learn_step()</span></code>: Single training iteration (collect, transform, train)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">collect()</span></code>: Collect rollout data using the Rust collector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">train(torch_data)</span></code>: Train for <code class="docutils literal notranslate"><span class="pre">num_epochs</span></code> calling <code class="docutils literal notranslate"><span class="pre">train_step</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">evaluate(kwargs)</span></code>: Evaluate the current policy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solve(state,</span> <span class="pre">deterministic,</span> <span class="pre">num_searches,</span> <span class="pre">num_mcts_searches,</span> <span class="pre">C,</span> <span class="pre">max_expand_depth)</span></code>: Solve from a given state</p></li>
+</ul>
+</section>
 <section id="ppo-implementation">
 <h2>PPO Implementation<a class="headerlink" href="#ppo-implementation" title="Link to this heading"></a></h2>
-<section id="configuration">
-<h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h3>
-<p>The PPO algorithm accepts the following configuration parameters:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ppo_config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0003</span><span class="p">,</span>      <span class="c1"># Learning rate for optimizer</span>
-    <span class="s2">&quot;clip_epsilon&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>          <span class="c1"># PPO clipping parameter</span>
-    <span class="s2">&quot;value_loss_coef&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>       <span class="c1"># Value function loss coefficient</span>
-    <span class="s2">&quot;entropy_coef&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>         <span class="c1"># Entropy regularization coefficient</span>
-    <span class="s2">&quot;max_grad_norm&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>         <span class="c1"># Maximum gradient norm for clipping</span>
-    <span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>             <span class="c1"># Training epochs per update</span>
-    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>             <span class="c1"># Mini-batch size</span>
-    <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="mf">0.99</span><span class="p">,</span>                <span class="c1"># Discount factor</span>
-    <span class="s2">&quot;gae_lambda&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>           <span class="c1"># GAE lambda parameter</span>
-    <span class="s2">&quot;normalize_advantages&quot;</span><span class="p">:</span> <span class="kc">True</span>   <span class="c1"># Whether to normalize advantages</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</section>
-<section id="methods">
-<h3>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h3>
-</section>
+<p>The <code class="docutils literal notranslate"><span class="pre">PPO</span></code> class implements Proximal Policy Optimization.</p>
+<p><strong>Key methods:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data_to_torch(data)</span></code>: Convert collected data to PyTorch tensors</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">train_step(torch_data)</span></code>: Perform one gradient update</p></li>
+</ul>
+<p><strong>Training losses:</strong></p>
+<ul class="simple">
+<li><p>Policy loss (clipped surrogate objective)</p></li>
+<li><p>Value function loss (MSE)</p></li>
+<li><p>Entropy bonus</p></li>
+</ul>
 </section>
 <section id="alphazero-implementation">
 <h2>AlphaZero Implementation<a class="headerlink" href="#alphazero-implementation" title="Link to this heading"></a></h2>
-<section id="id1">
-<h3>Configuration<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">alphazero_config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;num_simulations&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>       <span class="c1"># MCTS simulations per move</span>
-    <span class="s2">&quot;c_puct&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>               <span class="c1"># Exploration constant</span>
-    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>          <span class="c1"># Action selection temperature</span>
-    <span class="s2">&quot;num_self_play_games&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="c1"># Self-play games per iteration</span>
-    <span class="s2">&quot;training_steps&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>      <span class="c1"># Training steps per iteration</span>
-    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>            <span class="c1"># Neural network batch size</span>
-    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>      <span class="c1"># Neural network learning rate</span>
-    <span class="s2">&quot;value_loss_weight&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>    <span class="c1"># Value loss weight</span>
-    <span class="s2">&quot;regularization&quot;</span><span class="p">:</span> <span class="mf">0.0001</span>     <span class="c1"># L2 regularization</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</section>
-<section id="monte-carlo-tree-search">
-<h3>Monte Carlo Tree Search<a class="headerlink" href="#monte-carlo-tree-search" title="Link to this heading"></a></h3>
-</section>
-</section>
-<section id="base-classes">
-<h2>Base Classes<a class="headerlink" href="#base-classes" title="Link to this heading"></a></h2>
-<section id="agent-base-class">
-<h3>Agent Base Class<a class="headerlink" href="#agent-base-class" title="Link to this heading"></a></h3>
-<p>All algorithm implementations inherit from <code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code> and must implement:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">AZ</span></code> class implements AlphaZero with MCTS.</p>
+<p><strong>Key methods:</strong></p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">predict(observation)</span></code> - Get action for given observation</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">train_step(batch)</span></code> - Perform one training step</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">save(path)</span></code> - Save agent to file</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">load(path)</span></code> - Load agent from file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_to_torch(data)</span></code>: Convert MCTS data to PyTorch tensors</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">train_step(torch_data)</span></code>: Train policy and value heads</p></li>
 </ul>
-</section>
-<section id="policy-networks">
-<h3>Policy Networks<a class="headerlink" href="#policy-networks" title="Link to this heading"></a></h3>
-</section>
-<section id="value-networks">
-<h3>Value Networks<a class="headerlink" href="#value-networks" title="Link to this heading"></a></h3>
-</section>
-</section>
-<section id="training-loop">
-<h2>Training Loop<a class="headerlink" href="#training-loop" title="Link to this heading"></a></h2>
-<p>The core training loop is implemented in Rust for performance, but exposes a Python interface:</p>
-<p>Example usage:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-
-<span class="c1"># Configure algorithm</span>
-<span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;ppo&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ppo&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0003</span><span class="p">,</span>
-        <span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">10</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;total_timesteps&quot;</span><span class="p">:</span> <span class="mi">100000</span><span class="p">,</span>
-        <span class="s2">&quot;eval_frequency&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
-        <span class="s2">&quot;save_frequency&quot;</span><span class="p">:</span> <span class="mi">25000</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="c1"># Train agent</span>
-<span class="n">agent</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-<span class="c1"># Or use the lower-level interface</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.rl</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_agent</span><span class="p">,</span> <span class="n">PPOAgent</span>
-
-<span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>
-<span class="n">agent</span> <span class="o">=</span> <span class="n">PPOAgent</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span>
-<span class="n">trained_agent</span> <span class="o">=</span> <span class="n">train_agent</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">total_timesteps</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
-</pre></div>
-</div>
 </section>
 <section id="data-collection">
 <h2>Data Collection<a class="headerlink" href="#data-collection" title="Link to this heading"></a></h2>
-<p>Episode data collection is handled by the Rust core for performance:</p>
-<p>The collector returns structured data:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout_data</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;observations&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>  <span class="c1"># Shape: (timesteps, *obs_shape)</span>
-    <span class="s2">&quot;actions&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>       <span class="c1"># Shape: (timesteps, *action_shape)</span>
-    <span class="s2">&quot;rewards&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>       <span class="c1"># Shape: (timesteps,)</span>
-    <span class="s2">&quot;dones&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>         <span class="c1"># Shape: (timesteps,)</span>
-    <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>        <span class="c1"># Shape: (timesteps,) [PPO only]</span>
-    <span class="s2">&quot;log_probs&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>     <span class="c1"># Shape: (timesteps,) [PPO only]</span>
-    <span class="s2">&quot;advantages&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>    <span class="c1"># Shape: (timesteps,) [computed]</span>
-    <span class="s2">&quot;returns&quot;</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>        <span class="c1"># Shape: (timesteps,) [computed]</span>
-<span class="p">}</span>
+<p>Data collection is handled by Rust collectors (<code class="docutils literal notranslate"><span class="pre">twisterl.collector.PPOCollector</span></code> and <code class="docutils literal notranslate"><span class="pre">twisterl.collector.AZCollector</span></code>).</p>
+<p>The collectors return data objects with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">obs</span></code>: Observations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">logits</span></code>: Policy logits</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">values</span></code>: Value predictions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rewards</span></code>: Rewards</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actions</span></code>: Actions taken</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">additional_data</span></code>: Algorithm-specific data (returns, advantages for PPO; remaining_values for AZ)</p></li>
+</ul>
+</section>
+<section id="training-loop">
+<h2>Training Loop<a class="headerlink" href="#training-loop" title="Link to this heading"></a></h2>
+<p>Training is run via the command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>path/to/config.json
+</pre></div>
+</div>
+<p>Or programmatically:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">prepare_algorithm</span><span class="p">,</span> <span class="n">load_config</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="s2">&quot;path/to/config.json&quot;</span><span class="p">)</span>
+<span class="n">algorithm</span> <span class="o">=</span> <span class="n">prepare_algorithm</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">run_path</span><span class="o">=</span><span class="s2">&quot;runs/my_run&quot;</span><span class="p">)</span>
+<span class="n">algorithm</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">num_steps</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="metrics-and-logging">
 <h2>Metrics and Logging<a class="headerlink" href="#metrics-and-logging" title="Link to this heading"></a></h2>
-<p>Training metrics are automatically logged and can be viewed with TensorBoard:</p>
+<p>Training metrics are logged to TensorBoard:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard<span class="w"> </span>--logdir<span class="w"> </span>runs/
 </pre></div>
 </div>
-<p>Common metrics include:</p>
+<p>Logged metrics include:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">episode_reward_mean</span></code> - Average episode reward</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">episode_length_mean</span></code> - Average episode length</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">policy_loss</span></code> - Policy network loss</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">value_loss</span></code> - Value network loss [PPO]</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">entropy</span></code> - Policy entropy</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">explained_variance</span></code> - Value function explained variance [PPO]</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">learning_rate</span></code> - Current learning rate</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Benchmark/difficulty</span></code>: Current difficulty level</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Benchmark/success</span></code>: Success rate on evaluation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Benchmark/reward</span></code>: Average reward</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Losses/value</span></code>: Value function loss</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Losses/policy</span></code>: Policy loss</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Losses/entropy</span></code>: Entropy (PPO only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Times/*</span></code>: Timing breakdown for each step</p></li>
 </ul>
 </section>
-<section id="utilities">
-<h2>Utilities<a class="headerlink" href="#utilities" title="Link to this heading"></a></h2>
-<p>Example of manual advantage computation:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.rl</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_gae</span><span class="p">,</span> <span class="n">normalize_advantages</span>
-
-<span class="c1"># Compute GAE advantages</span>
-<span class="n">advantages</span> <span class="o">=</span> <span class="n">compute_gae</span><span class="p">(</span>
-    <span class="n">rewards</span><span class="o">=</span><span class="n">rewards</span><span class="p">,</span>
-    <span class="n">values</span><span class="o">=</span><span class="n">values</span><span class="p">,</span>
-    <span class="n">dones</span><span class="o">=</span><span class="n">dones</span><span class="p">,</span>
-    <span class="n">gamma</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
-    <span class="n">gae_lambda</span><span class="o">=</span><span class="mf">0.95</span>
-<span class="p">)</span>
-
-<span class="c1"># Normalize advantages</span>
-<span class="n">advantages</span> <span class="o">=</span> <span class="n">normalize_advantages</span><span class="p">(</span><span class="n">advantages</span><span class="p">)</span>
+<section id="checkpointing">
+<h2>Checkpointing<a class="headerlink" href="#checkpointing" title="Link to this heading"></a></h2>
+<p>Checkpoints are saved automatically:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_last.pt</span></code>: Most recent checkpoint (frequency controlled by <code class="docutils literal notranslate"><span class="pre">logging.checkpoint_freq</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_best.pt</span></code>: Best performing checkpoint</p></li>
+</ul>
+<p>Load a checkpoint:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>config.json<span class="w"> </span>--load_checkpoint_path<span class="w"> </span>runs/my_run/checkpoint_best.pt
 </pre></div>
 </div>
 </section>

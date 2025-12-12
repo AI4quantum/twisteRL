@@ -59,8 +59,6 @@
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TwisteRL</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
@@ -110,7 +108,7 @@ flattened observation array and matching permutations on the discrete action spa
 (<code class="docutils literal notranslate"><span class="pre">rust/src/rl/env.rs:33</span></code>).</p></li>
 <li><p>When an environment is instantiated from Python via <code class="docutils literal notranslate"><span class="pre">prepare_algorithm</span></code>, twisteRL immediately calls
 <code class="docutils literal notranslate"><span class="pre">env.twists()</span></code> and forwards the returned permutations to the policy constructor
-(<code class="docutils literal notranslate"><span class="pre">src/twisterl/utils.py:120</span></code>). The policy can then symmetrize logits, average values, or augment
+(<code class="docutils literal notranslate"><span class="pre">src/twisterl/utils.py:126</span></code>). The policy can then symmetrize logits, average values, or augment
 rollouts without extra environment queries.</p></li>
 </ul>
 </section>

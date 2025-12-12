@@ -55,12 +55,13 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#inference-examples">Inference Examples</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#jupyter-notebook">Jupyter Notebook</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#python-script-example">Python Script Example</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#custom-environment-example">Custom Environment Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jupyter-notebooks">Jupyter Notebooks</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#performance-benchmarking">Performance Benchmarking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-custom-environments">Creating Custom Environments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#python-environments">Python Environments</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#use-cases">Use Cases</a></li>
 </ul>
 </li>
@@ -76,8 +77,6 @@
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TwisteRL</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
@@ -112,13 +111,13 @@
              
   <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h1>
-<p>This page provides comprehensive examples of using TwisteRL for various reinforcement learning tasks.</p>
+<p>This page provides examples of using TwisteRL for reinforcement learning tasks.</p>
 <section id="training-examples">
 <h2>Training Examples<a class="headerlink" href="#training-examples" title="Link to this heading"></a></h2>
 <section id="puzzle-example">
 <h3>8-Puzzle Example<a class="headerlink" href="#puzzle-example" title="Link to this heading"></a></h3>
 <p>The 8-puzzle is a classic sliding puzzle that consists of a 3x3 grid with numbered tiles and one empty space.</p>
-<p><strong>Configuration (examples/ppo_puzzle8_v1.json):</strong></p>
+<p><strong>Training:</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>examples/ppo_puzzle8_v1.json
 </pre></div>
 </div>
@@ -139,160 +138,101 @@
 </section>
 <section id="inference-examples">
 <h2>Inference Examples<a class="headerlink" href="#inference-examples" title="Link to this heading"></a></h2>
-<section id="jupyter-notebook">
-<h3>Jupyter Notebook<a class="headerlink" href="#jupyter-notebook" title="Link to this heading"></a></h3>
-<p>The <cite>examples/puzzle.ipynb</cite> notebook provides an interactive example showing:</p>
+<section id="jupyter-notebooks">
+<h3>Jupyter Notebooks<a class="headerlink" href="#jupyter-notebooks" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">examples/</span></code> directory contains Jupyter notebooks for interactive exploration:</p>
+<ul class="simple">
+<li><p><strong>puzzle.ipynb</strong>: Interactive example showing inference with trained puzzle models</p></li>
+<li><p><strong>hub_puzzle_model.ipynb</strong>: Loading and using models from HuggingFace Hub</p></li>
+</ul>
+<p>These notebooks demonstrate:</p>
 <ul class="simple">
 <li><p>Loading trained models</p></li>
 <li><p>Running inference</p></li>
 <li><p>Visualizing agent behavior</p></li>
-<li><p>Performance analysis</p></li>
 </ul>
 </section>
-<section id="python-script-example">
-<h3>Python Script Example<a class="headerlink" href="#python-script-example" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">run_episode</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a single episode and return the total reward.&quot;&quot;&quot;</span>
-    <span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-    <span class="n">total_reward</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">render</span><span class="p">:</span>
-            <span class="n">env</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
-
-        <span class="c1"># Get action from agent</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-
-        <span class="c1"># Take step in environment</span>
-        <span class="n">obs</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-        <span class="n">total_reward</span> <span class="o">+=</span> <span class="n">reward</span>
-        <span class="n">steps</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
-            <span class="k">break</span>
-
-    <span class="k">return</span> <span class="n">total_reward</span><span class="p">,</span> <span class="n">steps</span>
-
-<span class="c1"># Load trained agent</span>
-<span class="n">agent</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">load_agent</span><span class="p">(</span><span class="s2">&quot;models/ppo_puzzle8.pt&quot;</span><span class="p">)</span>
-
-<span class="c1"># Create environment</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>
-
-<span class="c1"># Run multiple episodes</span>
-<span class="n">rewards</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
-    <span class="n">reward</span><span class="p">,</span> <span class="n">steps</span> <span class="o">=</span> <span class="n">run_episode</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
-    <span class="n">rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Episode </span><span class="si">{</span><span class="n">episode</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">: Reward = </span><span class="si">{</span><span class="n">reward</span><span class="si">}</span><span class="s2">, Steps = </span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average reward: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</section>
+<section id="creating-custom-environments">
+<h2>Creating Custom Environments<a class="headerlink" href="#creating-custom-environments" title="Link to this heading"></a></h2>
+<p>TwisteRL supports custom environments implemented in Rust. The <code class="docutils literal notranslate"><span class="pre">examples/grid_world</span></code> directory provides a complete working example.</p>
+<p><strong>Steps to create a custom environment:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Create a new Rust crate:</strong></p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cargo<span class="w"> </span>new<span class="w"> </span>--lib<span class="w"> </span>examples/my_env
 </pre></div>
 </div>
-</section>
-<section id="custom-environment-example">
-<h3>Custom Environment Example<a class="headerlink" href="#custom-environment-example" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">twisterl.envs</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEnvironment</span>
+<ol class="arabic simple" start="2">
+<li><p><strong>Add dependencies</strong> in <code class="docutils literal notranslate"><span class="pre">Cargo.toml</span></code>:</p></li>
+</ol>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[package]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_env&quot;</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span>
+<span class="n">edition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;2021&quot;</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">CustomGridWorld</span><span class="p">(</span><span class="n">BaseEnvironment</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A simple grid world environment.&quot;&quot;&quot;</span>
+<span class="k">[lib]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_env&quot;</span>
+<span class="n">crate-type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;cdylib&quot;</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_observation</span><span class="p">()</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
-        <span class="c1"># 0: up, 1: down, 2: left, 3: right</span>
-        <span class="n">moves</span> <span class="o">=</span> <span class="p">[(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
-        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">moves</span><span class="p">[</span><span class="n">action</span><span class="p">]</span>
-
-        <span class="n">new_x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">dx</span><span class="p">))</span>
-        <span class="n">new_y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dy</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_x</span><span class="p">,</span> <span class="n">new_y</span><span class="p">]</span>
-
-        <span class="n">reward</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span> <span class="k">else</span> <span class="o">-</span><span class="mf">0.1</span>
-        <span class="n">done</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_observation</span><span class="p">(),</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="p">{}</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_observation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_pos</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_pos</span>
-
-<span class="c1"># Use custom environment</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">CustomGridWorld</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="c1"># Train agent with this environment...</span>
+<span class="k">[dependencies]</span>
+<span class="n">pyo3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;0.20&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;extension-module&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">twisterl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;path/to/twisterl/rust&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;python_bindings&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </pre></div>
 </div>
-</section>
-</section>
-<section id="performance-benchmarking">
-<h2>Performance Benchmarking<a class="headerlink" href="#performance-benchmarking" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
+<ol class="arabic simple" start="3">
+<li><p><strong>Implement the environment</strong> by implementing the <code class="docutils literal notranslate"><span class="pre">twisterl::rl::env::Env</span></code> trait.</p></li>
+<li><p><strong>Expose it to Python</strong> using <code class="docutils literal notranslate"><span class="pre">PyBaseEnv</span></code>:</p></li>
+</ol>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">use</span><span class="w"> </span><span class="n">pyo3</span><span class="p">::</span><span class="n">prelude</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+<span class="k">use</span><span class="w"> </span><span class="n">twisterl</span><span class="p">::</span><span class="n">python_interface</span><span class="p">::</span><span class="n">env</span><span class="p">::</span><span class="n">PyBaseEnv</span><span class="p">;</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">benchmark_training</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Benchmark training performance.&quot;&quot;&quot;</span>
-    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="cp">#[pyclass(name = </span><span class="s">&quot;MyEnv&quot;</span><span class="cp">, extends = PyBaseEnv)]</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">PyMyEnv</span><span class="p">;</span>
 
-    <span class="c1"># Configure training</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;ppo&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;total_timesteps&quot;</span><span class="p">:</span> <span class="mi">50000</span><span class="p">,</span>
-            <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0003</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="c1"># Run training</span>
-    <span class="n">agent</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">training_time</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training completed in </span><span class="si">{</span><span class="n">training_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timesteps per second: </span><span class="si">{</span><span class="mi">50000</span><span class="o">/</span><span class="n">training_time</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">agent</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">benchmark_inference</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">num_episodes</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Benchmark inference performance.&quot;&quot;&quot;</span>
-    <span class="n">env</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">make_env</span><span class="p">(</span><span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">)</span>
-
-    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">total_steps</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_episodes</span><span class="p">):</span>
-        <span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-        <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">while</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-            <span class="n">obs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-            <span class="n">total_steps</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="n">inference_time</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inference: </span><span class="si">{</span><span class="n">total_steps</span><span class="o">/</span><span class="n">inference_time</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> steps/second&quot;</span><span class="p">)</span>
+<span class="cp">#[pymethods]</span>
+<span class="k">impl</span><span class="w"> </span><span class="n">PyMyEnv</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cp">#[new]</span>
+<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">new</span><span class="p">(</span><span class="o">..</span><span class="p">.)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="bp">Self</span><span class="p">,</span><span class="w"> </span><span class="n">PyBaseEnv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">env</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyEnv</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="o">..</span><span class="p">.);</span>
+<span class="w">        </span><span class="p">(</span><span class="n">PyMyEnv</span><span class="p">,</span><span class="w"> </span><span class="n">PyBaseEnv</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">env</span><span class="p">:</span><span class="w"> </span><span class="nb">Box</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="n">env</span><span class="p">)</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
+<ol class="arabic simple" start="5">
+<li><p><strong>Build and install</strong> the module:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p><strong>Use from Python</strong> in a config file or directly.</p></li>
+</ol>
+<p>See the <a class="reference external" href="https://github.com/AI4quantum/twisteRL/tree/main/examples/grid_world">grid_world example</a> for a complete implementation.</p>
+<section id="python-environments">
+<h3>Python Environments<a class="headerlink" href="#python-environments" title="Link to this heading"></a></h3>
+<p>TwisteRL also supports Python environments through the <code class="docutils literal notranslate"><span class="pre">PyEnv</span></code> wrapper:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;env_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;twisterl.envs.PyEnv&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;pyenv_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mymodule.MyPythonEnv&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that Python environments may be slower than native Rust environments.</p>
+</section>
 </section>
 <section id="use-cases">
 <h2>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading"></a></h2>
 <p>TwisteRL is particularly well-suited for:</p>
-<p><strong>Training new models for AI-based transpilation</strong>: Clifford synthesis, routing using <a class="reference external" href="https://github.com/AI4quantum/qiskit-gym">https://github.com/AI4quantum/qiskit-gym</a></p>
+<p><strong>Quantum Circuit Transpilation</strong></p>
+<p>Currently used in <a class="reference external" href="https://github.com/Qiskit/qiskit-ibm-transpiler">Qiskit/qiskit-ibm-transpiler</a> for AI-based circuit optimization including Clifford synthesis and routing.</p>
 <p><strong>Puzzle-like Optimization Problems</strong></p>
+<p>Problems with discrete state and action spaces where fast inference is important.</p>
 <p><strong>Production-ready RL Inference</strong></p>
+<p>Scenarios requiring high-performance inference with portable Rust-based models.</p>
 </section>
 </section>
 

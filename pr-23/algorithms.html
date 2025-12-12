@@ -54,14 +54,13 @@
 <li class="toctree-l3"><a class="reference internal" href="#key-features">Key Features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#example-usage">Example Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#alphazero">AlphaZero</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#alphazero-az">AlphaZero (AZ)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id1">Key Features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id2">Configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id4">Example Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#algorithm-comparison">Algorithm Comparison</a></li>
@@ -72,7 +71,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#alphazero-tuning-tips">AlphaZero Tuning Tips</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#future-algorithms">Future Algorithms</a></li>
 </ul>
 </li>
 </ul>
@@ -86,8 +84,6 @@
 <p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to TwisteRL</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
@@ -122,7 +118,7 @@
              
   <section id="algorithms">
 <h1>Algorithms<a class="headerlink" href="#algorithms" title="Link to this heading"></a></h1>
-<p>TwisteRL currently supports two main reinforcement learning algorithms, with more planned for future releases.</p>
+<p>TwisteRL currently supports two reinforcement learning algorithms.</p>
 <section id="ppo-proximal-policy-optimization">
 <h2>PPO (Proximal Policy Optimization)<a class="headerlink" href="#ppo-proximal-policy-optimization" title="Link to this heading"></a></h2>
 <p>PPO is a policy gradient method that strikes a balance between ease of implementation, sample complexity, and wall-clock time.</p>
@@ -136,118 +132,117 @@
 </section>
 <section id="configuration">
 <h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h3>
+<p>PPO is configured through a JSON config file. Here’s an example with the actual parameter names:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;algorithm&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ppo&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;ppo&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;learning_rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0003</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;clip_epsilon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;value_loss_coef&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;entropy_coef&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;max_grad_norm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;num_epochs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;batch_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;gamma&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.99</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;gae_lambda&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.95</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">&quot;algorithm_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;twisterl.rl.PPO&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;algorithm&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;collecting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;num_cores&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;num_episodes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;lambda&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.995</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;gamma&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.995</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;training&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;num_epochs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;vf_coef&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;ent_coef&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.01</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;clip_ratio&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;normalize_advantage&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;optimizer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;lr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.00015</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;learning&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;diff_threshold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.85</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;diff_max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;diff_metric&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ppo_1&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </section>
 <section id="parameters">
 <h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<p><strong>Collecting Parameters:</strong></p>
 <ul class="simple">
-<li><p><strong>learning_rate</strong>: Learning rate for the optimizer</p></li>
-<li><p><strong>clip_epsilon</strong>: PPO clipping parameter</p></li>
-<li><p><strong>value_loss_coef</strong>: Coefficient for value function loss</p></li>
-<li><p><strong>entropy_coef</strong>: Coefficient for entropy bonus</p></li>
-<li><p><strong>max_grad_norm</strong>: Maximum gradient norm for clipping</p></li>
-<li><p><strong>num_epochs</strong>: Number of training epochs per update</p></li>
-<li><p><strong>batch_size</strong>: Mini-batch size for training</p></li>
+<li><p><strong>num_cores</strong>: Number of parallel workers for data collection</p></li>
+<li><p><strong>num_episodes</strong>: Number of episodes to collect per iteration</p></li>
+<li><p><strong>lambda</strong>: GAE lambda parameter for advantage estimation</p></li>
 <li><p><strong>gamma</strong>: Discount factor</p></li>
-<li><p><strong>gae_lambda</strong>: Lambda parameter for Generalized Advantage Estimation</p></li>
+</ul>
+<p><strong>Training Parameters:</strong></p>
+<ul class="simple">
+<li><p><strong>num_epochs</strong>: Number of training epochs per update</p></li>
+<li><p><strong>vf_coef</strong>: Coefficient for value function loss</p></li>
+<li><p><strong>ent_coef</strong>: Coefficient for entropy bonus</p></li>
+<li><p><strong>clip_ratio</strong>: PPO clipping parameter (epsilon)</p></li>
+<li><p><strong>normalize_advantage</strong>: Whether to normalize advantages</p></li>
+</ul>
+<p><strong>Optimizer Parameters:</strong></p>
+<ul class="simple">
+<li><p><strong>lr</strong>: Learning rate for Adam optimizer</p></li>
+</ul>
+<p><strong>Learning Parameters:</strong></p>
+<ul class="simple">
+<li><p><strong>diff_threshold</strong>: Success rate threshold for increasing difficulty</p></li>
+<li><p><strong>diff_max</strong>: Maximum difficulty level</p></li>
+<li><p><strong>diff_metric</strong>: Which evaluation metric to use for difficulty progression</p></li>
 </ul>
 </section>
-<section id="example-usage">
-<h3>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-
-<span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;ppo&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ppo&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0003</span><span class="p">,</span>
-        <span class="s2">&quot;clip_epsilon&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
-        <span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">10</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;total_timesteps&quot;</span><span class="p">:</span> <span class="mi">100000</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="n">agent</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h3>
+<p>Train PPO on the 8-puzzle:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>examples/ppo_puzzle8_v1.json
 </pre></div>
 </div>
 </section>
 </section>
-<section id="alphazero">
-<h2>AlphaZero<a class="headerlink" href="#alphazero" title="Link to this heading"></a></h2>
-<p>AlphaZero is a model-based algorithm that combines Monte Carlo Tree Search (MCTS) with deep neural networks.</p>
+<section id="alphazero-az">
+<h2>AlphaZero (AZ)<a class="headerlink" href="#alphazero-az" title="Link to this heading"></a></h2>
+<p>AlphaZero combines Monte Carlo Tree Search (MCTS) with deep neural networks for planning-based learning.</p>
 <section id="id1">
 <h3>Key Features<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Model-Based</strong>: Uses a learned model of the environment</p></li>
-<li><p><strong>Tree Search</strong>: Employs MCTS for planning</p></li>
-<li><p><strong>Self-Play</strong>: Improves through self-play without human knowledge</p></li>
+<li><p><strong>Tree Search</strong>: Employs MCTS for look-ahead planning</p></li>
+<li><p><strong>Self-Play</strong>: Learns through self-play without human knowledge</p></li>
+<li><p><strong>Value + Policy Learning</strong>: Jointly learns value and policy functions</p></li>
 </ul>
 </section>
 <section id="id2">
 <h3>Configuration<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>AlphaZero is configured similarly to PPO:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;algorithm&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alphazero&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;alphazero&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;num_simulations&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">800</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;c_puct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;temperature&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;num_self_play_games&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;training_steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;batch_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;learning_rate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.001</span>
-<span class="w">  </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">&quot;algorithm_cls&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;twisterl.rl.AZ&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;algorithm&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;collecting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;num_cores&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;num_episodes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">512</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;num_mcts_searches&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;C&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.41</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;max_expand_depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;seed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;training&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;num_epochs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;optimizer&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;lr&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0003</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 </section>
 <section id="id3">
 <h3>Parameters<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p><strong>Collecting Parameters:</strong></p>
 <ul class="simple">
-<li><p><strong>num_simulations</strong>: Number of MCTS simulations per move</p></li>
-<li><p><strong>c_puct</strong>: Exploration constant for MCTS</p></li>
-<li><p><strong>temperature</strong>: Temperature for action selection</p></li>
-<li><p><strong>num_self_play_games</strong>: Number of self-play games per iteration</p></li>
-<li><p><strong>training_steps</strong>: Number of training steps per iteration</p></li>
-<li><p><strong>batch_size</strong>: Mini-batch size for neural network training</p></li>
-<li><p><strong>learning_rate</strong>: Learning rate for the neural network</p></li>
+<li><p><strong>num_mcts_searches</strong>: Number of MCTS simulations per move</p></li>
+<li><p><strong>C</strong>: Exploration constant (UCB formula)</p></li>
+<li><p><strong>max_expand_depth</strong>: Maximum tree expansion depth</p></li>
+<li><p><strong>seed</strong>: Random seed for reproducibility</p></li>
 </ul>
-</section>
-<section id="id4">
-<h3>Example Usage<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">twisterl</span>
-
-<span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;algorithm&quot;</span><span class="p">:</span> <span class="s2">&quot;alphazero&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="s2">&quot;puzzle8_v1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;alphazero&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;num_simulations&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>
-        <span class="s2">&quot;num_self_play_games&quot;</span><span class="p">:</span> <span class="mi">500</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;total_timesteps&quot;</span><span class="p">:</span> <span class="mi">50000</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="n">agent</span> <span class="o">=</span> <span class="n">twisterl</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-</pre></div>
-</div>
 </section>
 </section>
 <section id="algorithm-comparison">
@@ -279,54 +274,45 @@
 </section>
 <section id="when-to-use-each-algorithm">
 <h2>When to Use Each Algorithm<a class="headerlink" href="#when-to-use-each-algorithm" title="Link to this heading"></a></h2>
-<p><strong>Use PPO when:</strong>
-- You want a general-purpose algorithm
-- Computational resources are limited
-- The environment is partially observable
-- You need stable, reliable training</p>
-<p><strong>Use AlphaZero when:</strong>
-- The environment has perfect information
-- You can afford higher computational cost
-- Sample efficiency is critical
-- The environment is deterministic or nearly so</p>
+<p><strong>Use PPO when:</strong></p>
+<ul class="simple">
+<li><p>You want a general-purpose, fast-to-train algorithm</p></li>
+<li><p>Computational resources are limited</p></li>
+<li><p>You need stable, reliable training</p></li>
+</ul>
+<p><strong>Use AlphaZero when:</strong></p>
+<ul class="simple">
+<li><p>The environment has perfect information (you know the transition model)</p></li>
+<li><p>You can afford higher computational cost for MCTS</p></li>
+<li><p>Look-ahead planning is beneficial</p></li>
+</ul>
 </section>
 <section id="hyperparameter-tuning">
 <h2>Hyperparameter Tuning<a class="headerlink" href="#hyperparameter-tuning" title="Link to this heading"></a></h2>
 <section id="general-guidelines">
 <h3>General Guidelines<a class="headerlink" href="#general-guidelines" title="Link to this heading"></a></h3>
 <ol class="arabic simple">
-<li><p><strong>Start with defaults</strong>: Both algorithms come with sensible default parameters</p></li>
+<li><p><strong>Start with defaults</strong>: See <code class="docutils literal notranslate"><span class="pre">twisterl/defaults.py</span></code> for sensible default parameters</p></li>
 <li><p><strong>Adjust learning rate first</strong>: This usually has the biggest impact</p></li>
-<li><p><strong>Monitor training curves</strong>: Use TensorBoard to track progress</p></li>
-<li><p><strong>Validate on multiple seeds</strong>: Run multiple random seeds to ensure robustness</p></li>
+<li><p><strong>Monitor training curves</strong>: Use TensorBoard to track progress (logs saved to <code class="docutils literal notranslate"><span class="pre">runs/</span></code> by default)</p></li>
 </ol>
 </section>
 <section id="ppo-tuning-tips">
 <h3>PPO Tuning Tips<a class="headerlink" href="#ppo-tuning-tips" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Increase <code class="docutils literal notranslate"><span class="pre">num_epochs</span></code> if training is stable but slow</p></li>
-<li><p>Decrease <code class="docutils literal notranslate"><span class="pre">clip_epsilon</span></code> if policy updates are too aggressive</p></li>
-<li><p>Increase <code class="docutils literal notranslate"><span class="pre">entropy_coef</span></code> if the policy becomes too deterministic too quickly</p></li>
+<li><p>Decrease <code class="docutils literal notranslate"><span class="pre">clip_ratio</span></code> if policy updates are too aggressive</p></li>
+<li><p>Increase <code class="docutils literal notranslate"><span class="pre">ent_coef</span></code> if the policy becomes too deterministic too quickly</p></li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">gamma</span></code> and <code class="docutils literal notranslate"><span class="pre">lambda</span></code> based on episode length</p></li>
 </ul>
 </section>
 <section id="alphazero-tuning-tips">
 <h3>AlphaZero Tuning Tips<a class="headerlink" href="#alphazero-tuning-tips" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p>Increase <code class="docutils literal notranslate"><span class="pre">num_simulations</span></code> for better play quality (but slower training)</p></li>
-<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">c_puct</span></code> to balance exploration vs exploitation in MCTS</p></li>
-<li><p>Tune <code class="docutils literal notranslate"><span class="pre">temperature</span></code> schedule for better action exploration</p></li>
+<li><p>Increase <code class="docutils literal notranslate"><span class="pre">num_mcts_searches</span></code> for better play quality (but slower training)</p></li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">C</span></code> to balance exploration vs exploitation in MCTS</p></li>
 </ul>
 </section>
-</section>
-<section id="future-algorithms">
-<h2>Future Algorithms<a class="headerlink" href="#future-algorithms" title="Link to this heading"></a></h2>
-<p>Planned for future releases:</p>
-<ul class="simple">
-<li><p><strong>A3C/A2C</strong>: Asynchronous advantage actor-critic methods</p></li>
-<li><p><strong>SAC</strong>: Soft Actor-Critic for continuous control</p></li>
-<li><p><strong>TD3</strong>: Twin Delayed Deep Deterministic Policy Gradient</p></li>
-<li><p><strong>Rainbow DQN</strong>: Improved deep Q-learning with multiple extensions</p></li>
-</ul>
 </section>
 </section>
 
