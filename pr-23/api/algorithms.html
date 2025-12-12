@@ -192,13 +192,13 @@
 </section>
 <section id="checkpointing">
 <h2>Checkpointing<a class="headerlink" href="#checkpointing" title="Link to this heading"></a></h2>
-<p>Checkpoints are saved automatically:</p>
+<p>Checkpoints are saved automatically in safetensors format:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_last.pt</span></code>: Most recent checkpoint (frequency controlled by <code class="docutils literal notranslate"><span class="pre">logging.checkpoint_freq</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_best.pt</span></code>: Best performing checkpoint</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_last.safetensors</span></code>: Most recent checkpoint (frequency controlled by <code class="docutils literal notranslate"><span class="pre">logging.checkpoint_freq</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">checkpoint_best.safetensors</span></code>: Best performing checkpoint</p></li>
 </ul>
 <p>Load a checkpoint:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>config.json<span class="w"> </span>--load_checkpoint_path<span class="w"> </span>runs/my_run/checkpoint_best.pt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>twisterl.train<span class="w"> </span>--config<span class="w"> </span>config.json<span class="w"> </span>--load_checkpoint_path<span class="w"> </span>runs/my_run/checkpoint_best.safetensors
 </pre></div>
 </div>
 </section>

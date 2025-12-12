@@ -119,13 +119,13 @@ Logged metrics include:
 Checkpointing
 -------------
 
-Checkpoints are saved automatically:
+Checkpoints are saved automatically in safetensors format:
 
-- ``checkpoint_last.pt``: Most recent checkpoint (frequency controlled by ``logging.checkpoint_freq``)
-- ``checkpoint_best.pt``: Best performing checkpoint
+- ``checkpoint_last.safetensors``: Most recent checkpoint (frequency controlled by ``logging.checkpoint_freq``)
+- ``checkpoint_best.safetensors``: Best performing checkpoint
 
 Load a checkpoint:
 
 .. code-block:: bash
 
-   python -m twisterl.train --config config.json --load_checkpoint_path runs/my_run/checkpoint_best.pt
+   python -m twisterl.train --config config.json --load_checkpoint_path runs/my_run/checkpoint_best.safetensors

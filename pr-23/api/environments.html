@@ -182,6 +182,9 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">step(action)</span></code>: Take action, return (obs, reward, done, info)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">obs_shape()</span></code>: Return observation dimensions</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_actions()</span></code>: Return number of valid actions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_final()</span></code>: Return True if current state is terminal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">success()</span></code>: Return True if the goal was achieved (episode ended successfully)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reward()</span></code>: Return the reward value for the current state</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">twists()</span></code>: Return permutation symmetries (optional)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">set_state(state)</span></code>: Set environment to specific state (for inference)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">difficulty</span></code>: Property to get/set difficulty level</p></li>
