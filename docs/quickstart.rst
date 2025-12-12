@@ -56,7 +56,12 @@ The training configuration is specified in JSON format. Here's an example based 
                "num_epochs": 10,
                "vf_coef": 0.8,
                "ent_coef": 0.01,
-               "clip_ratio": 0.1
+               "clip_ratio": 0.1,
+               "normalize_advantage": true
+           },
+           "learning": {
+               "diff_threshold": 0.85,
+               "diff_max": 32
            },
            "optimizer": {
                "lr": 0.00015

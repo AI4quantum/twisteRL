@@ -167,7 +167,7 @@ Hyperparameter Tuning
 General Guidelines
 ~~~~~~~~~~~~~~~~~~
 
-1. **Start with defaults**: See ``twisterl/defaults.py`` for sensible default parameters
+1. **Start with defaults**: See ``src/twisterl/defaults.py`` for sensible default parameters
 2. **Adjust learning rate first**: This usually has the biggest impact
 3. **Monitor training curves**: Use TensorBoard to track progress (logs saved to ``runs/`` by default)
 

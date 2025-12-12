@@ -368,8 +368,6 @@ Troubleshooting Deployment
 - Click "Run workflow"
 - Choose the branch and click "Run workflow"
 
-The documentation will be available at http://localhost:8000
-
 Custom Domain (Optional)
 ------------------------
 

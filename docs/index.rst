@@ -45,17 +45,19 @@ This example trains a model to play the popular "8 puzzle" where numbers have to
 
 This model can be trained on a single CPU in under 1 minute (no GPU required!).
 
-🏗️ Current State (PoC)
------------------------
+Current State (Proof of Concept)
+---------------------------------
 
-- Hybrid rust-python implementation:
+- Hybrid Rust-Python implementation:
     - Data collection and inference in Rust
     - Training in Python (PyTorch)
 - Supported algorithms:
     - PPO (Proximal Policy Optimization)
     - AlphaZero
 - Focus on discrete observation and action spaces
-- Support for native Rust environments and for Python environments through a wrapper
+- Support for native Rust environments and Python environments through a wrapper
+
+**Repository:** `GitHub <https://github.com/AI4quantum/twisteRL>`_
 
 Getting Started
 ---------------
