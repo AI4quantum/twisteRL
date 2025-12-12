@@ -76,8 +76,8 @@ TwisteRL supports custom environments implemented in Rust. The ``examples/grid_w
    crate-type = ["cdylib"]
 
    [dependencies]
-   pyo3 = { version = "0.20", features = ["extension-module"] }
-   twisterl = { path = "path/to/twisterl/rust", features = ["python_bindings"] }
+   pyo3 = { version = "0.24", features = ["extension-module"] }
+   twisterl = { path = "../../rust", features = ["python_bindings"] }
 
 3. **Implement the environment** by implementing the ``twisterl::rl::env::Env`` trait.
 
@@ -86,18 +86,25 @@ TwisteRL supports custom environments implemented in Rust. The ``examples/grid_w
 .. code-block:: rust
 
    use pyo3::prelude::*;
+   use twisterl::rl::env::Env;
    use twisterl::python_interface::env::PyBaseEnv;
 
-   #[pyclass(name = "MyEnv", extends = PyBaseEnv)]
+   #[pyclass(name="MyEnv", extends=PyBaseEnv)]
    struct PyMyEnv;
 
    #[pymethods]
    impl PyMyEnv {
        #[new]
-       fn new(...) -> (Self, PyBaseEnv) {
-           let env = MyEnv::new(...);
+       fn new(/* your params */) -> (Self, PyBaseEnv) {
+           let env = MyEnv::new(/* ... */);
            (PyMyEnv, PyBaseEnv { env: Box::new(env) })
        }
+   }
+
+   #[pymodule]
+   fn my_env(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
+       m.add_class::<PyMyEnv>()?;
+       Ok(())
    }
 
 5. **Build and install** the module:
@@ -124,7 +131,9 @@ TwisteRL also supports Python environments through the ``PyEnv`` wrapper:
        }
    }
 
-Note that Python environments may be slower than native Rust environments.
+Your Python environment class must implement the required interface (``reset``, ``next``, ``observe``, etc.). See :doc:`api/environments` for the complete list of required methods.
+
+Note that Python environments may be slower than native Rust environments due to the Python-Rust interop overhead.
 
 Use Cases
 ---------

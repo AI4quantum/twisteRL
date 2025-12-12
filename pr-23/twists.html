@@ -105,10 +105,10 @@ lightweight form of regularization because the agent sees equivalent states unde
 <li><p>Every environment implements the <code class="docutils literal notranslate"><span class="pre">twisterl::rl::env::Env</span></code> trait. The trait includes a <code class="docutils literal notranslate"><span class="pre">twists</span></code>
 method that returns <code class="docutils literal notranslate"><span class="pre">(Vec&lt;Vec&lt;usize&gt;&gt;,</span> <span class="pre">Vec&lt;Vec&lt;usize&gt;&gt;)</span></code> representing valid permutations on the
 flattened observation array and matching permutations on the discrete action space
-(<code class="docutils literal notranslate"><span class="pre">rust/src/rl/env.rs:33</span></code>).</p></li>
+(<code class="docutils literal notranslate"><span class="pre">rust/src/rl/env.rs:59</span></code>).</p></li>
 <li><p>When an environment is instantiated from Python via <code class="docutils literal notranslate"><span class="pre">prepare_algorithm</span></code>, twisteRL immediately calls
 <code class="docutils literal notranslate"><span class="pre">env.twists()</span></code> and forwards the returned permutations to the policy constructor
-(<code class="docutils literal notranslate"><span class="pre">src/twisterl/utils.py:126</span></code>). The policy can then symmetrize logits, average values, or augment
+(<code class="docutils literal notranslate"><span class="pre">src/twisterl/utils.py:194</span></code>). The policy can then symmetrize logits, average values, or augment
 rollouts without extra environment queries.</p></li>
 </ul>
 </section>

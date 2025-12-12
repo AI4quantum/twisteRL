@@ -66,12 +66,19 @@ The ``PyEnv`` class wraps Python environments for use with TwisteRL's Rust train
        }
    }
 
-The Python environment class should implement:
+The Python environment class must implement:
 
-- ``reset() -> observation``
-- ``step(action) -> (observation, reward, done, info)``
-- ``obs_shape() -> list[int]``
-- ``num_actions() -> int``
+- ``reset(difficulty: int)``: Reset the environment to initial state with given difficulty
+- ``next(action: int)``: Execute an action (advances the environment state)
+- ``observe() -> list[int]``: Return the current observation
+- ``obs_shape() -> list[int]``: Return observation dimensions
+- ``num_actions() -> int``: Return number of valid actions
+- ``is_final() -> bool``: Return True if current state is terminal
+- ``success() -> bool``: Return True if the goal was achieved
+- ``value() -> float``: Return the reward value for current state
+- ``masks() -> list[bool]``: Return action mask (True if action is valid)
+- ``set_state(state: list[int])``: Set environment to specific state
+- ``copy()``: Return a copy of the environment (for parallel collection)
 - ``twists() -> (obs_perms, act_perms)`` (optional, for symmetry-aware training)
 
 Creating Custom Environments
@@ -87,25 +94,31 @@ For best performance, implement environments in Rust. See the ``examples/grid_wo
 
 See :doc:`../examples` for detailed instructions.
 
-Environment Interface
----------------------
+Environment Interface (Rust Trait)
+-----------------------------------
 
-All environments must provide these methods (called from Rust or Python):
+Rust environments implement the ``twisterl::rl::env::Env`` trait. The required methods are:
 
-- ``reset()``: Reset to initial state, return observation
-- ``step(action)``: Take action, return (obs, reward, done, info)
-- ``obs_shape()``: Return observation dimensions
-- ``num_actions()``: Return number of valid actions
-- ``is_final()``: Return True if current state is terminal
-- ``success()``: Return True if the goal was achieved (episode ended successfully)
-- ``reward()``: Return the reward value for the current state
-- ``twists()``: Return permutation symmetries (optional)
-- ``set_state(state)``: Set environment to specific state (for inference)
-- ``difficulty``: Property to get/set difficulty level
+- ``num_actions() -> usize``: Return number of possible actions
+- ``obs_shape() -> Vec<usize>``: Return observation dimensions
+- ``set_state(state: Vec<i64>)``: Set environment to a specific state
+- ``reset()``: Reset to a random initial state
+- ``step(action: usize)``: Execute an action (evolve the state)
+- ``is_final() -> bool``: Return True if current state is terminal
+- ``success() -> bool``: Return True if the goal was achieved
+- ``reward() -> f32``: Return the reward value for current state
+- ``observe() -> Vec<usize>``: Return current state as sparse observation
+
+Optional methods with default implementations:
+
+- ``set_difficulty(difficulty: usize)``: Set difficulty level (default: no-op)
+- ``get_difficulty() -> usize``: Get current difficulty (default: 1)
+- ``masks() -> Vec<bool>``: Return action mask (default: all True)
+- ``twists() -> (Vec<Vec<usize>>, Vec<Vec<usize>>)``: Return permutation symmetries (default: empty)
 
 Permutation Symmetries (Twists)
 -------------------------------
 
 TwisteRL supports symmetry-aware training through "twists" - permutations of observations and actions that represent equivalent states.
 
-See ``docs/twists.md`` for detailed documentation on implementing twists in your environments.
+See `twists.md <https://github.com/AI4quantum/twisteRL/blob/main/docs/twists.md>`_ for detailed documentation on implementing twists in your environments.

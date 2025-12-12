@@ -176,8 +176,8 @@
 <span class="n">crate-type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;cdylib&quot;</span><span class="p">]</span>
 
 <span class="k">[dependencies]</span>
-<span class="n">pyo3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;0.20&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;extension-module&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
-<span class="n">twisterl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;path/to/twisterl/rust&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;python_bindings&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">pyo3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;0.24&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;extension-module&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">twisterl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;../../rust&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;python_bindings&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
@@ -185,18 +185,25 @@
 <li><p><strong>Expose it to Python</strong> using <code class="docutils literal notranslate"><span class="pre">PyBaseEnv</span></code>:</p></li>
 </ol>
 <div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">use</span><span class="w"> </span><span class="n">pyo3</span><span class="p">::</span><span class="n">prelude</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+<span class="k">use</span><span class="w"> </span><span class="n">twisterl</span><span class="p">::</span><span class="n">rl</span><span class="p">::</span><span class="n">env</span><span class="p">::</span><span class="n">Env</span><span class="p">;</span>
 <span class="k">use</span><span class="w"> </span><span class="n">twisterl</span><span class="p">::</span><span class="n">python_interface</span><span class="p">::</span><span class="n">env</span><span class="p">::</span><span class="n">PyBaseEnv</span><span class="p">;</span>
 
-<span class="cp">#[pyclass(name = </span><span class="s">&quot;MyEnv&quot;</span><span class="cp">, extends = PyBaseEnv)]</span>
+<span class="cp">#[pyclass(name=</span><span class="s">&quot;MyEnv&quot;</span><span class="cp">, extends=PyBaseEnv)]</span>
 <span class="k">struct</span><span class="w"> </span><span class="nc">PyMyEnv</span><span class="p">;</span>
 
 <span class="cp">#[pymethods]</span>
 <span class="k">impl</span><span class="w"> </span><span class="n">PyMyEnv</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="cp">#[new]</span>
-<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">new</span><span class="p">(</span><span class="o">..</span><span class="p">.)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="bp">Self</span><span class="p">,</span><span class="w"> </span><span class="n">PyBaseEnv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">env</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyEnv</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="o">..</span><span class="p">.);</span>
+<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">new</span><span class="p">(</span><span class="cm">/* your params */</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="bp">Self</span><span class="p">,</span><span class="w"> </span><span class="n">PyBaseEnv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">env</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyEnv</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">);</span>
 <span class="w">        </span><span class="p">(</span><span class="n">PyMyEnv</span><span class="p">,</span><span class="w"> </span><span class="n">PyBaseEnv</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">env</span><span class="p">:</span><span class="w"> </span><span class="nb">Box</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="n">env</span><span class="p">)</span><span class="w"> </span><span class="p">})</span>
 <span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cp">#[pymodule]</span>
+<span class="k">fn</span><span class="w"> </span><span class="nf">my_env</span><span class="p">(</span><span class="n">_py</span><span class="p">:</span><span class="w"> </span><span class="nc">Python</span><span class="o">&lt;&#39;</span><span class="nb">_</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">Bound</span><span class="o">&lt;&#39;</span><span class="nb">_</span><span class="p">,</span><span class="w"> </span><span class="n">PyModule</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">PyResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">m</span><span class="p">.</span><span class="n">add_class</span><span class="p">::</span><span class="o">&lt;</span><span class="n">PyMyEnv</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+<span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -221,7 +228,8 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Note that Python environments may be slower than native Rust environments.</p>
+<p>Your Python environment class must implement the required interface (<code class="docutils literal notranslate"><span class="pre">reset</span></code>, <code class="docutils literal notranslate"><span class="pre">next</span></code>, <code class="docutils literal notranslate"><span class="pre">observe</span></code>, etc.). See <a class="reference internal" href="api/environments.html"><span class="doc">Environments</span></a> for the complete list of required methods.</p>
+<p>Note that Python environments may be slower than native Rust environments due to the Python-Rust interop overhead.</p>
 </section>
 </section>
 <section id="use-cases">

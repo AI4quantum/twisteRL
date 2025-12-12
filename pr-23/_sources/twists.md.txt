@@ -11,10 +11,10 @@ lightweight form of regularization because the agent sees equivalent states unde
 - Every environment implements the `twisterl::rl::env::Env` trait. The trait includes a `twists`
   method that returns `(Vec<Vec<usize>>, Vec<Vec<usize>>)` representing valid permutations on the
   flattened observation array and matching permutations on the discrete action space
-  (`rust/src/rl/env.rs:33`).
+  (`rust/src/rl/env.rs:59`).
 - When an environment is instantiated from Python via `prepare_algorithm`, twisteRL immediately calls
   `env.twists()` and forwards the returned permutations to the policy constructor
-  (`src/twisterl/utils.py:126`). The policy can then symmetrize logits, average values, or augment
+  (`src/twisterl/utils.py:194`). The policy can then symmetrize logits, average values, or augment
   rollouts without extra environment queries.
 
 ## Data Contract

@@ -62,7 +62,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#python-environment-wrapper">Python Environment Wrapper</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#creating-custom-environments">Creating Custom Environments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#environment-interface">Environment Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-interface-rust-trait">Environment Interface (Rust Trait)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#permutation-symmetries-twists">Permutation Symmetries (Twists)</a></li>
 </ul>
 </li>
@@ -154,12 +154,19 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The Python environment class should implement:</p>
+<p>The Python environment class must implement:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">reset()</span> <span class="pre">-&gt;</span> <span class="pre">observation</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">step(action)</span> <span class="pre">-&gt;</span> <span class="pre">(observation,</span> <span class="pre">reward,</span> <span class="pre">done,</span> <span class="pre">info)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">obs_shape()</span> <span class="pre">-&gt;</span> <span class="pre">list[int]</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">num_actions()</span> <span class="pre">-&gt;</span> <span class="pre">int</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reset(difficulty:</span> <span class="pre">int)</span></code>: Reset the environment to initial state with given difficulty</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">next(action:</span> <span class="pre">int)</span></code>: Execute an action (advances the environment state)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">observe()</span> <span class="pre">-&gt;</span> <span class="pre">list[int]</span></code>: Return the current observation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">obs_shape()</span> <span class="pre">-&gt;</span> <span class="pre">list[int]</span></code>: Return observation dimensions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_actions()</span> <span class="pre">-&gt;</span> <span class="pre">int</span></code>: Return number of valid actions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_final()</span> <span class="pre">-&gt;</span> <span class="pre">bool</span></code>: Return True if current state is terminal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">success()</span> <span class="pre">-&gt;</span> <span class="pre">bool</span></code>: Return True if the goal was achieved</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">value()</span> <span class="pre">-&gt;</span> <span class="pre">float</span></code>: Return the reward value for current state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">masks()</span> <span class="pre">-&gt;</span> <span class="pre">list[bool]</span></code>: Return action mask (True if action is valid)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_state(state:</span> <span class="pre">list[int])</span></code>: Set environment to specific state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">copy()</span></code>: Return a copy of the environment (for parallel collection)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">twists()</span> <span class="pre">-&gt;</span> <span class="pre">(obs_perms,</span> <span class="pre">act_perms)</span></code> (optional, for symmetry-aware training)</p></li>
 </ul>
 </section>
@@ -174,26 +181,32 @@
 </ol>
 <p>See <a class="reference internal" href="../examples.html"><span class="doc">Examples</span></a> for detailed instructions.</p>
 </section>
-<section id="environment-interface">
-<h2>Environment Interface<a class="headerlink" href="#environment-interface" title="Link to this heading"></a></h2>
-<p>All environments must provide these methods (called from Rust or Python):</p>
+<section id="environment-interface-rust-trait">
+<h2>Environment Interface (Rust Trait)<a class="headerlink" href="#environment-interface-rust-trait" title="Link to this heading"></a></h2>
+<p>Rust environments implement the <code class="docutils literal notranslate"><span class="pre">twisterl::rl::env::Env</span></code> trait. The required methods are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">reset()</span></code>: Reset to initial state, return observation</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">step(action)</span></code>: Take action, return (obs, reward, done, info)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">obs_shape()</span></code>: Return observation dimensions</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">num_actions()</span></code>: Return number of valid actions</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">is_final()</span></code>: Return True if current state is terminal</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">success()</span></code>: Return True if the goal was achieved (episode ended successfully)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">reward()</span></code>: Return the reward value for the current state</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">twists()</span></code>: Return permutation symmetries (optional)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">set_state(state)</span></code>: Set environment to specific state (for inference)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">difficulty</span></code>: Property to get/set difficulty level</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_actions()</span> <span class="pre">-&gt;</span> <span class="pre">usize</span></code>: Return number of possible actions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">obs_shape()</span> <span class="pre">-&gt;</span> <span class="pre">Vec&lt;usize&gt;</span></code>: Return observation dimensions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_state(state:</span> <span class="pre">Vec&lt;i64&gt;)</span></code>: Set environment to a specific state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reset()</span></code>: Reset to a random initial state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step(action:</span> <span class="pre">usize)</span></code>: Execute an action (evolve the state)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_final()</span> <span class="pre">-&gt;</span> <span class="pre">bool</span></code>: Return True if current state is terminal</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">success()</span> <span class="pre">-&gt;</span> <span class="pre">bool</span></code>: Return True if the goal was achieved</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reward()</span> <span class="pre">-&gt;</span> <span class="pre">f32</span></code>: Return the reward value for current state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">observe()</span> <span class="pre">-&gt;</span> <span class="pre">Vec&lt;usize&gt;</span></code>: Return current state as sparse observation</p></li>
+</ul>
+<p>Optional methods with default implementations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">set_difficulty(difficulty:</span> <span class="pre">usize)</span></code>: Set difficulty level (default: no-op)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_difficulty()</span> <span class="pre">-&gt;</span> <span class="pre">usize</span></code>: Get current difficulty (default: 1)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">masks()</span> <span class="pre">-&gt;</span> <span class="pre">Vec&lt;bool&gt;</span></code>: Return action mask (default: all True)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">twists()</span> <span class="pre">-&gt;</span> <span class="pre">(Vec&lt;Vec&lt;usize&gt;&gt;,</span> <span class="pre">Vec&lt;Vec&lt;usize&gt;&gt;)</span></code>: Return permutation symmetries (default: empty)</p></li>
 </ul>
 </section>
 <section id="permutation-symmetries-twists">
 <h2>Permutation Symmetries (Twists)<a class="headerlink" href="#permutation-symmetries-twists" title="Link to this heading"></a></h2>
 <p>TwisteRL supports symmetry-aware training through “twists” - permutations of observations and actions that represent equivalent states.</p>
-<p>See <code class="docutils literal notranslate"><span class="pre">docs/twists.md</span></code> for detailed documentation on implementing twists in your environments.</p>
+<p>See <a class="reference external" href="https://github.com/AI4quantum/twisteRL/blob/main/docs/twists.md">twists.md</a> for detailed documentation on implementing twists in your environments.</p>
 </section>
 </section>
 
