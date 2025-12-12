@@ -20,7 +20,8 @@ dependencies = [
   "loguru>=0.7",
   "numpy>2.0",
   "tensorboard>2.0",
-  "huggingface-hub (>=0.34.4,<0.35.0)"
+  "huggingface-hub (>=0.34.4,<0.35.0)",
+  "safetensors>=0.4"
 ]
 
 

@@ -16,6 +16,7 @@ import torch
 from huggingface_hub import HfApi, snapshot_download
 import fnmatch
 from loguru import logger
+from safetensors.torch import load_file, save_file
 
 
 def dynamic_import(path):
@@ -54,18 +55,29 @@ def validate_algorithm_from_hub(repo_id: str, revision: str = "main"):
     """
 
     # List of required file patterns to validate model
-    REQUIRED_FILES = {"*.json", "*.pt"}
+    # Accept either safetensors (preferred) or pt (legacy)
+    REQUIRED_JSON = "*.json"
+    CHECKPOINT_PATTERNS = ["*.safetensors", "*.pt"]
     api = HfApi()
     try:
         files = api.list_repo_files(repo_id, revision=revision)
     except Exception:
         return {"is_valid": False, "missing": ["<repo not found>"]}
     files_set = set(files)
-    # Check for required file patterns
     missing = []
-    for pattern in REQUIRED_FILES:
-        if not any(fnmatch.fnmatch(file, pattern) for file in files_set):
-            missing.append(pattern)
+
+    # Check for JSON config files
+    if not any(fnmatch.fnmatch(file, REQUIRED_JSON) for file in files_set):
+        missing.append(REQUIRED_JSON)
+
+    # Check for checkpoint files (either safetensors or pt)
+    has_checkpoint = any(
+        fnmatch.fnmatch(file, pattern)
+        for file in files_set
+        for pattern in CHECKPOINT_PATTERNS
+    )
+    if not has_checkpoint:
+        missing.append("*.safetensors or *.pt")
 
     is_valid = len(missing) == 0
     return {"is_valid": is_valid, "missing": missing}
@@ -105,7 +117,7 @@ def pull_hub_algorithm(
         local_repo_path = snapshot_download(
             repo_id,
             cache_dir=model_path,
-            allow_patterns=["*.json", "*.pt"],
+            allow_patterns=["*.json", "*.safetensors", "*.pt"],
             revision=revision,
             force_download=False,
         )
@@ -114,6 +126,62 @@ def pull_hub_algorithm(
     except Exception as e:
         logger.warning(f"Error: {e}")
         return False
+
+
+def load_checkpoint(checkpoint_path):
+    """Load a checkpoint from either safetensors or pt format.
+
+    Parameters
+    ----------
+    checkpoint_path : str
+        Path to the checkpoint file (.safetensors or .pt).
+
+    Returns
+    -------
+    dict
+        The state dict loaded from the checkpoint.
+    """
+    if checkpoint_path.endswith(".safetensors"):
+        return load_file(checkpoint_path, device="cpu")
+    elif checkpoint_path.endswith(".pt"):
+        logger.warning(
+            f"Loading legacy .pt checkpoint: {checkpoint_path}. "
+            "Consider converting to .safetensors using convert_pt_to_safetensors()."
+        )
+        return torch.load(open(checkpoint_path, "rb"), map_location=torch.device("cpu"))
+    else:
+        raise ValueError(
+            f"Unknown checkpoint format: {checkpoint_path}. "
+            "Expected .safetensors or .pt extension."
+        )
+
+
+def convert_pt_to_safetensors(pt_path, output_path=None):
+    """Convert a PyTorch .pt checkpoint to safetensors format.
+
+    Parameters
+    ----------
+    pt_path : str
+        Path to the .pt checkpoint file.
+    output_path : str, optional
+        Path for the output .safetensors file.
+        If not provided, replaces .pt extension with .safetensors.
+
+    Returns
+    -------
+    str
+        Path to the saved .safetensors file.
+    """
+    if output_path is None:
+        if pt_path.endswith(".pt"):
+            output_path = pt_path[:-3] + ".safetensors"
+        else:
+            output_path = pt_path + ".safetensors"
+
+    state_dict = torch.load(open(pt_path, "rb"), map_location=torch.device("cpu"))
+    save_file(state_dict, output_path)
+    logger.info(f"Converted {pt_path} -> {output_path}")
+    return output_path
 
 
 def prepare_algorithm(config, run_path=None, load_checkpoint_path=None):
@@ -132,11 +200,7 @@ def prepare_algorithm(config, run_path=None, load_checkpoint_path=None):
         act_perms=act_perms,
     )
     if load_checkpoint_path is not None:
-        policy.load_state_dict(
-            torch.load(
-                open(load_checkpoint_path, "rb"), map_location=torch.device("cpu")
-            )
-        )
+        policy.load_state_dict(load_checkpoint(load_checkpoint_path))
 
     # Import algo class and make algorithm
     algo_cls = dynamic_import(config["algorithm_cls"])

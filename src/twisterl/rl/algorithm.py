@@ -18,6 +18,7 @@ from loguru import logger
 
 import torch
 from torch.utils.tensorboard import SummaryWriter
+from safetensors.torch import save_file
 
 from twisterl.defaults import make_config
 
@@ -183,15 +184,15 @@ class Algorithm:
                 and (self.config["logging"]["checkpoint_freq"] > 0)
                 and ((iteration % self.config["logging"]["checkpoint_freq"] == 0))
             ):
-                torch.save(
+                save_file(
                     self.policy.state_dict(),
-                    open(f"{self.run_path}/checkpoint_last.pt", "wb"),
+                    f"{self.run_path}/checkpoint_last.safetensors",
                 )
 
             if self.run_path and improved:
-                torch.save(
+                save_file(
                     self.policy.state_dict(),
-                    open(f"{self.run_path}/checkpoint_best.pt", "wb"),
+                    f"{self.run_path}/checkpoint_best.safetensors",
                 )
                 logger.info(
                     f"({self.env.difficulty}/{iteration}) Improved, saved checkpoint!"

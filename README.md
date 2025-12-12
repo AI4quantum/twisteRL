@@ -100,6 +100,21 @@ The `examples/grid_world` custom environment example [here](examples/grid_world)
 
 Refer to [grid_world](examples/grid_world) for a complete working example.
 
+## Checkpoint Format
+
+TwisteRL uses [safetensors](https://github.com/huggingface/safetensors) as the default checkpoint format for model weights. Safetensors provides:
+- **Security**: No arbitrary code execution (unlike pickle-based `.pt` files)
+- **Speed**: Zero-copy loading for faster model initialization
+- **HuggingFace compatibility**: Standard format for Hub models
+
+Legacy `.pt` checkpoints are still supported for backward compatibility but will log a warning. To convert existing checkpoints:
+
+```python
+from twisterl.utils import convert_pt_to_safetensors
+
+convert_pt_to_safetensors("model.pt")  # Creates model.safetensors
+```
+
 ## Documentation
 
 - [Permutation twists in environments](docs/twists.md)
