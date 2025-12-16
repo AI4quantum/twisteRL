@@ -66,6 +66,8 @@ The `examples/grid_world` custom environment example [here](examples/grid_world)
 
 3. **Implement the environment** by defining a struct and implementing `twisterl::rl::env::Env` for it. Provide logic for `reset`, `step`, `observe`, `reward`, etc.
 
+In inference, `twisterRL` algorithms track the actions applied to the environment externally. If you need the environment itself to track them, implement the `track_solution` and `solution` methods in the `Env` trait.
+
 4. **Expose it to Python** using `PyBaseEnv`:
    ```rust
    use pyo3::prelude::*;
