@@ -15,6 +15,7 @@ use pyo3::prelude::*;
 use crate::rl::env::Env;
 use crate::envs::puzzle::Puzzle;
 use crate::python_interface::policy::PyPolicy;
+use crate::python_interface::pyenv::PyEnvImpl;
 use crate::python_interface::error_mapping::MyError;
 use crate::rl::solve::solve;
 use crate::rl::evaluate::evaluate;
@@ -104,13 +105,6 @@ impl PyBaseEnv {
     fn twists(&self) -> PyResult<(Vec<Vec<usize>>, Vec<Vec<usize>>)> {
         Ok(self.env.twists())
     }
-
-    // Hidden method to extract the Rust env as a pointer
-    fn __extract_env__(&self) -> PyResult<usize> {
-        // Return the Box pointer itself as a usize
-        let box_ptr = &self.env as *const Box<dyn Env> as usize;
-        Ok(box_ptr)
-    }
 }
 
 
@@ -160,20 +154,27 @@ impl PyPuzzleEnv {
 }
 
 
-pub fn get_env<'a>(py_env: &'a Bound<'_, PyAny>) -> PyResult<&'a Box<dyn Env>> {
-    // try to call __extract_env__ on the Python side
-    let ptr_val = match py_env.call_method0("__extract_env__") {
-        Ok(val) => val,
-        Err(_) => {
-            return Err(pyo3::exceptions::PyTypeError::new_err(
-                "Object must implement __extract_env__ method",
-            ));
-        }
-    };
-    // extract the usize
-    let ptr: usize = ptr_val.extract()?;
-    // turn it back into a &Box<dyn Env>
-    unsafe { Ok(&*(ptr as *const Box<dyn Env>)) }
+/// Safely get a cloned environment from a Python object.
+///
+/// This function tries to:
+/// 1. Downcast to PyBaseEnv if the object is a PyBaseEnv subclass (native TwisteRL environment)
+/// 2. If not, wrap the Python object in a PyEnvImpl that calls Python methods via GIL
+///
+/// This approach is safe across different compiled modules (e.g., when external packages
+/// like qiskit-gym use TwisteRL environments) because it avoids unsafe pointer casting
+/// that can cause memory corruption when vtable layouts differ between compilations.
+pub fn get_env(py_env: &Bound<'_, PyAny>) -> PyResult<Box<dyn Env>> {
+    // First, try to downcast to PyBaseEnv (native TwisteRL environment)
+    if let Ok(base_env) = py_env.downcast::<PyBaseEnv>() {
+        // Clone the environment from the PyBaseEnv
+        let borrowed = base_env.borrow();
+        return Ok(dyn_clone::clone_box(&*borrowed.env));
+    }
+
+    // If not a PyBaseEnv, wrap it as a PyEnvImpl that calls Python methods
+    // This is safe for external environments from other packages
+    let py_ref = py_env.clone().unbind();
+    Ok(Box::new(PyEnvImpl::new(py_ref)))
 }
 
 
@@ -186,8 +187,8 @@ pub fn solve_py(
     num_mcts_searches: usize,
     C: f32,
     max_expand_depth: usize) -> PyResult<((f32, f32), Vec<usize>)> {
-        let env_ref = get_env(py_env)?;
-        Ok(solve(env_ref, &*policy.policy, deterministic, num_searches, num_mcts_searches, C, max_expand_depth))
+        let env = get_env(py_env)?;
+        Ok(solve(&env, &*policy.policy, deterministic, num_searches, num_mcts_searches, C, max_expand_depth))
 }
 
 
@@ -202,6 +203,6 @@ pub fn evaluate_py(py_env: &Bound<'_, PyAny>,
     C: f32,
     max_expand_depth: usize,
     num_cores: usize) -> PyResult<(f32, f32)> {
-    let env_ref = get_env(py_env)?;
-    Ok(evaluate(env_ref, &*policy.policy, num_episodes, deterministic, num_searches, num_mcts_searches, seed, C, max_expand_depth, num_cores).map_err(MyError::from)?)
+    let env = get_env(py_env)?;
+    Ok(evaluate(&env, &*policy.policy, num_episodes, deterministic, num_searches, num_mcts_searches, seed, C, max_expand_depth, num_cores).map_err(MyError::from)?)
 }

@@ -145,8 +145,8 @@ pub struct PyBaseCollector {
 impl PyBaseCollector {
     // Collects Data
     fn collect(&self, py_env: &Bound<'_, PyAny>, policy: &PyPolicy) -> PyResult<PyCollectedData>{
-        let env_ref = get_env(py_env)?;
-        let collected_data = self.collector.collect(env_ref, &*policy.policy).map_err(MyError::from)?;
+        let env = get_env(py_env)?;
+        let collected_data = self.collector.collect(&env, &*policy.policy).map_err(MyError::from)?;
         Ok(PyCollectedData { inner: collected_data })
     }
 }
