@@ -32,31 +32,36 @@ impl Policy {
     }
 
     pub fn predict(&self, obs: Vec<usize>, masks: Vec<bool>) -> (Vec<f32>, f32) {
-        // Forward of the action net
-        let (action_logits, value) = self._raw_predict(obs, self.get_perm_id());
+        let (exp_masked_probs, value, _) = self.predict_with_perm(obs, masks);
+        (exp_masked_probs, value)
+    }
+
+    pub fn predict_with_perm(&self, obs: Vec<usize>, masks: Vec<bool>) -> (Vec<f32>, f32, Option<usize>) {
+        let (action_logits, value, perm_idx) = self.forward_with_perm(obs, masks.clone());
 
         // Apply masks to the actions
         let mut exp_masked_probs: Vec<f32> = action_logits.iter().zip(masks.iter()).map(|(&a, &m)| if m {a.exp()} else {0.0}).collect();
 
-        // TODO: apply noise to the actions
-
         // Normalize actions
         let action_probs_sum: f32 = exp_masked_probs.iter().sum();
         exp_masked_probs = exp_masked_probs.iter().map(|&v| v / (action_probs_sum + 0.000001)).collect();
-        (exp_masked_probs, value)
+        (exp_masked_probs, value, perm_idx)
     }
 
-
     pub fn forward(&self, obs: Vec<usize>, masks: Vec<bool>) -> (Vec<f32>, f32) {
-        // Similar to predict but outputs unnormalized logits instead of probabilities
+        let (masked_logits, value, _) = self.forward_with_perm(obs, masks);
+        (masked_logits, value)
+    }
 
+    pub fn forward_with_perm(&self, obs: Vec<usize>, masks: Vec<bool>) -> (Vec<f32>, f32, Option<usize>) {
         // Forward of the action net
-        let (action_logits, value) = self._raw_predict(obs, self.get_perm_id());
+        let perm_idx = self.get_perm_id();
+        let (action_logits, value) = self._raw_predict(obs, perm_idx);
 
         // Apply masks to the actions
         let masked_logits: Vec<f32> = action_logits.iter().zip(masks.iter()).map(|(&a, &m)| if m {a} else {-1e10}).collect();
 
-        (masked_logits, value)
+        (masked_logits, value, perm_idx)
     }
 
     fn get_perm_id(&self) -> Option<usize> {

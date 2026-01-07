@@ -25,6 +25,7 @@ pub fn single_solve(
     let mut total_val = 0.0;
     let mut solution = Vec::new();
 
+    let track_solution = env.track_solution();
     // step until final
     while !env.is_final() {
         let val = env.reward();
@@ -53,13 +54,20 @@ pub fn single_solve(
         };
 
         env.step(action);
-        solution.push(action);
+        if !track_solution {
+            solution.push(action);
+        }
     }
 
+    if track_solution {
+        solution = env.solution();
+    }
     let val = env.reward();
     total_val += val;
 
-    (((val == 1.0) as usize as f32, total_val), solution)
+    let success = if env.success() { 1.0 } else { 0.0 };
+
+    ((success, total_val), solution)
 }
 
 pub fn solve(

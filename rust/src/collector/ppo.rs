@@ -42,13 +42,13 @@ impl PPOCollector {
         &self,
         env: &dyn Env,
         policy: &Policy,
-    ) -> (Vec<usize>, Vec<f32>, usize, f32, f32) {
+    ) -> (Vec<usize>, Vec<f32>, usize, f32, f32, Option<usize>) {
         let obs = env.observe();      // Vec<f32> or whatever your Env returns
         let masks   = env.masks();
         let reward  = env.reward();
-        let (logits, value) = policy.forward(obs.clone(), masks);  
+        let (logits, value, perm_idx) = policy.forward_with_perm(obs.clone(), masks);
         let action = sample_from_logits(&logits);
-        (obs, logits, action, value, reward)
+        (obs, logits, action, value, reward, perm_idx)
     }
 
     fn single_collect(
@@ -64,14 +64,16 @@ impl PPOCollector {
         let mut vals  = Vec::new();
         let mut rews = Vec::new();
         let mut acts = Vec::new();
+        let mut perms = Vec::new();
 
         loop {
-            let (obs, log_prob, act, val, rew) = self.get_step_data(&*env, policy);
+            let (obs, log_prob, act, val, rew, perm_idx) = self.get_step_data(&*env, policy);
             obss.push(obs);
             log_probs.push(log_prob);
             vals.push(val);
             rews.push(rew);
             acts.push(act);
+            perms.push(perm_idx);
 
             if env.is_final() { break; }
             env.step(act);
@@ -92,6 +94,7 @@ impl PPOCollector {
         let mut data = CollectedData::new(
             obss,
             log_probs,
+            perms,
             vals,
             rews,
             acts,
@@ -149,6 +152,7 @@ mod tests {
         fn is_final(&self) -> bool { self.step >= 1 }
         fn reward(&self) -> f32 { 1.0 }
         fn observe(&self) -> Vec<usize> { vec![0] }
+        fn success(&self) -> bool { true }
     }
 
     fn dummy_policy() -> Policy {
@@ -177,4 +181,3 @@ mod tests {
         assert!(data.additional_data.contains_key("rets"));
     }
 }
-

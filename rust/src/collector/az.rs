@@ -61,7 +61,6 @@ impl AZCollector {
         let mut probs: Vec<Vec<f32>> = vec![];
         let mut vals: Vec<f32> = vec![];
         let mut total_vals: Vec<f32> = vec![];
-
         let mut total_val = 0.0;
 
         // Loop until a final state
@@ -93,9 +92,12 @@ impl AZCollector {
         // Post process rewards
         let remaining_vals: Vec<f32> = total_vals.iter().map(|&v| total_val - v).collect();
 
+        let perms: Vec<Option<usize>> = vec![None; obs.len()];
+
         let mut data = CollectedData::new(
             obs,
             probs,
+            perms,
             vec![],
             vec![],
             vec![],
@@ -154,6 +156,7 @@ mod tests {
         fn is_final(&self) -> bool { self.step >= 1 }
         fn reward(&self) -> f32 { 1.0 }
         fn observe(&self) -> Vec<usize> { vec![0] }
+        fn success(&self) -> bool { true }
     }
 
     fn dummy_policy() -> Policy {
@@ -182,4 +185,3 @@ mod tests {
         assert!(data.additional_data.contains_key("remaining_values"));
     }
 }
-

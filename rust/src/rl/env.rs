@@ -46,6 +46,9 @@ pub trait Env : DynClone + Send + Sync {
     // Returns True if the given state is a terminal state
     fn is_final(&self) -> bool;
 
+    // Returns True if the goal is achieved
+    fn success(&self) -> bool;
+
     // Returns the value of current state
     fn reward(&self) -> f32;
 
@@ -54,6 +57,12 @@ pub trait Env : DynClone + Send + Sync {
 
     // Returns a list of possible permutations on the observations and the corresponding permutations on actions
     fn twists(&self) -> (Vec<Vec<usize>>, Vec<Vec<usize>>) {(vec![], vec![])}
+
+    // Returns true if the env is tracking the solution internally
+    fn track_solution(&self) -> bool { false }
+
+    // Returns the solution tracked internally
+    fn solution(&self) -> Vec<usize> { vec![] }
 }
 
 dyn_clone::clone_trait_object!(Env);
