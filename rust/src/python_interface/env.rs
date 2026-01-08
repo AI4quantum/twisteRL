@@ -15,7 +15,7 @@ use pyo3::prelude::*;
 use crate::rl::env::Env;
 use crate::envs::puzzle::Puzzle;
 use crate::python_interface::policy::PyPolicy;
-use crate::python_interface::pyenv::PyEnvImpl;
+use crate::python_interface::pyenv::{PyEnvImpl, PyBaseEnvWrapper};
 use crate::python_interface::error_mapping::MyError;
 use crate::rl::solve::solve;
 use crate::rl::evaluate::evaluate;
@@ -105,6 +105,15 @@ impl PyBaseEnv {
     fn twists(&self) -> PyResult<(Vec<Vec<usize>>, Vec<Vec<usize>>)> {
         Ok(self.env.twists())
     }
+
+    /// Clone the environment by cloning the internal Rust Env.
+    /// This method is available to all PyBaseEnv subclasses (including external ones
+    /// like GridWorld) and enables them to be cloned for parallel evaluation.
+    fn clone(&self) -> PyResult<Self> {
+        Ok(PyBaseEnv {
+            env: dyn_clone::clone_box(&*self.env),
+        })
+    }
 }
 
 
@@ -157,24 +166,37 @@ impl PyPuzzleEnv {
 /// Safely get a cloned environment from a Python object.
 ///
 /// This function tries to:
-/// 1. Downcast to PyBaseEnv if the object is a PyBaseEnv subclass (native TwisteRL environment)
-/// 2. If not, wrap the Python object in a PyEnvImpl that calls Python methods via GIL
+/// 1. Downcast to PyBaseEnv if the object is a native TwisteRL environment from this module
+/// 2. If not, detect the interface type and use the appropriate wrapper:
+///    - PyBaseEnvWrapper for external Rust environments (like GridWorld) that have step/reward methods
+///    - PyEnvImpl for pure Python environments that use next/value/copy methods
 ///
 /// This approach is safe across different compiled modules (e.g., when external packages
 /// like qiskit-gym use TwisteRL environments) because it avoids unsafe pointer casting
 /// that can cause memory corruption when vtable layouts differ between compilations.
 pub fn get_env(py_env: &Bound<'_, PyAny>) -> PyResult<Box<dyn Env>> {
-    // First, try to downcast to PyBaseEnv (native TwisteRL environment)
+    // First, try to downcast to PyBaseEnv (native TwisteRL environment from this module)
     if let Ok(base_env) = py_env.downcast::<PyBaseEnv>() {
         // Clone the environment from the PyBaseEnv
         let borrowed = base_env.borrow();
         return Ok(dyn_clone::clone_box(&*borrowed.env));
     }
 
-    // If not a PyBaseEnv, wrap it as a PyEnvImpl that calls Python methods
-    // This is safe for external environments from other packages
+    // Not a native PyBaseEnv - detect the interface type
     let py_ref = py_env.clone().unbind();
-    Ok(Box::new(PyEnvImpl::new(py_ref)))
+
+    // Check if this is a PyBaseEnv-like object (external Rust env) by checking for 'step' method
+    // PyBaseEnv uses step(action) while pure Python envs typically use next(action)
+    let has_step_method = py_env.hasattr("step").unwrap_or(false);
+    let has_next_method = py_env.hasattr("next").unwrap_or(false);
+
+    if has_step_method && !has_next_method {
+        // This looks like a PyBaseEnv-compatible interface (external Rust environment)
+        Ok(Box::new(PyBaseEnvWrapper::new(py_ref)))
+    } else {
+        // Fall back to PyEnvImpl for pure Python environments with custom interface
+        Ok(Box::new(PyEnvImpl::new(py_ref)))
+    }
 }
 
 
