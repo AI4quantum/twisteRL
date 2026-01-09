@@ -9,7 +9,7 @@ license = "Apache-2.0"
 python_bindings = ["pyo3"]
 
 [dependencies]
-pyo3 = { version = "0.24.2", features = ["extension-module", "multiple-pymethods"], optional = true }
+pyo3 = { version = "0.27.2", features = ["extension-module", "multiple-pymethods"], optional = true }
 nalgebra = "0.33.0"
 rand = "0.8.4"
 rayon = "1.1.0"
