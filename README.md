@@ -11,7 +11,7 @@ The current version is a *Proof of Concept*, stay tuned for future releases!
 ## Install
 
 ```shell
-pip install .
+pip install twisterl
 ```
 
 ## Use
