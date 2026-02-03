@@ -1,5 +1,6 @@
 import json
 import torch
+import numpy as np
 from pathlib import Path
 
 from twisterl.utils import load_config, prepare_algorithm, pull_hub_algorithm
@@ -181,6 +182,154 @@ def test_az_data_to_torch_and_train_step():
     torch_data, _ = algo.data_to_torch(data)
     metrics, _ = algo.train_step(torch_data)
     assert "total" in metrics
+
+
+def _reference_one_hot_encoding(obs, obs_size):
+    """Reference implementation of the original one-hot encoding (for testing)."""
+    np_obs = np.zeros((len(obs), obs_size), dtype=float)
+    for i, obs_i in enumerate(obs):
+        np_obs[i, obs_i] = 1.0
+    return np_obs
+
+
+def _vectorized_one_hot_encoding(obs, obs_size):
+    """Vectorized one-hot encoding (optimized implementation)."""
+    n_samples = len(obs)
+    obs_lengths = [len(o) for o in obs]
+    row_indices = np.repeat(np.arange(n_samples), obs_lengths)
+    col_indices = np.concatenate(obs).astype(int) if sum(obs_lengths) > 0 else np.array([], dtype=int)
+    np_obs = np.zeros((n_samples, obs_size), dtype=np.float32)
+    if len(col_indices) > 0:
+        np_obs[row_indices, col_indices] = 1.0
+    return np_obs
+
+
+def test_one_hot_encoding_single_observation():
+    """Test one-hot encoding with a single observation."""
+    obs = [[0, 2]]
+    obs_size = 4
+    reference = _reference_one_hot_encoding(obs, obs_size)
+    optimized = _vectorized_one_hot_encoding(obs, obs_size)
+    np.testing.assert_array_equal(reference, optimized)
+    expected = np.array([[1.0, 0.0, 1.0, 0.0]])
+    np.testing.assert_array_equal(optimized, expected)
+
+
+def test_one_hot_encoding_multiple_observations():
+    """Test one-hot encoding with multiple observations of varying lengths."""
+    obs = [[0, 1], [2], [0, 1, 2, 3]]
+    obs_size = 5
+    reference = _reference_one_hot_encoding(obs, obs_size)
+    optimized = _vectorized_one_hot_encoding(obs, obs_size)
+    np.testing.assert_array_equal(reference, optimized)
+    expected = np.array([
+        [1.0, 1.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0, 0.0],
+        [1.0, 1.0, 1.0, 1.0, 0.0],
+    ])
+    np.testing.assert_array_equal(optimized, expected)
+
+
+def test_one_hot_encoding_empty_observations():
+    """Test one-hot encoding with empty observation list."""
+    obs = []
+    obs_size = 4
+    reference = _reference_one_hot_encoding(obs, obs_size)
+    optimized = _vectorized_one_hot_encoding(obs, obs_size)
+    assert reference.shape == (0, 4)
+    assert optimized.shape == (0, 4)
+
+
+def test_one_hot_encoding_empty_single_obs():
+    """Test one-hot encoding with an observation containing no indices."""
+    obs = [[], [1, 2]]
+    obs_size = 4
+    reference = _reference_one_hot_encoding(obs, obs_size)
+    optimized = _vectorized_one_hot_encoding(obs, obs_size)
+    np.testing.assert_array_equal(reference, optimized)
+    expected = np.array([
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 1.0, 0.0],
+    ])
+    np.testing.assert_array_equal(optimized, expected)
+
+
+def test_one_hot_encoding_dtype():
+    """Test that optimized version produces float32 dtype."""
+    obs = [[0, 1]]
+    obs_size = 3
+    optimized = _vectorized_one_hot_encoding(obs, obs_size)
+    assert optimized.dtype == np.float32
+
+
+class LargeDummyPPOData:
+    """Larger test data for PPO to test vectorized implementation."""
+    def __init__(self, n_samples=100, obs_size=10):
+        self.obs = [list(np.random.choice(obs_size, size=np.random.randint(1, obs_size), replace=False))
+                    for _ in range(n_samples)]
+        self.logits = np.random.randn(n_samples, 2).tolist()
+        self.values = np.random.randn(n_samples).tolist()
+        self.rewards = np.random.randn(n_samples).tolist()
+        self.actions = np.random.randint(0, 2, n_samples).tolist()
+        self.additional_data = {
+            "rets": np.random.randn(n_samples).tolist(),
+            "advs": np.random.randn(n_samples).tolist(),
+        }
+
+
+class LargeDummyAZData:
+    """Larger test data for AZ to test vectorized implementation."""
+    def __init__(self, n_samples=100, obs_size=10):
+        self.obs = [list(np.random.choice(obs_size, size=np.random.randint(1, obs_size), replace=False))
+                    for _ in range(n_samples)]
+        self.logits = np.random.randn(n_samples, 2).tolist()
+        self.additional_data = {
+            "remaining_values": np.random.randn(n_samples).tolist(),
+        }
+
+
+def test_ppo_data_to_torch_large_batch():
+    """Test PPO data_to_torch with larger batch to verify vectorized implementation."""
+    algo = _make_ppo()
+    data = LargeDummyPPOData(n_samples=50, obs_size=3)
+    torch_data, _ = algo.data_to_torch(data)
+    pt_obs, pt_log_probs, pt_acts, pt_advs, pt_rets, pt_perm_idx = torch_data
+
+    # Verify shapes
+    assert pt_obs.shape == (50, 3)
+    assert pt_log_probs.shape == (50,)
+    assert pt_acts.shape == (50,)
+    assert pt_advs.shape == (50,)
+    assert pt_rets.shape == (50,)
+
+    # Verify obs is proper one-hot (each row sums to number of active indices)
+    obs_sums = pt_obs.sum(dim=1).cpu().numpy()
+    expected_sums = [len(o) for o in data.obs]
+    np.testing.assert_array_equal(obs_sums, expected_sums)
+
+    # Verify dtype
+    assert pt_obs.dtype == torch.float32
+
+
+def test_az_data_to_torch_large_batch():
+    """Test AZ data_to_torch with larger batch to verify vectorized implementation."""
+    algo = _make_az()
+    data = LargeDummyAZData(n_samples=50, obs_size=3)
+    torch_data, _ = algo.data_to_torch(data)
+    pt_obs, pt_probs, pt_vals = torch_data
+
+    # Verify shapes
+    assert pt_obs.shape == (50, 3)
+    assert pt_probs.shape == (50, 2)
+    assert pt_vals.shape == (50, 1)
+
+    # Verify obs is proper one-hot (each row sums to number of active indices)
+    obs_sums = pt_obs.sum(dim=1).cpu().numpy()
+    expected_sums = [len(o) for o in data.obs]
+    np.testing.assert_array_equal(obs_sums, expected_sums)
+
+    # Verify dtype
+    assert pt_obs.dtype == torch.float32
 
 
 class DummyHubModelHandler:

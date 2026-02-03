@@ -34,11 +34,16 @@ class PPO(Algorithm):
             data.additional_data["advs"],
             getattr(data, "perms", [-1] * len(data.obs)),
         )
-        np_obs = np.zeros((len(obs), self.obs_size), dtype=float)
-        for i, obs_i in enumerate(obs):
-            np_obs[i, obs_i] = 1.0
+        # Vectorized one-hot encoding (Optimization 1)
+        n_samples = len(obs)
+        obs_lengths = [len(o) for o in obs]
+        row_indices = np.repeat(np.arange(n_samples), obs_lengths)
+        col_indices = np.concatenate(obs).astype(int) if sum(obs_lengths) > 0 else np.array([], dtype=int)
+        np_obs = np.zeros((n_samples, self.obs_size), dtype=np.float32)  # Optimization 2: float32
+        if len(col_indices) > 0:
+            np_obs[row_indices, col_indices] = 1.0
 
-        pt_obs = torch.tensor(np_obs, dtype=torch.float, device=self.config["device"])
+        pt_obs = torch.from_numpy(np_obs).to(self.config["device"])  # Optimization 3: from_numpy
         pt_logits = torch.tensor(
             logits, dtype=torch.float, device=self.config["device"]
         )
