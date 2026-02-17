@@ -16,6 +16,21 @@ use rand::{prelude::Distribution, Rng};
 use crate::nn::modules::Sequential;
 use crate::nn::layers::EmbeddingBag;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ActionMode {
+    Categorical,
+    FactorizedBernoulli,
+}
+
+impl ActionMode {
+    fn from_name(name: &str) -> Self {
+        match name.trim().to_ascii_lowercase().as_str() {
+            "factorized_bernoulli" => Self::FactorizedBernoulli,
+            _ => Self::Categorical,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Policy {
     embeddings: Box<EmbeddingBag>,
@@ -23,12 +38,89 @@ pub struct Policy {
     action_net: Box<Sequential>,
     value_net: Box<Sequential>,
     obs_perms: Vec<Vec<usize>>,
-    act_perms: Vec<Vec<usize>>
+    act_perms: Vec<Vec<usize>>,
+    action_mode: ActionMode,
+    num_action_factors: usize,
+    num_actions: usize,
 }
 
 impl Policy {
     pub fn new(embeddings: Box<EmbeddingBag>, common: Box<Sequential>, action_net: Box<Sequential>, value_net: Box<Sequential>, obs_perms: Vec<Vec<usize>>, act_perms: Vec<Vec<usize>>) -> Self {
-        Self { embeddings: embeddings, common, action_net, value_net, obs_perms, act_perms }
+        let inferred_num_actions = act_perms.first().map(|p| p.len()).unwrap_or(0);
+        Self {
+            embeddings,
+            common,
+            action_net,
+            value_net,
+            obs_perms,
+            act_perms,
+            action_mode: ActionMode::Categorical,
+            num_action_factors: 0,
+            num_actions: inferred_num_actions,
+        }
+    }
+
+    pub fn new_with_action_mode(
+        embeddings: Box<EmbeddingBag>,
+        common: Box<Sequential>,
+        action_net: Box<Sequential>,
+        value_net: Box<Sequential>,
+        obs_perms: Vec<Vec<usize>>,
+        act_perms: Vec<Vec<usize>>,
+        action_mode: String,
+        num_action_factors: usize,
+        num_actions: usize,
+    ) -> Self {
+        let mut out = Self::new(embeddings, common, action_net, value_net, obs_perms, act_perms);
+        out.action_mode = ActionMode::from_name(&action_mode);
+        out.num_action_factors = num_action_factors;
+        out.num_actions = if num_actions > 0 {
+            num_actions
+        } else {
+            out.num_actions
+        };
+        out
+    }
+
+    fn effective_num_actions(&self) -> usize {
+        if self.num_actions > 0 {
+            return self.num_actions;
+        }
+        if let Some(first_perm) = self.act_perms.first() {
+            if !first_perm.is_empty() {
+                return first_perm.len();
+            }
+        }
+        if self.action_mode == ActionMode::FactorizedBernoulli && self.num_action_factors > 0 {
+            return 1usize.checked_shl(self.num_action_factors as u32).unwrap_or(0);
+        }
+        0
+    }
+
+    fn expand_factorized_logits(&self, factor_logits: &[f32]) -> Vec<f32> {
+        let num_factors = if self.num_action_factors > 0 {
+            self.num_action_factors
+        } else {
+            factor_logits.len()
+        };
+        if num_factors == 0 || factor_logits.len() < num_factors {
+            return factor_logits.to_vec();
+        }
+        let num_actions = self.effective_num_actions();
+        if num_actions == 0 {
+            return factor_logits.to_vec();
+        }
+        let mut expanded = vec![0.0f32; num_actions];
+        for action in 0..num_actions {
+            let mut logit = 0.0f32;
+            for bit in 0..num_factors {
+                if ((action >> bit) & 1usize) == 1usize {
+                    logit += factor_logits[bit];
+                }
+            }
+            expanded[action] = logit;
+        }
+        expanded
     }
 
     pub fn predict(&self, obs: Vec<usize>, masks: Vec<bool>) -> (Vec<f32>, f32) {
@@ -89,11 +181,19 @@ impl Policy {
         let value = self.value_net.forward(common_out.clone()).sum(); // This only has one element
 
         // Forward of the action net
-        let mut action_logits  = self.action_net.forward(common_out).data.as_vec().to_owned();
+        let raw_action_logits = self.action_net.forward(common_out).data.as_vec().to_owned();
+        let mut action_logits = match self.action_mode {
+            ActionMode::Categorical => raw_action_logits,
+            ActionMode::FactorizedBernoulli => self.expand_factorized_logits(&raw_action_logits),
+        };
 
         // Permute logits according to the corresponding act_perm
         if let Some(pi) = n_perm {
-            action_logits = self.act_perms[pi].iter().map(|&v| action_logits[v]).collect();
+            if let Some(act_perm) = self.act_perms.get(pi) {
+                if act_perm.len() == action_logits.len() {
+                    action_logits = act_perm.iter().map(|&v| action_logits[v]).collect();
+                }
+            }
         }
 
         (action_logits, value)
@@ -103,7 +203,7 @@ impl Policy {
         if self.obs_perms.len() == 0 {return self.predict(obs, masks);};
 
         // Forward of the action net for each perm
-        let mut action_logits = vec![0.0f32; self.act_perms[0].len()];
+        let mut action_logits = vec![0.0f32; self.effective_num_actions()];
         let mut value = 0.0f32;
 
         for pi in 0..self.obs_perms.len() {

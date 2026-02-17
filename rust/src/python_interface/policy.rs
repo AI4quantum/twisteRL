@@ -25,8 +25,39 @@ pub struct PyPolicy {
 #[pymethods]
 impl PyPolicy {
     #[new]
-    pub fn new(embeddings: PyEmbeddingBag, common: PySequential, action_net: PySequential, value_net: PySequential, obs_perms: Vec<Vec<usize>>, act_perms: Vec<Vec<usize>>) -> Self {
-        let policy = Box::new(Policy::new(embeddings.embedding, common.seq, action_net.seq, value_net.seq, obs_perms, act_perms));
+    #[pyo3(signature = (
+        embeddings,
+        common,
+        action_net,
+        value_net,
+        obs_perms,
+        act_perms,
+        action_mode = "categorical",
+        num_action_factors = 0,
+        num_actions = 0
+    ))]
+    pub fn new(
+        embeddings: PyEmbeddingBag,
+        common: PySequential,
+        action_net: PySequential,
+        value_net: PySequential,
+        obs_perms: Vec<Vec<usize>>,
+        act_perms: Vec<Vec<usize>>,
+        action_mode: &str,
+        num_action_factors: usize,
+        num_actions: usize,
+    ) -> Self {
+        let policy = Box::new(Policy::new_with_action_mode(
+            embeddings.embedding,
+            common.seq,
+            action_net.seq,
+            value_net.seq,
+            obs_perms,
+            act_perms,
+            action_mode.to_string(),
+            num_action_factors,
+            num_actions,
+        ));
         PyPolicy { policy }
     }
 

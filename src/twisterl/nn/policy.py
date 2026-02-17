@@ -33,12 +33,46 @@ class BasicPolicy(torch.nn.Module):
         value_layers=tuple(),
         obs_perms=tuple(),
         act_perms=tuple(),
+        action_mode: str = "categorical",
+        num_action_factors: Optional[int] = None,
         device="cuda",
     ):
         super().__init__()
         self.obs_shape = obs_shape
         self.obs_size = np.prod(obs_shape)
         self.num_actions = num_actions
+        self.action_mode = str(action_mode).strip().lower()
+        if self.action_mode not in ("categorical", "factorized_bernoulli"):
+            raise ValueError(
+                f"Unsupported action_mode='{action_mode}'. "
+                "Expected 'categorical' or 'factorized_bernoulli'."
+            )
+
+        if self.action_mode == "factorized_bernoulli":
+            inferred = (
+                int(num_action_factors)
+                if num_action_factors is not None
+                else _infer_num_action_factors(self.num_actions)
+            )
+            if inferred < 1:
+                raise ValueError(
+                    "num_action_factors must be >= 1 for factorized_bernoulli."
+                )
+            if (1 << inferred) != self.num_actions:
+                raise ValueError(
+                    "factorized_bernoulli requires num_actions == 2 ** num_action_factors "
+                    f"(got num_actions={self.num_actions}, num_action_factors={inferred})."
+                )
+            self.num_action_factors = inferred
+            action_out_size = self.num_action_factors
+            action_index_bits = _build_action_index_bits(
+                self.num_actions, self.num_action_factors
+            )
+        else:
+            self.num_action_factors = 0
+            action_out_size = self.num_actions
+            action_index_bits = torch.empty((0, 0), dtype=torch.float32)
+
         self.embeddings = torch.nn.Linear(self.obs_size, embedding_size)
         self.device = device
         self._expects_conv_input = False
@@ -51,10 +85,13 @@ class BasicPolicy(torch.nn.Module):
             self.common = torch.nn.Sequential()
 
         self.action = make_sequential(
-            in_size, tuple(policy_layers) + (num_actions,), final_relu=False
+            in_size, tuple(policy_layers) + (action_out_size,), final_relu=False
         )
         self.value = make_sequential(
             in_size, tuple(value_layers) + (1,), final_relu=False
+        )
+        self.register_buffer(
+            "_action_index_bits", action_index_bits, persistent=False
         )
         self.register_buffer(
             "_obs_perm_tensor", torch.empty((0, 0), dtype=torch.long), persistent=False
@@ -117,7 +154,13 @@ class BasicPolicy(torch.nn.Module):
             x = x.reshape((-1, *self.obs_shape))
         common_in = torch.nn.functional.relu(self.embeddings(x))
         common = self.common(common_in)
-        return self.action(common), self.value(common)
+        action_logits = self.action(common)
+        if self.action_mode == "factorized_bernoulli":
+            bits = self._action_index_bits.to(
+                device=action_logits.device, dtype=action_logits.dtype
+            )
+            action_logits = action_logits @ bits.t()
+        return action_logits, self.value(common)
 
     def _forward_with_indices(
         self, x: torch.Tensor, perm_indices: torch.Tensor
@@ -196,6 +239,9 @@ class BasicPolicy(torch.nn.Module):
             sequential_to_rust(self.value),
             self.obs_perms,
             self.act_perms,
+            self.action_mode,
+            self.num_action_factors,
+            self.num_actions,
         )
 
 
@@ -216,6 +262,8 @@ class Conv1dPolicy(BasicPolicy):
         value_layers=tuple(),
         obs_perms=tuple(),
         act_perms=tuple(),
+        action_mode: str = "categorical",
+        num_action_factors: Optional[int] = None,
     ):
         super().__init__(
             obs_shape,
@@ -226,6 +274,8 @@ class Conv1dPolicy(BasicPolicy):
             value_layers,
             obs_perms,
             act_perms,
+            action_mode=action_mode,
+            num_action_factors=num_action_factors,
         )
         self.conv_dim = conv_dim
         self._expects_conv_input = True
@@ -263,4 +313,26 @@ class Conv1dPolicy(BasicPolicy):
             sequential_to_rust(self.value),
             self.obs_perms,
             self.act_perms,
+            self.action_mode,
+            self.num_action_factors,
+            self.num_actions,
         )
+
+
+def _infer_num_action_factors(num_actions: int) -> int:
+    if num_actions < 1:
+        return 0
+    factors = int(round(np.log2(num_actions)))
+    if (1 << factors) != num_actions:
+        raise ValueError(
+            f"Cannot infer num_action_factors from non-power-of-two num_actions={num_actions}."
+        )
+    return factors
+
+
+def _build_action_index_bits(num_actions: int, num_factors: int) -> torch.Tensor:
+    bits = np.zeros((num_actions, num_factors), dtype=np.float32)
+    for action in range(num_actions):
+        for bit in range(num_factors):
+            bits[action, bit] = float((action >> bit) & 1)
+    return torch.tensor(bits, dtype=torch.float32)

@@ -11,8 +11,10 @@
 # that they have been altered from the originals.
 
 import importlib
+import inspect
 import json
 import torch
+import numpy as np
 from huggingface_hub import HfApi, snapshot_download
 import fnmatch
 from loguru import logger
@@ -191,11 +193,50 @@ def prepare_algorithm(config, run_path=None, load_checkpoint_path=None):
 
     # Import policy class and make policy
     policy_cls = dynamic_import(config["policy_cls"])
+    policy_kwargs = dict(config["policy"])
+    action_space = getattr(env, "action_space", None)
+    action_mode = str(policy_kwargs.get("action_mode", "categorical")).strip().lower()
+    num_action_factors = policy_kwargs.get("num_action_factors", None)
+    should_auto_factorize = (
+        action_mode == "categorical"
+        and (num_action_factors is None or int(num_action_factors) <= 0)
+    )
+    if (
+        should_auto_factorize
+        and action_space is not None
+        and action_space.__class__.__name__ == "MultiBinary"
+    ):
+        n_bits = getattr(action_space, "n", None)
+        if n_bits is None:
+            shape = getattr(action_space, "shape", None)
+            n_bits = int(np.prod(shape)) if shape is not None else 0
+        else:
+            n_bits = int(np.prod(np.asarray(n_bits)))
+        if n_bits > 0:
+            policy_kwargs["action_mode"] = "factorized_bernoulli"
+            policy_kwargs["num_action_factors"] = n_bits
+
+    # Backward compatibility: older policy classes may not accept the newest
+    # config kwargs (e.g., action_mode / num_action_factors).
+    sig = inspect.signature(policy_cls.__init__)
+    has_var_kwargs = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
+    )
+    if not has_var_kwargs:
+        accepted = {name for name in sig.parameters if name != "self"}
+        dropped = [k for k in list(policy_kwargs.keys()) if k not in accepted]
+        for key in dropped:
+            policy_kwargs.pop(key, None)
+        if dropped:
+            logger.warning(
+                f"Dropping unsupported policy kwargs for {policy_cls.__name__}: {dropped}"
+            )
+
     obs_perms, act_perms = env.twists()
     policy = policy_cls(
         env.obs_shape(),
         env.num_actions(),
-        **config["policy"],
+        **policy_kwargs,
         obs_perms=obs_perms,
         act_perms=act_perms,
     )

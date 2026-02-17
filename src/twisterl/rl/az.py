@@ -35,7 +35,14 @@ class AZ(Algorithm):
 
         np_obs = np.zeros((len(obs), self.obs_size), dtype=float)
         for i, obs_i in enumerate(obs):
-            np_obs[i, obs_i] = 1.0
+            if len(obs_i) == 0:
+                continue
+            obs_idx = np.asarray(obs_i, dtype=np.int64)
+            valid = (obs_idx >= 0) & (obs_idx < self.obs_size)
+            if not np.any(valid):
+                continue
+            # Keep sparse multiplicities (duplicates) instead of collapsing to binary.
+            np.add.at(np_obs[i], obs_idx[valid], 1.0)
 
         pt_obs = torch.tensor(np_obs, dtype=torch.float, device=self.config["device"])
         pt_probs = torch.tensor(probs, dtype=torch.float, device=self.config["device"])

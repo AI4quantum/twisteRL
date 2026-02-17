@@ -141,6 +141,18 @@ class Algorithm:
         return times_dict, bench_dict, train_dict
 
     def learn(self, num_steps, best_metrics=None):
+        learning_cfg = self.config.get("learning", {})
+        diff_threshold = float(learning_cfg.get("diff_threshold", 1.0))
+        threshold_min_raw = learning_cfg.get("threshold_min", diff_threshold)
+        threshold_min = (
+            diff_threshold if threshold_min_raw is None else float(threshold_min_raw)
+        )
+        diff_max = int(learning_cfg.get("diff_max", 1))
+        diff_step = max(1, int(learning_cfg.get("diff_step", 1)))
+        warmup = int(learning_cfg.get("warmup", 0))
+        final_diff_is_none = bool(learning_cfg.get("final_diff_is_none", False))
+        increasing = False
+
         # Init best metrics with a benchmark
         if best_metrics is None:
             (success, reward), _ = self.evaluate(
@@ -162,13 +174,31 @@ class Algorithm:
                 best_metrics = current_metrics
 
             # Maybe increase difficulty
-            if (
-                bench_dict["success"] >= self.config["learning"]["diff_threshold"]
-            ) and self.env.difficulty < self.config["learning"]["diff_max"]:
-                self.env.difficulty += 1
-                logger.info(
-                    f"({self.env.difficulty}/{iteration}) Diff increased to {self.env.difficulty}, {current_metrics}"
-                )
+            current_difficulty = self.env.difficulty
+            if current_difficulty is not None:
+                last_success = bench_dict["success"]
+                if (not increasing) and (last_success >= diff_threshold):
+                    increasing = True
+                elif increasing and (last_success < threshold_min):
+                    increasing = False
+
+                if increasing and current_difficulty < diff_max:
+                    increment = diff_step if current_difficulty > warmup else 1
+                    next_difficulty = current_difficulty + increment
+                    if next_difficulty > diff_max:
+                        next_difficulty = None if final_diff_is_none else diff_max
+
+                    try:
+                        self.env.difficulty = next_difficulty
+                    except Exception:
+                        # Some environments expose difficulty as integer-only.
+                        if next_difficulty is None:
+                            self.env.difficulty = diff_max
+                        else:
+                            raise
+                    logger.info(
+                        f"({self.env.difficulty}/{iteration}) Diff increased to {self.env.difficulty}, {current_metrics}"
+                    )
 
             # Pring logs
             if (self.config["logging"]["log_freq"] > 0) and (

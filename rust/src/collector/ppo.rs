@@ -38,17 +38,16 @@ impl PPOCollector {
 }
 
 impl PPOCollector {
-    fn get_step_data(
+    fn get_action_data(
         &self,
         env: &dyn Env,
         policy: &Policy,
-    ) -> (Vec<usize>, Vec<f32>, usize, f32, f32, Option<usize>) {
+    ) -> (Vec<usize>, Vec<f32>, usize, f32, Option<usize>) {
         let obs = env.observe();      // Vec<f32> or whatever your Env returns
         let masks   = env.masks();
-        let reward  = env.reward();
         let (logits, value, perm_idx) = policy.forward_with_perm(obs.clone(), masks);
         let action = sample_from_logits(&logits);
-        (obs, logits, action, value, reward, perm_idx)
+        (obs, logits, action, value, perm_idx)
     }
 
     fn single_collect(
@@ -67,20 +66,30 @@ impl PPOCollector {
         let mut perms = Vec::new();
 
         loop {
-            let (obs, log_prob, act, val, rew, perm_idx) = self.get_step_data(&*env, policy);
+            if env.is_final() { break; }
+            let (obs, log_prob, act, val, perm_idx) = self.get_action_data(&*env, policy);
+            env.step(act);
+            let rew = env.reward();
             obss.push(obs);
             log_probs.push(log_prob);
             vals.push(val);
             rews.push(rew);
             acts.push(act);
             perms.push(perm_idx);
-
-            if env.is_final() { break; }
-            env.step(act);
         }
 
         // compute GAE advs/rets
         let n = rews.len();
+        if n == 0 {
+            return CollectedData::new(
+                obss,
+                log_probs,
+                perms,
+                vals,
+                rews,
+                acts,
+            );
+        }
         let mut advs = vec![0.0; n];
         let mut rets = vec![0.0; n];
         advs[n-1] = rews[n-1] - vals[n-1];
@@ -177,7 +186,7 @@ mod tests {
         let collector = PPOCollector::new(1, 0.9, 0.95, 1);
 
         let data = collector.collect(&env, &policy).unwrap();
-        assert_eq!(data.obs.len(), 2);
+        assert_eq!(data.obs.len(), 1);
         assert!(data.additional_data.contains_key("rets"));
     }
 }

@@ -101,7 +101,15 @@ ALGO_CONFIG = {"PPO": PPO_CONFIG, "AZ": AZ_CONFIG}
 
 # Learning
 
-LEARNING_CONFIG = {"diff_threshold": 0.85, "diff_metric": "ppo_deterministic"}
+LEARNING_CONFIG = {
+    "diff_threshold": 0.85,
+    "threshold_min": 0.85,
+    "diff_max": 256,
+    "diff_step": 1,
+    "warmup": 0,
+    "final_diff_is_none": False,
+    "diff_metric": "ppo_deterministic",
+}
 
 
 # Logging and checkpoints
