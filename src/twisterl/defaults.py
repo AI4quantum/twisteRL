@@ -101,7 +101,17 @@ ALGO_CONFIG = {"PPO": PPO_CONFIG, "AZ": AZ_CONFIG}
 
 # Learning
 
-LEARNING_CONFIG = {"diff_threshold": 0.85, "diff_metric": "ppo_deterministic"}
+LEARNING_CONFIG = {
+    "diff_threshold": 0.85,
+    # Lower hysteresis threshold used to avoid rapid on/off difficulty toggling.
+    "threshold_min": 0.85,
+    "diff_max": 256,
+    "diff_step": 1,
+    # While difficulty <= warmup, keep +1 increments regardless of diff_step.
+    "warmup": 0,
+    "final_diff_is_none": False,
+    "diff_metric": "ppo_deterministic",
+}
 
 
 # Logging and checkpoints
