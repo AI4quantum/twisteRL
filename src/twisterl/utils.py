@@ -197,9 +197,8 @@ def prepare_algorithm(config, run_path=None, load_checkpoint_path=None):
     action_space = getattr(env, "action_space", None)
     action_mode = str(policy_kwargs.get("action_mode", "categorical")).strip().lower()
     num_action_factors = policy_kwargs.get("num_action_factors", None)
-    should_auto_factorize = (
-        action_mode == "categorical"
-        and (num_action_factors is None or int(num_action_factors) <= 0)
+    should_auto_factorize = action_mode == "categorical" and (
+        num_action_factors is None or int(num_action_factors) <= 0
     )
     if (
         should_auto_factorize

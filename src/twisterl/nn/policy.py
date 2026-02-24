@@ -92,9 +92,7 @@ class BasicPolicy(torch.nn.Module):
         self.value = make_sequential(
             in_size, tuple(value_layers) + (1,), final_relu=False
         )
-        self.register_buffer(
-            "_action_index_bits", action_index_bits, persistent=False
-        )
+        self.register_buffer("_action_index_bits", action_index_bits, persistent=False)
         self.register_buffer(
             "_obs_perm_tensor", torch.empty((0, 0), dtype=torch.long), persistent=False
         )
