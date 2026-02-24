@@ -206,6 +206,8 @@ def prepare_algorithm(config, run_path=None, load_checkpoint_path=None):
         and action_space is not None
         and action_space.__class__.__name__ == "MultiBinary"
     ):
+        # Most configs default to categorical; auto-upgrade for MultiBinary envs
+        # to avoid building an impractically large categorical head.
         n_bits = getattr(action_space, "n", None)
         if n_bits is None:
             shape = getattr(action_space, "shape", None)

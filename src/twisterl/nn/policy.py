@@ -49,6 +49,8 @@ class BasicPolicy(torch.nn.Module):
             )
 
         if self.action_mode == "factorized_bernoulli":
+            # Routing-like MultiBinary spaces can be interpreted as 2^N discrete actions.
+            # Keep the policy head size at N factors and expand to categorical logits at runtime.
             inferred = (
                 int(num_action_factors)
                 if num_action_factors is not None
@@ -156,6 +158,7 @@ class BasicPolicy(torch.nn.Module):
         common = self.common(common_in)
         action_logits = self.action(common)
         if self.action_mode == "factorized_bernoulli":
+            # Project per-factor logits to full action logits using the precomputed bit matrix.
             bits = self._action_index_bits.to(
                 device=action_logits.device, dtype=action_logits.dtype
             )
@@ -331,6 +334,7 @@ def _infer_num_action_factors(num_actions: int) -> int:
 
 
 def _build_action_index_bits(num_actions: int, num_factors: int) -> torch.Tensor:
+    # Row i encodes the binary representation of action i.
     bits = np.zeros((num_actions, num_factors), dtype=np.float32)
     for action in range(num_actions):
         for bit in range(num_factors):

@@ -18,7 +18,9 @@ use crate::nn::layers::EmbeddingBag;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ActionMode {
+    // One logit per discrete action.
     Categorical,
+    // One logit per binary factor; expanded to categorical logits on demand.
     FactorizedBernoulli,
 }
 
@@ -98,6 +100,7 @@ impl Policy {
     }
 
     fn expand_factorized_logits(&self, factor_logits: &[f32]) -> Vec<f32> {
+        // Convert per-factor logits into per-action logits by summing logits of active bits.
         let num_factors = if self.num_action_factors > 0 {
             self.num_action_factors
         } else {

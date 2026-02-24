@@ -177,12 +177,14 @@ class Algorithm:
             current_difficulty = self.env.difficulty
             if current_difficulty is not None:
                 last_success = bench_dict["success"]
+                # Hysteresis: start increasing above diff_threshold and stop only below threshold_min.
                 if (not increasing) and (last_success >= diff_threshold):
                     increasing = True
                 elif increasing and (last_success < threshold_min):
                     increasing = False
 
                 if increasing and current_difficulty < diff_max:
+                    # Keep +1 increments during warmup; then switch to configured step size.
                     increment = diff_step if current_difficulty > warmup else 1
                     next_difficulty = current_difficulty + increment
                     if next_difficulty > diff_max:

@@ -68,6 +68,7 @@ impl PPOCollector {
         loop {
             if env.is_final() { break; }
             let (obs, log_prob, act, val, perm_idx) = self.get_action_data(&*env, policy);
+            // Step first, then read reward so collected transitions follow env step semantics.
             env.step(act);
             let rew = env.reward();
             obss.push(obs);
