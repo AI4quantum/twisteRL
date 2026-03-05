@@ -32,24 +32,28 @@ class AZ(Algorithm):
             data.logits,
             data.additional_data["remaining_values"],
         )
+        device = self.config["device"]
+        N = len(obs)
 
-        np_obs = np.zeros((len(obs), self.obs_size), dtype=float)
-        for i, obs_i in enumerate(obs):
-            np_obs[i, obs_i] = 1.0
+        # Sparse observation format: flat indices + offsets
+        all_indices = []
+        offsets = []
+        for obs_i in obs:
+            offsets.append(len(all_indices))
+            all_indices.extend(obs_i)
+        pt_indices = torch.tensor(all_indices, dtype=torch.long, device=device)
+        pt_offsets = torch.tensor(offsets, dtype=torch.long, device=device)
 
-        pt_obs = torch.tensor(np_obs, dtype=torch.float, device=self.config["device"])
-        pt_probs = torch.tensor(probs, dtype=torch.float, device=self.config["device"])
-        pt_vals = torch.tensor(
-            vals, dtype=torch.float, device=self.config["device"]
-        ).unsqueeze(1)
+        pt_probs = torch.tensor(probs, dtype=torch.float, device=device)
+        pt_vals = torch.tensor(vals, dtype=torch.float, device=device).unsqueeze(1)
 
-        return pt_obs, pt_probs, pt_vals
+        return pt_indices, pt_offsets, N, pt_probs, pt_vals
 
     @timed
     def train_step(self, torch_data):
-        pt_obs, pt_probs, pt_vals = torch_data
+        pt_indices, pt_offsets, N, pt_probs, pt_vals = torch_data
 
-        pred_probs, pred_vals = self.policy(pt_obs)
+        pred_probs, pred_vals = self.policy.forward_sparse(pt_indices, pt_offsets, N)
 
         policy_loss = torch.nn.functional.cross_entropy(pred_probs, pt_probs)
         value_loss = torch.nn.functional.mse_loss(pred_vals, pt_vals)

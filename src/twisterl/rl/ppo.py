@@ -34,22 +34,23 @@ class PPO(Algorithm):
             data.additional_data["advs"],
             getattr(data, "perms", [-1] * len(data.obs)),
         )
-        np_obs = np.zeros((len(obs), self.obs_size), dtype=float)
-        for i, obs_i in enumerate(obs):
-            np_obs[i, obs_i] = 1.0
+        device = self.config["device"]
+        N = len(obs)
 
-        pt_obs = torch.tensor(np_obs, dtype=torch.float, device=self.config["device"])
-        pt_logits = torch.tensor(
-            logits, dtype=torch.float, device=self.config["device"]
-        )
-        # pt_vals = torch.tensor(vals, dtype=torch.float, device=self.config["device"])
-        # pt_rews = torch.tensor(rews, dtype=torch.float, device=self.config["device"])
-        pt_acts = torch.tensor(acts, dtype=torch.long, device=self.config["device"])
-        pt_rets = torch.tensor(rets, dtype=torch.float, device=self.config["device"])
-        pt_advs = torch.tensor(advs, dtype=torch.float, device=self.config["device"])
-        pt_perm_idx = torch.tensor(
-            perms, dtype=torch.long, device=self.config["device"]
-        )
+        # Sparse observation format: flat indices + offsets
+        all_indices = []
+        offsets = []
+        for obs_i in obs:
+            offsets.append(len(all_indices))
+            all_indices.extend(obs_i)
+        pt_indices = torch.tensor(all_indices, dtype=torch.long, device=device)
+        pt_offsets = torch.tensor(offsets, dtype=torch.long, device=device)
+
+        pt_logits = torch.tensor(logits, dtype=torch.float, device=device)
+        pt_acts = torch.tensor(acts, dtype=torch.long, device=device)
+        pt_rets = torch.tensor(rets, dtype=torch.float, device=device)
+        pt_advs = torch.tensor(advs, dtype=torch.float, device=device)
+        pt_perm_idx = torch.tensor(perms, dtype=torch.long, device=device)
 
         with torch.no_grad():
             if self.config["training"].get("normalize_advantage", False):
@@ -58,14 +59,16 @@ class PPO(Algorithm):
                 pt_acts
             )
 
-        return pt_obs, pt_log_probs, pt_acts, pt_advs, pt_rets, pt_perm_idx
+        return pt_indices, pt_offsets, N, pt_log_probs, pt_acts, pt_advs, pt_rets, pt_perm_idx
 
     @timed
     def train_step(self, torch_data):
-        pt_obs, pt_log_probs, pt_acts, pt_advs, pt_rets, pt_perm_idx = torch_data
+        pt_indices, pt_offsets, N, pt_log_probs, pt_acts, pt_advs, pt_rets, pt_perm_idx = torch_data
 
-        # Forward pass to get logits and values
-        pred_logits, pred_vals = self.policy(pt_obs, perm_indices=pt_perm_idx)
+        # Forward pass using sparse observations
+        pred_logits, pred_vals = self.policy.forward_sparse(
+            pt_indices, pt_offsets, N, perm_indices=pt_perm_idx
+        )
 
         # Get log-probabilities of the actions actually taken
         dist = torch.distributions.Categorical(logits=pred_logits)

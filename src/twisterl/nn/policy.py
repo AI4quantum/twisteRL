@@ -178,6 +178,22 @@ class BasicPolicy(torch.nn.Module):
         )
         return self._forward_with_indices(x, random_indices)
 
+    def _sparse_embedding(self, indices, offsets, N):
+        """Compute embedding from sparse observation indices.
+
+        Equivalent to self.embeddings(dense_one_hot) but using sparse lookups.
+        For BasicPolicy: Linear(obs_size, emb_size) on one-hot = EmbeddingBag sum.
+        """
+        weight_t = self.embeddings.weight.t().contiguous()
+        emb = torch.nn.functional.embedding_bag(indices, weight_t, offsets, mode="sum")
+        return emb + self.embeddings.bias
+
+    def forward_sparse(self, indices, offsets, N, perm_indices=None):
+        """Forward pass using sparse observation indices (indices + offsets format)."""
+        common_in = torch.nn.functional.relu(self._sparse_embedding(indices, offsets, N))
+        common = self.common(common_in)
+        return self.action(common), self.value(common)
+
     def predict(self, obs):
         torch_obs = torch.tensor(obs, device=self.device, dtype=torch.float).unsqueeze(
             0
@@ -234,13 +250,14 @@ class Conv1dPolicy(BasicPolicy):
         if conv_dim == 1:
             layers.append(Transpose())
 
-        self.conv_layer = torch.nn.Conv1d(
+        conv_layer = torch.nn.Conv1d(
             obs_shape[conv_dim],
             embedding_size // obs_shape[1 - conv_dim],
             kernel_size=1,
             bias=False,
         )
-        layers.append(self.conv_layer)
+        self._conv_idx = len(layers)
+        layers.append(conv_layer)
         layers.append(Transpose())
         layers.append(torch.nn.Flatten())
 
@@ -254,6 +271,53 @@ class Conv1dPolicy(BasicPolicy):
         if x.shape[1:] != self.obs_shape:
             x = x.reshape((-1, *self.obs_shape))
         return super().forward(x, perm_indices=perm_indices)
+
+    @property
+    def conv_layer(self):
+        return self.embeddings[self._conv_idx]
+
+    def _sparse_embedding(self, indices, offsets, N):
+        """Compute Conv1d embedding from sparse indices via scatter.
+
+        Mirrors the Rust EmbeddingBag logic in layers.rs for 2D obs_shape.
+        """
+        v_size = self.conv_layer.out_channels
+        num_pos = self.obs_shape[1 - self.conv_dim]
+        out_dim = num_pos * v_size
+        device = self.conv_layer.weight.device
+        dtype = self.conv_layer.weight.dtype
+
+        if len(indices) == 0:
+            return torch.zeros(N, out_dim, device=device, dtype=dtype)
+
+        # Decode indices: row = i // obs_shape[1], col = i % obs_shape[1]
+        row = indices // self.obs_shape[1]
+        col = indices % self.obs_shape[1]
+        if self.conv_dim == 1:
+            lookup_key, out_slot = col, row
+        else:
+            lookup_key, out_slot = row, col
+
+        # Look up embeddings: weight is (out_channels, in_channels, 1)
+        weight = self.conv_layer.weight.squeeze(2)  # (v_size, num_bins)
+        emb = weight[:, lookup_key].T  # (total_indices, v_size)
+
+        # Compute which sample each index belongs to
+        lens = torch.diff(
+            torch.cat([offsets, torch.tensor([len(indices)], device=device)])
+        )
+        sample_idx = torch.repeat_interleave(
+            torch.arange(N, device=device), lens
+        )
+
+        # Scatter into output
+        output = torch.zeros(N, out_dim, device=device, dtype=dtype)
+        flat_base = sample_idx * out_dim + out_slot * v_size
+        ch_offsets = torch.arange(v_size, device=device)
+        flat_idx = (flat_base.unsqueeze(1) + ch_offsets).reshape(-1)
+        output.view(-1).scatter_add_(0, flat_idx, emb.reshape(-1))
+
+        return output
 
     def to_rust(self):
         return twisterl.nn.Policy(
